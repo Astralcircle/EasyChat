@@ -46,7 +46,7 @@ if CLIENT then
 			self.DMList = self:Add("DListView")
 			self.DMList:SetWide(100)
 			self.DMList:Dock(LEFT)
-			self.DMList:AddColumn("Chats")
+			self.DMList:AddColumn("Чаты")
 			self.DMList.OnRowSelected = function(self, index, row)
 				local ply = row.Player
 				if IsValid(ply) then
@@ -161,13 +161,13 @@ if CLIENT then
 			if EC_HISTORY:GetBool() then
 				local history = EasyChat.ReadFromHistory(id64)
 				if EasyChat.IsStringEmpty(history) then
-					EasyChat.AddText(richtext, "This is the beginning of your conversation!\n\n")
+					EasyChat.AddText(richtext, "Это начало вашего разговора!\n\n")
 				else
 					richtext:AppendText(history) -- so we do not log twice
-					richtext:AppendText("\n^^^^^ Last Session History ^^^^^\n\n")
+					richtext:AppendText("\n^^^^^ История последней сессии ^^^^^\n\n")
 				end
 			else
-				EasyChat.AddText(richtext, "This is the beginning of your conversation!\n\n")
+				EasyChat.AddText(richtext, "Это начало вашего разговора!\n\n")
 			end
 
 			return chat
@@ -303,7 +303,7 @@ if CLIENT then
 		end
 	end)
 
-	EasyChat.AddTab("DM", dmtab, "icon16/group.png")
+	EasyChat.AddTab("Личные сообщения", dmtab, "icon16/group.png")
 	EasyChat.SetFocusForOn("DM", dmtab.TextEntry)
 end
 

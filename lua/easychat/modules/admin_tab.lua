@@ -156,7 +156,7 @@ if CLIENT then
 					EasyChat.AddText(self.RichText, "Welcome to the admin chat!")
 				else
 					self.RichText:AppendText(history) -- so we do not log twice
-					self.RichText:AppendText("\n^^^^^ Last Session History ^^^^^\n\n")
+					self.RichText:AppendText("\n^^^^^ История последней сессии ^^^^^\n\n")
 					self.RichText:GotoTextEnd()
 				end
 			else

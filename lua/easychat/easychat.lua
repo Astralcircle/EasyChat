@@ -601,7 +601,7 @@ if CLIENT then
 	load_chatbox_colors()
 
 	local default_chat_mode = {
-		Name = "Say",
+		Name = "Сказать",
 		Callback = function(text) EasyChat.SendGlobalMessage(text, false, false) end,
 	}
 
@@ -1552,7 +1552,7 @@ if CLIENT then
 
 					local lp = LocalPlayer()
 					if IsValid(lp) and lp == arg and EC_USE_ME:GetBool() then
-						append_text(richtext, "me")
+						append_text(richtext, "Я")
 					else
 						if empty_nick then
 							append_text(richtext, "[NO NAME]")
@@ -1921,8 +1921,8 @@ if CLIENT then
 
 			local lp = LocalPlayer()
 			if IsValid(lp) and lp == ply and EC_USE_ME:GetBool() then
-				global_append_text("me")
-				table.insert(data, "me")
+				global_append_text("Я")
+				table.insert(data, "Я")
 			else
 				if empty_nick then
 					global_insert_color_change(UNKNOWN_COLOR.r, UNKNOWN_COLOR.g, UNKNOWN_COLOR.b)
@@ -2127,7 +2127,7 @@ if CLIENT then
 			end
 
 			local global_tab = vgui.Create("ECChatTab")
-			EasyChat.AddTab("Global", global_tab, "icon16/comments.png")
+			EasyChat.AddTab("Чат", global_tab, "icon16/comments.png")
 			EasyChat.SetFocusForOn("Global", global_tab.TextEntry)
 
 			if not EasyChat.UseDermaSkin then
@@ -2144,7 +2144,7 @@ if CLIENT then
 					end
 
 					global_tab.RichText:AppendText(history)
-					local historynotice = "\n^^^^^ Last Session History ^^^^^\n\n"
+					local historynotice = "\n^^^^^ История последней сессии ^^^^^\n\n"
 					global_tab.RichText:AppendText(historynotice)
 				end
 			end
@@ -3008,7 +3008,7 @@ if CLIENT then
 
 				local text_entry = EasyChat.GetMainTextEntry()
 				if IsValid(text_entry) then
-					text_entry:TriggerBlink("TOO BIG")
+					text_entry:TriggerBlink("СЛИШКОМ МНОГО")
 				end
 
 				return false

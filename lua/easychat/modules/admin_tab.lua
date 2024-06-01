@@ -38,7 +38,7 @@ if CLIENT then
 			self.AdminList = self:Add("DListView")
 			self.AdminList:SetWide(100)
 			self.AdminList:Dock(LEFT)
-			self.AdminList:AddColumn("Admins")
+			self.AdminList:AddColumn("Админы")
 
 			self.TextEntry = self:Add("DTextEntry")
 			self.TextEntry:SetTall(20)
@@ -153,14 +153,14 @@ if CLIENT then
 			if EC_HISTORY:GetBool() then
 				local history = EasyChat.ReadFromHistory("admin")
 				if EasyChat.IsStringEmpty(history) then
-					EasyChat.AddText(self.RichText, "Welcome to the admin chat!")
+					EasyChat.AddText(self.RichText, "Добро пожаловать в админский чат!")
 				else
 					self.RichText:AppendText(history) -- so we do not log twice
 					self.RichText:AppendText("\n^^^^^ История последней сессии ^^^^^\n\n")
 					self.RichText:GotoTextEnd()
 				end
 			else
-				EasyChat.AddText(self.RichText, "Welcome to the admin chat!")
+				EasyChat.AddText(self.RichText, "Добро пожаловать в админский чат!")
 			end
 		end,
 		Notify = function(self, ply, message)
@@ -228,7 +228,7 @@ if CLIENT then
 		admintab:SendMessage(text)
 	end)
 
-	EasyChat.AddTab("Admin", admintab, "icon16/vcard.png")
+	EasyChat.AddTab("Админы", admintab, "icon16/vcard.png")
 	EasyChat.SetFocusForOn("Admin", admintab.TextEntry)
 
 	hook.Add("ECOpened", "EasyChatModuleDMTab", function()

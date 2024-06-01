@@ -62,7 +62,7 @@ local MACRO_PANEL = {
 		end
 
 		self.PerChar = self:Add("DCheckBoxLabel")
-		self.PerChar:SetText("Per Character")
+		self.PerChar:SetText("На символ")
 		self.PerChar:SetPos(10, 135)
 		self.PerChar.OnChange = function()
 			self.Title:SetText(("<%s> (unsaved)"):format(self.MacroName))
@@ -70,7 +70,7 @@ local MACRO_PANEL = {
 		end
 
 		self.IsLua = self:Add("DCheckBoxLabel")
-		self.IsLua:SetText("Lua Macro")
+		self.IsLua:SetText("Lua макрос")
 		self.IsLua:SetPos(110, 135)
 		self.IsLua.OnChange = function(_, is_lua)
 			self.PerChar:SetDisabled(is_lua)
@@ -79,13 +79,13 @@ local MACRO_PANEL = {
 		end
 
 		self.Delete = self:Add("DButton")
-		self.Delete:SetText("Delete")
+		self.Delete:SetText("Удалить")
 		self.Delete:SetSize(75, 25)
 		self.Delete:SetPos(self:GetWide() - 165, 130)
 		self.Delete.DoClick = function() self:DeleteMacro() end
 
 		self.Save = self:Add("DButton")
-		self.Save:SetText("Save")
+		self.Save:SetText("Сохранить")
 		self.Save:SetSize(75, 25)
 		self.Save:SetPos(self:GetWide() - 85, 130)
 		self.Save.DoClick = function() self:SaveMacro() end
@@ -230,7 +230,7 @@ local MACRO_TAB = {
 		self.AddMacro:SetSize(25, 25)
 		self.AddMacro:SetPos(self.Search:GetWide() + 10, 10)
 		self.AddMacro.DoClick = function()
-			EasyChat.AskForInput("New Macro", function(macro_name)
+			EasyChat.AskForInput("Новый макрос", function(macro_name)
 				self:AddMacroPanel(macro_name, {
 					PerCharacter = false,
 					IsLua = false,
@@ -373,7 +373,7 @@ hook.Add("ECFactoryReset", "EasyChatModuleMacroTab", function()
 	cookie.Delete("EasyChatSmallScreenMacrosTab")
 end)
 
-EasyChat.AddTab("Macros", macro_tab, "icon16/brick_edit.png")
+EasyChat.AddTab("Макросы", macro_tab, "icon16/brick_edit.png")
 EasyChat.SetFocusForOn("Macros", macro_tab.Search)
 
 -- dont display it by default on small resolutions

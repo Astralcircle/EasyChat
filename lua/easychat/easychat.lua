@@ -946,7 +946,7 @@ if CLIENT then
 		frame.TextEntry = text_entry
 
 		local btn = frame:Add("DButton")
-		btn:SetText("Confirm")
+		btn:SetText("Подтвердить")
 		btn:SetTextColor(EasyChat.TextColor)
 		btn:SetTall(25)
 		btn:Dock(BOTTOM)
@@ -1765,20 +1765,20 @@ if CLIENT then
 		ec_ctrl_shortcuts = {}
 		ec_alt_shortcuts = {}
 
-		EasyChat.AddMode("Team", function(text)
+		EasyChat.AddMode("Команда", function(text)
 			EasyChat.SendGlobalMessage(text, true, false)
 		end)
 
-		EasyChat.AddMode("Local", function(text)
+		EasyChat.AddMode("Локальный", function(text)
 			EasyChat.SendGlobalMessage(text, false, true)
 		end)
 
-		EasyChat.AddMode("Console", function(text)
+		EasyChat.AddMode("Консоль", function(text)
 			if IsConCommandBlocked(text) then
 				local text_entry = EasyChat.GetMainTextEntry()
 				if IsValid(text_entry) then
 					local command = text:Split(" ")[1]
-					text_entry:TriggerBlink(("'%s' IS BLOCKED! USE THE CONSOLE!"):format(command))
+					text_entry:TriggerBlink(("'%s' ЗАБЛОКИРОВАНА! ИСПОЛЬЗУЙТЕ КОНСОЛЬ!"):format(command))
 				end
 
 				return

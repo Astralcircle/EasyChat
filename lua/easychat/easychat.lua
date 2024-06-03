@@ -2362,8 +2362,8 @@ if CLIENT then
 
 			local steam_id64 = util.SteamIDTo64(steam_id)
 			local ply_menu = DermaMenu()
-			ply_menu:AddOption("Set Title", function()
-				local frame = EasyChat.AskForInput("Set Title", function(title)
+			ply_menu:AddOption("Установить заголовок", function()
+				local frame = EasyChat.AskForInput("Установить заголовок", function(title)
 					local succ, err = EasyChat.Config:WritePlayerTitle(steam_id, title)
 					if not succ then
 						notification.AddLegacy(err, NOTIFY_ERROR, 3)
@@ -2407,7 +2407,7 @@ if CLIENT then
 				end
 			end):SetImage("icon16/shield.png")
 
-			ply_menu:AddOption("Remove Title", function()
+			ply_menu:AddOption("Удалить заголовок", function()
 				local succ, err = EasyChat.Config:DeletePlayerTitle(steam_id)
 				if not succ then
 					notification.AddLegacy(err, NOTIFY_ERROR, 3)
@@ -2417,8 +2417,8 @@ if CLIENT then
 
 			local ply = player.GetBySteamID(steam_id)
 			if IsValid(ply) then
-				ply_menu:AddOption("Set Name", function()
-					local frame = EasyChat.AskForInput("Set Name", function(name)
+				ply_menu:AddOption("Установить имя", function()
+					local frame = EasyChat.AskForInput("Установить имя", function(name)
 						local succ, err = EasyChat.Config:WritePlayerName(ply, name)
 						if not succ then
 							notification.AddLegacy(err, NOTIFY_ERROR, 3)
@@ -2431,52 +2431,52 @@ if CLIENT then
 
 			ply_menu:AddSpacer()
 
-			ply_menu:AddOption("Open Steam Profile", function() EasyChat.OpenURL("https://steamcommunity.com/profiles/" .. steam_id64) end)
-			ply_menu:AddOption("Copy Name", function()
+			ply_menu:AddOption("Открыть профиль", function() EasyChat.OpenURL("https://steamcommunity.com/profiles/" .. steam_id64) end)
+			ply_menu:AddOption("Скопировать имя", function()
 				SetClipboardText(ply_name)
-				notification.AddLegacy("Copied player name", NOTIFY_GENERIC, 3)
+				notification.AddLegacy("Скопировано имя игрока", NOTIFY_GENERIC, 3)
 			end)
 
-			ply_menu:AddOption("Copy SteamID", function()
+			ply_menu:AddOption("Скопировать SteamID", function()
 				SetClipboardText(steam_id)
-				notification.AddLegacy("Copied player SteamID", NOTIFY_GENERIC, 3)
+				notification.AddLegacy("Скопирован SteamID игрока", NOTIFY_GENERIC, 3)
 			end)
 
-			ply_menu:AddOption("Copy SteamID64", function()
+			ply_menu:AddOption("Скопировать SteamID64", function()
 				SetClipboardText(steam_id64)
-				notification.AddLegacy("Copied player SteamID64", NOTIFY_GENERIC, 3)
+				notification.AddLegacy("Скопирован SteamID64 игрока", NOTIFY_GENERIC, 3)
 			end)
 
 			-- we dont use IsBlockedPlayer because it could return true if its a Steam block
 			if EasyChat.BlockedPlayers[steam_id] then
-				ply_menu:AddOption("Unblock Player", function() EasyChat.UnblockPlayer(steam_id) end)
+				ply_menu:AddOption("Разблокировать игрока", function() EasyChat.UnblockPlayer(steam_id) end)
 			else
-				ply_menu:AddOption("Block Player", function() EasyChat.BlockPlayer(steam_id) end)
+				ply_menu:AddOption("Заблокировать игрока", function() EasyChat.BlockPlayer(steam_id) end)
 			end
 
 			ply_menu:AddSpacer()
 
-			ply_menu:AddOption("Cancel", function() ply_menu:Remove() end)
+			ply_menu:AddOption("Отмена", function() ply_menu:Remove() end)
 			ply_menu:Open()
 		end
 
 		local function handle_steam_id(steam_id)
 			local id_menu = DermaMenu()
 			local steam_id64 = util.SteamIDTo64(steam_id)
-			id_menu:AddOption("Open Steam Profile", function() EasyChat.OpenURL("https://steamcommunity.com/profiles/" .. steam_id64) end)
-			id_menu:AddOption("Copy SteamID", function() SetClipboardText(steam_id) end)
-			id_menu:AddOption("Copy SteamID64", function() SetClipboardText(steam_id64) end)
+			id_menu:AddOption("Открыть профиль", function() EasyChat.OpenURL("https://steamcommunity.com/profiles/" .. steam_id64) end)
+			id_menu:AddOption("Скопировать SteamID", function() SetClipboardText(steam_id) end)
+			id_menu:AddOption("Скопировать SteamID64", function() SetClipboardText(steam_id64) end)
 
 			-- we dont use IsBlockedPlayer because it could return true if its a Steam block
 			if EasyChat.BlockedPlayers[steam_id] then
-				id_menu:AddOption("Unblock Player", function() EasyChat.UnblockPlayer(steam_id) end)
+				id_menu:AddOption("Разблокировать игрока", function() EasyChat.UnblockPlayer(steam_id) end)
 			else
-				id_menu:AddOption("Block Player", function() EasyChat.BlockPlayer(steam_id) end)
+				id_menu:AddOption("Заблокировать игрока", function() EasyChat.BlockPlayer(steam_id) end)
 			end
 
 			id_menu:AddSpacer()
 
-			id_menu:AddOption("Cancel", function() id_menu:Remove() end)
+			id_menu:AddOption("Отмена", function() id_menu:Remove() end)
 			id_menu:Open()
 		end
 
@@ -2976,7 +2976,7 @@ if CLIENT then
 		msg_components = msg_components or {}
 
 		table.insert(msg_components, COLOR_LOCAL)
-		table.insert(msg_components, "(Local) ")
+		table.insert(msg_components, "(Локально) ")
 
 		return msg_components
 	end
@@ -2985,7 +2985,7 @@ if CLIENT then
 		msg_components = msg_components or {}
 
 		table.insert(msg_components, COLOR_TEAM)
-		table.insert(msg_components, "(Team) ")
+		table.insert(msg_components, "(Команда) ")
 
 		return msg_components
 	end

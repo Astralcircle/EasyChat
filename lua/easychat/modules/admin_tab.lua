@@ -168,7 +168,7 @@ if CLIENT then
 				self.NewMessages = self.NewMessages + 1
 				EasyChat.FlashTab("Admin")
 			end
-			_G.chat.AddText(color_white, "[Admin Chat | ", Color(255, 127, 127), ply, color_white, "] " .. message)
+			_G.chat.AddText(color_white, "(Админ-чат) ", Color(255, 127, 127), ply, color_white, ": " .. message)
 		end,
 		SendMessage = function(self, msg)
 			net.Start(EASYCHAT_ADMIN)
@@ -224,7 +224,7 @@ if CLIENT then
 		end
 	end)
 
-	EasyChat.AddMode("Admin", function(text)
+	EasyChat.AddMode("Админы", function(text)
 		admintab:SendMessage(text)
 	end)
 

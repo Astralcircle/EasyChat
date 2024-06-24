@@ -707,7 +707,7 @@ if CLIENT then
 		if ok == true then return false end
 
 		if EC_GLOBAL_ON_OPEN:GetBool() then
-			EasyChat.OpenTab("Global")
+			EasyChat.OpenTab("Чат")
 		end
 
 		-- make sure to get rid of the possible completion
@@ -736,7 +736,7 @@ if CLIENT then
 		EasyChat.GUI.ChatBox:MakePopup()
 
 		local active_tab = EasyChat.GetActiveTab()
-		if EC_GLOBAL_ON_OPEN:GetBool() and active_tab.Name == "Global" then
+		if EC_GLOBAL_ON_OPEN:GetBool() and active_tab.Name == "Чат" then
 			EasyChat.GUI.TextEntry:RequestFocus()
 		else
 			local cur_tab = active_tab.Tab
@@ -2128,15 +2128,15 @@ if CLIENT then
 
 			local global_tab = vgui.Create("ECChatTab")
 			EasyChat.AddTab("Чат", global_tab, "icon16/comments.png")
-			EasyChat.SetFocusForOn("Global", global_tab.TextEntry)
+			EasyChat.SetFocusForOn("Чат", global_tab.TextEntry)
 
 			if not EasyChat.UseDermaSkin then
 				global_tab.RichText:InsertColorChange(255, 255, 255, 255)
 			end
 
-			global_tab.RichText.HistoryName = "global"
+			global_tab.RichText.HistoryName = "Чат"
 			if EC_HISTORY:GetBool() then
-				local history = EasyChat.ReadFromHistory("global")
+				local history = EasyChat.ReadFromHistory("Чат")
 				if not EasyChat.IsStringEmpty(history) then
 					if EasyChat.UseDermaSkin then
 						local new_col = global_tab.RichText:GetSkin().text_normal

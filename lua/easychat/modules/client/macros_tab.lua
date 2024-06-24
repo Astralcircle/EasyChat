@@ -374,11 +374,11 @@ hook.Add("ECFactoryReset", "EasyChatModuleMacroTab", function()
 end)
 
 EasyChat.AddTab("Макросы", macro_tab, "icon16/brick_edit.png")
-EasyChat.SetFocusForOn("Macros", macro_tab.Search)
+EasyChat.SetFocusForOn("Макросы", macro_tab.Search)
 
 -- dont display it by default on small resolutions
 if not cookie.GetNumber("EasyChatSmallScreenMacrosTab") and ScrW() < 1600 then
-	local tab_data = EasyChat.GetTab("Macros")
+	local tab_data = EasyChat.GetTab("Макросы")
 	if tab_data and IsValid(tab_data.Tab) then
 		tab_data.Tab:Hide()
 	end

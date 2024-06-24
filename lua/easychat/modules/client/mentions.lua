@@ -276,7 +276,7 @@ hook.Add("OnPlayerChat", "EasyChatModuleMention", function(ply, msg, is_team, is
 		system.FlashWindow()
 	end
 
-	EasyChat.FlashTab("Global")
+	EasyChat.FlashTab("Чат")
 
 	local msg_components = {}
 	if is_dead then

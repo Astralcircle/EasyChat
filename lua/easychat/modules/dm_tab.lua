@@ -211,7 +211,7 @@ if CLIENT then
 		end,
 		Notify = function(self, chat, message)
 			chat.NewMessages = chat.NewMessages + 1
-			EasyChat.FlashTab("DM")
+			EasyChat.FlashTab("Личные сообщения")
 			_G.chat.AddText(color_white, "[DM | ", chat.Player, color_white, "] " .. message)
 		end,
 		Think = function(self)
@@ -257,7 +257,7 @@ if CLIENT then
 			dmtab:Notify(chat, message)
 		else
 			local activetabname = EasyChat.GetActiveTab().Tab.Name
-			if (activetabname == "DM" and dmtab.ActiveChat ~= chat) or activetabname ~= "DM" then
+			if (activetabname == "Личные сообщения" and dmtab.ActiveChat ~= chat) or activetabname ~= "DM" then
 				dmtab:Notify(chat, message)
 			end
 		end
@@ -278,7 +278,7 @@ if CLIENT then
 
 	hook.Add("ECTabChanged", "EasyChatModuleDMTab", function(_, tab)
 		if not IsValid(dmtab) then return end
-		if tab == "DM" then
+		if tab == "Личные сообщения" then
 			local chat = dmtab.ActiveChat
 			if IsValid(chat.Player) and chat.NewMessages > 0 then
 				chat.NewMessages = 0
@@ -304,7 +304,7 @@ if CLIENT then
 	end)
 
 	EasyChat.AddTab("Личные сообщения", dmtab, "icon16/group.png")
-	EasyChat.SetFocusForOn("DM", dmtab.TextEntry)
+	EasyChat.SetFocusForOn("Личные сообщения", dmtab.TextEntry)
 end
 
 return "Direct Messages"

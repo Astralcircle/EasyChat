@@ -38,7 +38,7 @@ if CLIENT then
 			self.AdminList = self:Add("DListView")
 			self.AdminList:SetWide(100)
 			self.AdminList:Dock(LEFT)
-			self.AdminList:AddColumn("Admins")
+			self.AdminList:AddColumn("Админы")
 
 			self.TextEntry = self:Add("DTextEntry")
 			self.TextEntry:SetTall(20)
@@ -153,22 +153,22 @@ if CLIENT then
 			if EC_HISTORY:GetBool() then
 				local history = EasyChat.ReadFromHistory("admin")
 				if EasyChat.IsStringEmpty(history) then
-					EasyChat.AddText(self.RichText, "Welcome to the admin chat!")
+					EasyChat.AddText(self.RichText, "Добро пожаловать в админский чат!")
 				else
 					self.RichText:AppendText(history) -- so we do not log twice
-					self.RichText:AppendText("\n^^^^^ Last Session History ^^^^^\n\n")
+					self.RichText:AppendText("\n^^^^^ История последней сессии ^^^^^\n\n")
 					self.RichText:GotoTextEnd()
 				end
 			else
-				EasyChat.AddText(self.RichText, "Welcome to the admin chat!")
+				EasyChat.AddText(self.RichText, "Добро пожаловать в админский чат!")
 			end
 		end,
 		Notify = function(self, ply, message)
 			if ply ~= LocalPlayer() then
 				self.NewMessages = self.NewMessages + 1
-				EasyChat.FlashTab("Admin")
+				EasyChat.FlashTab("Админы")
 			end
-			_G.chat.AddText(color_white, "[Admin Chat | ", Color(255, 127, 127), ply, color_white, "] " .. message)
+			_G.chat.AddText(color_white, "(Админ-чат) ", Color(255, 127, 127), ply, color_white, ": " .. message)
 		end,
 		SendMessage = function(self, msg)
 			net.Start(EASYCHAT_ADMIN)
@@ -203,7 +203,7 @@ if CLIENT then
 			admintab:Notify(sender, msg)
 		else
 			local active_tab_name = EasyChat.GetActiveTab().Tab.Name
-			if active_tab_name ~= "Admin" then
+			if active_tab_name ~= "Админы" then
 				admintab:Notify(sender, msg)
 			end
 		end
@@ -215,7 +215,7 @@ if CLIENT then
 	net.Receive("FAdmin_ReceiveAdminMessage", handle_message)
 
 	hook.Add("ECTabChanged", "EasyChatModuleDMTab", function(_, tab)
-		if tab == "Admin" then
+		if tab == "Админы" then
 			admintab.NewMessages = 0
 			admintab.RichText:GotoTextEnd()
 			if not LocalPlayer():IsAdmin() then
@@ -224,15 +224,15 @@ if CLIENT then
 		end
 	end)
 
-	EasyChat.AddMode("Admin", function(text)
+	EasyChat.AddMode("Админы", function(text)
 		admintab:SendMessage(text)
 	end)
 
-	EasyChat.AddTab("Admin", admintab, "icon16/vcard.png")
-	EasyChat.SetFocusForOn("Admin", admintab.TextEntry)
+	EasyChat.AddTab("Админы", admintab, "icon16/vcard.png")
+	EasyChat.SetFocusForOn("Админы", admintab.TextEntry)
 
 	hook.Add("ECOpened", "EasyChatModuleDMTab", function()
-		local tab_data = EasyChat.GetTab("Admin")
+		local tab_data = EasyChat.GetTab("Админы")
 		if tab_data and IsValid(tab_data.Tab) and IsValid(LocalPlayer()) then
 			tab_data.Tab:SetVisible(LocalPlayer():IsAdmin())
 		end

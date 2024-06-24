@@ -621,7 +621,7 @@ function SETTINGS:AddConvarSettingsSet(category_name, options)
 		self:AddConvarSetting(category_name, "boolean", cvar, description)
 	end
 
-	local setting_reset_options = self:AddSetting(category_name, "action", "Reset Options")
+	local setting_reset_options = self:AddSetting(category_name, "action", "Сбросить настройки")
 	setting_reset_options.DoClick = function()
 		for cvar, _ in pairs(options) do
 			local default_value = tobool(cvar:GetDefault())

@@ -58,7 +58,7 @@ local MAIN_TAB = {
 
 		local use_new_text_entry = (EC_LEGACY_ENTRY and not EC_LEGACY_ENTRY:GetBool()) or not EC_LEGACY_ENTRY
 		self.TextEntry = self:Add((can_use_cef and use_new_text_entry) and "TextEntryX" or "TextEntryLegacy")
-		self.TextEntry:SetPlaceholderText("напиши что-нибудь...")
+		self.TextEntry:SetPlaceholderText("type something...")
 
 		self.EmotePicker = vgui.Create("ECEmotePicker")
 		self.EmotePicker:SetVisible(false)

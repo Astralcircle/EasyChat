@@ -1,12 +1,12 @@
---[[local TAG = "EasyChatModuleIndicate"
+local TAG = "EasyChatModuleIndicate"
 
 if CLIENT then
-    local EC_INDICATIONS = CreateConVar("easychat_indications", "1", FCVAR_ARCHIVE, "Индицировать объекты при нажатии MOUSE3 + SHIFT")
-    local EC_INDICATIONS_SHOW = CreateConVar("easychat_indications_show", "1", FCVAR_ARCHIVE, "Нужно ли показыать индицирование или нет")
-    local EC_INDICATIONS_TEAM = CreateConVar("easychat_indications_team", "1", FCVAR_ARCHIVE, "Показывать ваше индицирование только вашей команде")
-    EasyChat.RegisterConvar(EC_INDICATIONS, "Индицировать объекты при нажатии MOUSE3 + SHIFT")
-    EasyChat.RegisterConvar(EC_INDICATIONS_SHOW, "Показывать индицирование от других игроков")
-    EasyChat.RegisterConvar(EC_INDICATIONS_TEAM, "Показывать индицирование только от вашей команды")
+    local EC_INDICATIONS = CreateConVar("easychat_indications", "1", FCVAR_ARCHIVE, "Allows you to indicate objects in the chat by pressing mouse3 and shift")
+    local EC_INDICATIONS_SHOW = CreateConVar("easychat_indications_show", "1", FCVAR_ARCHIVE, "Should we show indications or not")
+    local EC_INDICATIONS_TEAM = CreateConVar("easychat_indications_team", "1", FCVAR_ARCHIVE, "Show your indications only to your team")
+    EasyChat.RegisterConvar(EC_INDICATIONS, "Indicates objects when pressing mouse3 and shift")
+    EasyChat.RegisterConvar(EC_INDICATIONS_SHOW, "Shows indications from other players")
+    EasyChat.RegisterConvar(EC_INDICATIONS_TEAM, "Show your indications only to your team")
 
     local function categorize_object(obj)
         local t = type(obj)
@@ -445,4 +445,3 @@ if SERVER then
 end
 
 return "Indicate"
---]]

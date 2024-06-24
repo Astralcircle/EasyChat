@@ -1,5 +1,5 @@
 local EC_GREENTEXT = CreateConVar("easychat_misc_greentext", "1", FCVAR_ARCHIVE, "Makes your text green when using > at the beginning of a message")
-EasyChat.RegisterConvar(EC_GREENTEXT, "Зеленый текст 4chan")
+EasyChat.RegisterConvar(EC_GREENTEXT, "4chan greentext")
 
 local color_white = color_white
 local green_color = Color(0, 255, 0)

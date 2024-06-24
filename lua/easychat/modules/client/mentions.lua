@@ -1,4 +1,4 @@
---[[local EC_MENTION = CreateConVar("easychat_mentions", "1", FCVAR_ARCHIVE, "Highlights messages containing your name")
+local EC_MENTION = CreateConVar("easychat_mentions", "1", FCVAR_ARCHIVE, "Highlights messages containing your name")
 local EC_MENTION_FLASH = CreateConVar("easychat_mentions_flash_window", "1", FCVAR_ARCHIVE, "Flashes your window when you get mentioned")
 local EC_MENTION_COLOR = CreateConVar("easychat_mentions_color", "244 167 66", FCVAR_ARCHIVE, "Color of the mentions")
 local EC_MENTION_SHOW_MISSED = CreateConVar("easychat_mentions_show_missed", "1", FCVAR_ARCHIVE, "Show mentions you have missed when AFK / tabbed out")
@@ -276,7 +276,7 @@ hook.Add("OnPlayerChat", "EasyChatModuleMention", function(ply, msg, is_team, is
 		system.FlashWindow()
 	end
 
-	EasyChat.FlashTab("Чат")
+	EasyChat.FlashTab("Global")
 
 	local msg_components = {}
 	if is_dead then
@@ -308,4 +308,3 @@ hook.Add("OnPlayerChat", "EasyChatModuleMention", function(ply, msg, is_team, is
 end)
 
 return "Mentions"
---]]

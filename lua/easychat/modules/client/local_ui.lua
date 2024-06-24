@@ -22,7 +22,7 @@ local panel_title = "Message Receivers"
 local ec_cvar_dist = GetConVar("easychat_local_msg_distance")
 function panel:Paint(w, h)
 	if not EasyChat.IsOpened() then return end
-	if EasyChat.GetActiveTab().Name ~= "Чат" then return end
+	if EasyChat.GetActiveTab().Name ~= "Global" then return end
 	if EasyChat.GetCurrentMode().Name ~= "Local" then return end
 
 	if EasyChat.UseDermaSkin then

@@ -601,7 +601,7 @@ if CLIENT then
 	load_chatbox_colors()
 
 	local default_chat_mode = {
-		Name = "Сказать",
+		Name = "Say",
 		Callback = function(text) EasyChat.SendGlobalMessage(text, false, false) end,
 	}
 
@@ -707,7 +707,7 @@ if CLIENT then
 		if ok == true then return false end
 
 		if EC_GLOBAL_ON_OPEN:GetBool() then
-			EasyChat.OpenTab("Чат")
+			EasyChat.OpenTab("Global")
 		end
 
 		-- make sure to get rid of the possible completion
@@ -736,7 +736,7 @@ if CLIENT then
 		EasyChat.GUI.ChatBox:MakePopup()
 
 		local active_tab = EasyChat.GetActiveTab()
-		if EC_GLOBAL_ON_OPEN:GetBool() and active_tab.Name == "Чат" then
+		if EC_GLOBAL_ON_OPEN:GetBool() and active_tab.Name == "Global" then
 			EasyChat.GUI.TextEntry:RequestFocus()
 		else
 			local cur_tab = active_tab.Tab
@@ -946,7 +946,7 @@ if CLIENT then
 		frame.TextEntry = text_entry
 
 		local btn = frame:Add("DButton")
-		btn:SetText("Подтвердить")
+		btn:SetText("Confirm")
 		btn:SetTextColor(EasyChat.TextColor)
 		btn:SetTall(25)
 		btn:Dock(BOTTOM)
@@ -1552,7 +1552,7 @@ if CLIENT then
 
 					local lp = LocalPlayer()
 					if IsValid(lp) and lp == arg and EC_USE_ME:GetBool() then
-						append_text(richtext, "Я")
+						append_text(richtext, "me")
 					else
 						if empty_nick then
 							append_text(richtext, "[NO NAME]")
@@ -1765,20 +1765,20 @@ if CLIENT then
 		ec_ctrl_shortcuts = {}
 		ec_alt_shortcuts = {}
 
-		EasyChat.AddMode("Команда", function(text)
+		EasyChat.AddMode("Team", function(text)
 			EasyChat.SendGlobalMessage(text, true, false)
 		end)
 
-		EasyChat.AddMode("Локальный", function(text)
+		EasyChat.AddMode("Local", function(text)
 			EasyChat.SendGlobalMessage(text, false, true)
 		end)
 
-		EasyChat.AddMode("Консоль", function(text)
+		EasyChat.AddMode("Console", function(text)
 			if IsConCommandBlocked(text) then
 				local text_entry = EasyChat.GetMainTextEntry()
 				if IsValid(text_entry) then
 					local command = text:Split(" ")[1]
-					text_entry:TriggerBlink(("'%s' ЗАБЛОКИРОВАНА! ИСПОЛЬЗУЙТЕ КОНСОЛЬ!"):format(command))
+					text_entry:TriggerBlink(("'%s' IS BLOCKED! USE THE CONSOLE!"):format(command))
 				end
 
 				return
@@ -1921,8 +1921,8 @@ if CLIENT then
 
 			local lp = LocalPlayer()
 			if IsValid(lp) and lp == ply and EC_USE_ME:GetBool() then
-				global_append_text("Я")
-				table.insert(data, "Я")
+				global_append_text("me")
+				table.insert(data, "me")
 			else
 				if empty_nick then
 					global_insert_color_change(UNKNOWN_COLOR.r, UNKNOWN_COLOR.g, UNKNOWN_COLOR.b)
@@ -2127,16 +2127,16 @@ if CLIENT then
 			end
 
 			local global_tab = vgui.Create("ECChatTab")
-			EasyChat.AddTab("Чат", global_tab, "icon16/comments.png")
-			EasyChat.SetFocusForOn("Чат", global_tab.TextEntry)
+			EasyChat.AddTab("Global", global_tab, "icon16/comments.png")
+			EasyChat.SetFocusForOn("Global", global_tab.TextEntry)
 
 			if not EasyChat.UseDermaSkin then
 				global_tab.RichText:InsertColorChange(255, 255, 255, 255)
 			end
 
-			global_tab.RichText.HistoryName = "Чат"
+			global_tab.RichText.HistoryName = "global"
 			if EC_HISTORY:GetBool() then
-				local history = EasyChat.ReadFromHistory("Чат")
+				local history = EasyChat.ReadFromHistory("global")
 				if not EasyChat.IsStringEmpty(history) then
 					if EasyChat.UseDermaSkin then
 						local new_col = global_tab.RichText:GetSkin().text_normal
@@ -2144,7 +2144,7 @@ if CLIENT then
 					end
 
 					global_tab.RichText:AppendText(history)
-					local historynotice = "\n^^^^^ История последней сессии ^^^^^\n\n"
+					local historynotice = "\n^^^^^ Last Session History ^^^^^\n\n"
 					global_tab.RichText:AppendText(historynotice)
 				end
 			end
@@ -2362,8 +2362,8 @@ if CLIENT then
 
 			local steam_id64 = util.SteamIDTo64(steam_id)
 			local ply_menu = DermaMenu()
-			ply_menu:AddOption("Установить заголовок", function()
-				local frame = EasyChat.AskForInput("Установить заголовок", function(title)
+			ply_menu:AddOption("Set Title", function()
+				local frame = EasyChat.AskForInput("Set Title", function(title)
 					local succ, err = EasyChat.Config:WritePlayerTitle(steam_id, title)
 					if not succ then
 						notification.AddLegacy(err, NOTIFY_ERROR, 3)
@@ -2407,7 +2407,7 @@ if CLIENT then
 				end
 			end):SetImage("icon16/shield.png")
 
-			ply_menu:AddOption("Удалить заголовок", function()
+			ply_menu:AddOption("Remove Title", function()
 				local succ, err = EasyChat.Config:DeletePlayerTitle(steam_id)
 				if not succ then
 					notification.AddLegacy(err, NOTIFY_ERROR, 3)
@@ -2417,8 +2417,8 @@ if CLIENT then
 
 			local ply = player.GetBySteamID(steam_id)
 			if IsValid(ply) then
-				ply_menu:AddOption("Установить имя", function()
-					local frame = EasyChat.AskForInput("Установить имя", function(name)
+				ply_menu:AddOption("Set Name", function()
+					local frame = EasyChat.AskForInput("Set Name", function(name)
 						local succ, err = EasyChat.Config:WritePlayerName(ply, name)
 						if not succ then
 							notification.AddLegacy(err, NOTIFY_ERROR, 3)
@@ -2431,52 +2431,52 @@ if CLIENT then
 
 			ply_menu:AddSpacer()
 
-			ply_menu:AddOption("Открыть профиль", function() EasyChat.OpenURL("https://steamcommunity.com/profiles/" .. steam_id64) end)
-			ply_menu:AddOption("Скопировать имя", function()
+			ply_menu:AddOption("Open Steam Profile", function() EasyChat.OpenURL("https://steamcommunity.com/profiles/" .. steam_id64) end)
+			ply_menu:AddOption("Copy Name", function()
 				SetClipboardText(ply_name)
-				notification.AddLegacy("Скопировано имя игрока", NOTIFY_GENERIC, 3)
+				notification.AddLegacy("Copied player name", NOTIFY_GENERIC, 3)
 			end)
 
-			ply_menu:AddOption("Скопировать SteamID", function()
+			ply_menu:AddOption("Copy SteamID", function()
 				SetClipboardText(steam_id)
-				notification.AddLegacy("Скопирован SteamID игрока", NOTIFY_GENERIC, 3)
+				notification.AddLegacy("Copied player SteamID", NOTIFY_GENERIC, 3)
 			end)
 
-			ply_menu:AddOption("Скопировать SteamID64", function()
+			ply_menu:AddOption("Copy SteamID64", function()
 				SetClipboardText(steam_id64)
-				notification.AddLegacy("Скопирован SteamID64 игрока", NOTIFY_GENERIC, 3)
+				notification.AddLegacy("Copied player SteamID64", NOTIFY_GENERIC, 3)
 			end)
 
 			-- we dont use IsBlockedPlayer because it could return true if its a Steam block
 			if EasyChat.BlockedPlayers[steam_id] then
-				ply_menu:AddOption("Разблокировать игрока", function() EasyChat.UnblockPlayer(steam_id) end)
+				ply_menu:AddOption("Unblock Player", function() EasyChat.UnblockPlayer(steam_id) end)
 			else
-				ply_menu:AddOption("Заблокировать игрока", function() EasyChat.BlockPlayer(steam_id) end)
+				ply_menu:AddOption("Block Player", function() EasyChat.BlockPlayer(steam_id) end)
 			end
 
 			ply_menu:AddSpacer()
 
-			ply_menu:AddOption("Отмена", function() ply_menu:Remove() end)
+			ply_menu:AddOption("Cancel", function() ply_menu:Remove() end)
 			ply_menu:Open()
 		end
 
 		local function handle_steam_id(steam_id)
 			local id_menu = DermaMenu()
 			local steam_id64 = util.SteamIDTo64(steam_id)
-			id_menu:AddOption("Открыть профиль", function() EasyChat.OpenURL("https://steamcommunity.com/profiles/" .. steam_id64) end)
-			id_menu:AddOption("Скопировать SteamID", function() SetClipboardText(steam_id) end)
-			id_menu:AddOption("Скопировать SteamID64", function() SetClipboardText(steam_id64) end)
+			id_menu:AddOption("Open Steam Profile", function() EasyChat.OpenURL("https://steamcommunity.com/profiles/" .. steam_id64) end)
+			id_menu:AddOption("Copy SteamID", function() SetClipboardText(steam_id) end)
+			id_menu:AddOption("Copy SteamID64", function() SetClipboardText(steam_id64) end)
 
 			-- we dont use IsBlockedPlayer because it could return true if its a Steam block
 			if EasyChat.BlockedPlayers[steam_id] then
-				id_menu:AddOption("Разблокировать игрока", function() EasyChat.UnblockPlayer(steam_id) end)
+				id_menu:AddOption("Unblock Player", function() EasyChat.UnblockPlayer(steam_id) end)
 			else
-				id_menu:AddOption("Заблокировать игрока", function() EasyChat.BlockPlayer(steam_id) end)
+				id_menu:AddOption("Block Player", function() EasyChat.BlockPlayer(steam_id) end)
 			end
 
 			id_menu:AddSpacer()
 
-			id_menu:AddOption("Отмена", function() id_menu:Remove() end)
+			id_menu:AddOption("Cancel", function() id_menu:Remove() end)
 			id_menu:Open()
 		end
 
@@ -2976,7 +2976,7 @@ if CLIENT then
 		msg_components = msg_components or {}
 
 		table.insert(msg_components, COLOR_LOCAL)
-		table.insert(msg_components, "(Локально) ")
+		table.insert(msg_components, "(Local) ")
 
 		return msg_components
 	end
@@ -2985,7 +2985,7 @@ if CLIENT then
 		msg_components = msg_components or {}
 
 		table.insert(msg_components, COLOR_TEAM)
-		table.insert(msg_components, "(Команда) ")
+		table.insert(msg_components, "(Team) ")
 
 		return msg_components
 	end
@@ -3008,7 +3008,7 @@ if CLIENT then
 
 				local text_entry = EasyChat.GetMainTextEntry()
 				if IsValid(text_entry) then
-					text_entry:TriggerBlink("СЛИШКОМ МНОГО")
+					text_entry:TriggerBlink("TOO BIG")
 				end
 
 				return false

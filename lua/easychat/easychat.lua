@@ -158,8 +158,10 @@ local function make_nick_override_wrapper()
 	return wrapper
 end
 
+local GetNW2String = FindMetaTable("Entity").GetNW2String
+
 local function rich_nick_wrapper(ply)
-	return EasyChat.NativeNick(ply)
+	return GetNW2String(ply, "player_customname", EasyChat.NativeNick(ply))
 end
 
 local clean_name_fns = { "Nick", "Name", "GetName", "GetNick" }

@@ -137,7 +137,7 @@ function EasyChat.GetProperNick(ply)
 		return mk:GetText()
 	end
 
-	return ec_markup.GetText(ply_nick, true)
+	return ply_nick
 end
 
 local wrappers = {}

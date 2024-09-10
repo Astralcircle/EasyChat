@@ -132,9 +132,9 @@ function EasyChat.GetProperNick(ply)
 	if ec_markup then
 		local mk = ec_markup.CachePlayer("EasyChat", ply, function()
 			return ec_markup.AdvancedParse(ply_nick, { nick = true })
-		end)
+		end):GetText()
 
-		return mk:GetText()
+		return mk ~= "unconnected" and mk or ply_nick
 	end
 
 	return ply_nick

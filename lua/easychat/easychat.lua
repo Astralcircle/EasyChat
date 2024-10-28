@@ -434,7 +434,7 @@ if CLIENT then
 	local NO_COLOR = Color(0, 0, 0, 0)
 	local LINK_COLOR = Color(68, 151, 206)
 	local UNKNOWN_COLOR = Color(110, 247, 177)
-	local UPLOADING_TEXT = "[uploading image...]"
+	local UPLOADING_TEXT = "[загрузка изображения...]"
 
 	-- general
 	local EC_ENABLE = CreateConVar("easychat_enable", "1", {FCVAR_ARCHIVE, FCVAR_USERINFO}, "Use easychat or not")

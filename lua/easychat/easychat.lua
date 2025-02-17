@@ -129,6 +129,8 @@ function EasyChat.GetProperNick(ply)
 	if not IsValid(ply) then return get_unknown_name(ply) end
 
 	local ply_nick = EasyChat.NativeNick(ply)
+	if ply_nick == "unconnected" then return ply_nick end
+	
 	if ec_markup then
 		local mk = ec_markup.CachePlayer("EasyChat", ply, function()
 			return ec_markup.AdvancedParse(ply_nick, { nick = true })
@@ -403,10 +405,10 @@ if SERVER then
 	end)
 
 	-- we can't do that in Initialize because the http lib is sometimes not available
-	hook.Add("Think", TAG, function()
+	--[[hook.Add("Think", TAG, function()
 		check_version()
 		hook.Remove("Think", TAG)
-	end)
+	end)]]
 
 	hook.Add("ECOpened", TAG, function(ply)
 		if not ply:IsAdmin() then return end

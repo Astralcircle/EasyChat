@@ -263,66 +263,6 @@ local function create_default_settings()
 			EC_TIMESTAMPS_COLOR:SetString(EC_TIMESTAMPS_COLOR:GetDefault())
 		end
 
-		settings:AddSpacer(category_name)
-
-		local setting_ignored_modules = settings:AddSetting(category_name, "list", "Игнорируемые модули")
-		local ignored_modules_list = setting_ignored_modules.List
-		ignored_modules_list:SetMultiSelect(true)
-		ignored_modules_list:AddColumn("Путь (Относительно папки Lua)")
-
-		local function build_ignore_module_list()
-			ignored_modules_list:Clear()
-
-			for _, module_path in pairs(EasyChat.Config.ModuleIgnoreList) do
-				ignored_modules_list:AddLine(module_path)
-			end
-		end
-
-		build_ignore_module_list()
-		hook.Add("ECServerConfigUpdate", ignored_modules_list, build_ignore_module_list)
-
-		local setting_ignore_module = settings:AddSetting(category_name, "action", "Игнорировать модуль")
-		setting_ignore_module:SetImage("icon16/shield.png")
-		setting_ignore_module.DoClick = function()
-			EasyChat.AskForInput("Игнорировать модуль (Введите путь относительно папки Lua)", function(ignored_module_path)
-				local old_list = table.Copy(EasyChat.Config.ModuleIgnoreList)
-				local current_list = EasyChat.Config.ModuleIgnoreList
-				table.insert(current_list, ignored_module_path)
-
-				local succ, err = EasyChat.Config:WriteModuleIgnoreList(current_list)
-				if not succ then
-					EasyChat.Config.ModuleIgnoreList = old_list
-					notification.AddLegacy(err, NOTIFY_ERROR, 3)
-					surface.PlaySound("buttons/button11.wav")
-				end
-			end, false):SetWide(600)
-		end
-
-		local setting_unignore_module = settings:AddSetting(category_name, "action", "Разигнорировать модуль")
-		setting_unignore_module:SetImage("icon16/shield.png")
-		setting_unignore_module.DoClick = function()
-			local old_list = table.Copy(EasyChat.Config.ModuleIgnoreList)
-			local current_list = EasyChat.Config.ModuleIgnoreList
-
-			local lines = ignored_modules_list:GetSelected()
-			for _, line in pairs(lines) do
-				local ignore_path = line:GetColumnText(1)
-				table.RemoveByValue(current_list, ignore_path)
-			end
-
-			local succ, err = EasyChat.Config:WriteModuleIgnoreList(current_list)
-			if not succ then
-				EasyChat.Config.ModuleIgnoreList = old_list
-				notification.AddLegacy(err, NOTIFY_ERROR, 3)
-				surface.PlaySound("buttons/button11.wav")
-			end
-		end
-
-		settings:AddSpacer(category_name)
-
-		local setting_disable_modules = settings:AddSetting(category_name, "action", EC_NO_MODULES:GetBool() and "Запустить модули" or "Запретить модули")
-		setting_disable_modules.DoClick = function() EC_NO_MODULES:SetBool(not EC_NO_MODULES:GetBool()) end
-
 		local setting_reload_ec = settings:AddSetting(category_name, "action", "Перезапустить EasyChat")
 		setting_reload_ec.DoClick = function() EasyChat.Reload() end
 
@@ -1211,7 +1151,7 @@ local function add_chathud_markup_settings()
 	for part_name, _ in pairs(EasyChat.ChatHUD.Parts) do
 		local cvar = get_cvar("easychat_tag_" .. part_name)
 		if cvar then
-			tag_options[cvar] = ("%s tags"):format(part_name)
+			tag_options[cvar] = ("%s тэги"):format(part_name)
 		end
 	end
 

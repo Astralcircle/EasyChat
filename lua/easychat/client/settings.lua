@@ -45,6 +45,7 @@ local EC_TIMESTAMPS_COLOR = get_cvar("easychat_timestamps_color")
 local EC_TAGS_IN_CHATBOX = get_cvar("easychat_tags_in_chatbox")
 local EC_USE_DERMASKIN = get_cvar("easychat_use_dermaskin")
 local EC_HISTORY = get_cvar("easychat_history")
+local EC_PRESERVE_MESSAGE_IN_PROGRESS = get_cvar("easychat_preserve_message_in_progress")
 local EC_GLOBAL_ON_OPEN = get_cvar("easychat_global_on_open")
 local EC_FONT = get_cvar("easychat_font")
 local EC_FONT_SIZE = get_cvar("easychat_font_size")
@@ -883,10 +884,10 @@ local function create_default_settings()
 		end
 
 		local function setup_rank(usergroup)
-			usergroup = usergroup or "user"
+			-- usergroup = usergroup or "user"
 
 			-- sanity check to see if wanted usergroup actually exists
-			if usergroup and not EasyChat.Config.UserGroups[usergroup] then return end
+			--if usergroup and not EasyChat.Config.UserGroups[usergroup] then return end
 
 			local frame = EasyChat.CreateFrame()
 			frame:SetSize(400, 400)

@@ -75,7 +75,6 @@ local EC_TRANSLATE_INC_TARGET_LANG = get_cvar("easychat_translate_inc_target_lan
 local EC_TRANSLATE_OUT_MSG = get_cvar("easychat_translate_out_msg")
 local EC_TRANSLATE_OUT_SRC_LANG = get_cvar("easychat_translate_out_source_lang")
 local EC_TRANSLATE_OUT_TARGET_LANG = get_cvar("easychat_translate_out_target_lang")
-local EC_TRANSLATE_API_KEY = get_cvar("easychat_translate_api_key")
 
 local function create_default_settings()
 	local settings = EasyChat.Settings
@@ -689,7 +688,7 @@ local function create_default_settings()
 				surface.SetFont(src_panel.Label:GetFont() or "DermaDefault")
 				local w, _ = surface.GetTextSize(src_panel.Label:GetText() .. (" "):rep(4))
 
-				self:SetPos(x + w + 5, y)
+				self:SetPos(x + w + 50, y)
 			end
 
 			return icon
@@ -1046,12 +1045,13 @@ local function create_default_settings()
 
 		local language_count = table.Count(valid_languages)
 
-		local function build_translation_auto_complete(text_entry)
+		local function build_translation_auto_complete(text_entry, is_target)
 			text_entry.GetAutoComplete = function(self, text)
 				text = text:lower()
 
 				local suggestions = {}
 				for complete_name, shortcut in pairs(valid_languages) do
+					if is_target and shortcut == "auto" then continue end -- dont show auto as a target language
 					if complete_name:lower():match(text) or shortcut:match(text) then
 						table.insert(suggestions, ("%s (%s)"):format(shortcut, complete_name))
 					end
@@ -1103,36 +1103,276 @@ local function create_default_settings()
 					notification.AddLegacy("Неверный код страны", NOTIFY_ERROR, 3)
 					surface.PlaySound("buttons/button11.wav")
 					return
-				elseif not EC_TRANSLATE_API_KEY:GetString():find("trnsl.1.1.") then
-					notification.AddLegacy("У вам нету API ключа Яндекса.", NOTIFY_ERROR, 3)
+				elseif not util.IsBinaryModuleInstalled("ollama") then
+					notification.AddLegacy("Ollama binary module is not installed.", NOTIFY_ERROR, 3)
+					surface.PlaySound("buttons/button11.wav")
+					return
+				elseif not Ollama or not Ollama.IsRunning() then
+					notification.AddLegacy("Ollama is not running. Please start Ollama server.", NOTIFY_ERROR, 3)
 					surface.PlaySound("buttons/button11.wav")
 					return
 				end
 
 				old_enter(self)
 			end
+
+			return text_entry
 		end
 
-		local yandex_link = settings:GetCategory(category_name):Add("DLabelURL")
-		yandex_link:SetText("Нажмите здесь, чтобы получить ключ для использования нашего стороннего поставщика переводов.")
-		yandex_link:SetURL("https://translate.yandex.com/developers/keys")
-		yandex_link:Dock(TOP)
-		yandex_link:DockMargin(10, 0, 10, 5)
-		yandex_link:SetColor(Color(220, 0, 0))
+		-- Ollama status indicator
+		local ollama_status = settings:GetCategory(category_name):Add("DLabel")
+		ollama_status:SetFont("ECSettingsFont")
+		ollama_status:Dock(TOP)
+		ollama_status:DockMargin(10, 0, 10, 5)
+		ollama_status:SetAutoStretchVertical(true)
 
-		settings:AddConvarSetting(category_name, "string", EC_TRANSLATE_API_KEY, "API ключ Яндекса (Требуется)")
+		local function update_ollama_status()
+			if not IsValid(ollama_status) then return end
+
+			if not util.IsBinaryModuleInstalled("ollama") then
+				ollama_status:SetText("Ollama binary module not installed")
+				ollama_status:SetTextColor(Color(220, 0, 0))
+			elseif not Ollama or not Ollama.IsRunning() then
+				ollama_status:SetText("Ollama server not running (localhost:11434)")
+				ollama_status:SetTextColor(Color(220, 120, 0))
+			else
+				ollama_status:SetText("Ollama ready - Using gemma3 model for translations")
+				ollama_status:SetTextColor(Color(0, 180, 0))
+
+				Ollama.IsModelAvailable("gemma3", function(err, available)
+					if err then
+						ollama_status:SetText("Error checking model availability")
+						ollama_status:SetTextColor(Color(220, 0, 0))
+					end
+
+					if not available then
+						ollama_status:SetText("Gemma3 model not available")
+						ollama_status:SetTextColor(Color(220, 0, 0))
+					end
+				end)
+			end
+		end
+
+		update_ollama_status()
+		timer.Create("ECOllamaStatusCheck", 5, 0, update_ollama_status)
+
+		local ollama_help = settings:AddSetting(category_name, "action", "Setup Help & Installation Guide")
+		ollama_help.DoClick = function()
+			local frame = EasyChat.CreateFrame()
+			frame:SetSize(600, 700)
+			frame:SetTitle("Ollama Setup Guide")
+
+			local content = frame:Add("DPanel")
+			content:Dock(FILL)
+			content.Paint = function() end
+
+			local y_offset = 10
+
+			-- Title
+			local title = content:Add("DLabel")
+			title:SetPos(10, y_offset)
+			title:SetText("Follow these steps to set up Ollama for translations:")
+			title:SetFont("DermaDefaultBold")
+			title:SetTextColor(EasyChat.TextColor)
+			title:SizeToContents()
+			y_offset = y_offset + 25
+
+			-- What is Ollama explanation
+			local ollama_explanation = content:Add("DLabel")
+			ollama_explanation:SetPos(10, y_offset)
+			ollama_explanation:SetText("Ollama is a local AI server that runs language models (LLMs) on your computer.")
+			ollama_explanation:SetTextColor(EasyChat.TextColor)
+			ollama_explanation:SizeToContents()
+			y_offset = y_offset + 20
+
+			local ollama_explanation2 = content:Add("DLabel")
+			ollama_explanation2:SetPos(10, y_offset)
+			ollama_explanation2:SetText("This allows for private, offline translations without sending data to external services.")
+			ollama_explanation2:SetTextColor(EasyChat.TextColor)
+			ollama_explanation2:SizeToContents()
+			y_offset = y_offset + 35
+
+			-- Step 1
+			local step1_title = content:Add("DLabel")
+			step1_title:SetPos(10, y_offset)
+			step1_title:SetText("Step 1: Install the gm_ollama module")
+			step1_title:SetFont("DermaDefaultBold")
+			step1_title:SetTextColor(EasyChat.TextColor)
+			step1_title:SizeToContents()
+			y_offset = y_offset + 25
+
+			local step1_desc = content:Add("DLabel")
+			step1_desc:SetPos(20, y_offset)
+			step1_desc:SetText("Download and install the gm_ollama binary module from:")
+			step1_desc:SetTextColor(EasyChat.TextColor)
+			step1_desc:SizeToContents()
+			y_offset = y_offset + 20
+
+			local step1_link = content:Add("DLabelURL")
+			step1_link:SetPos(20, y_offset)
+			step1_link:SetText("https://github.com/Earu/gm_ollama/releases")
+			step1_link:SetURL("https://github.com/Earu/gm_ollama/releases")
+			step1_link:SetColor(Color(100, 149, 237))
+			step1_link:SizeToContents()
+			y_offset = y_offset + 35
+
+			-- Step 2
+			local step2_title = content:Add("DLabel")
+			step2_title:SetPos(10, y_offset)
+			step2_title:SetText("Step 2: Install Ollama server")
+			step2_title:SetFont("DermaDefaultBold")
+			step2_title:SetTextColor(EasyChat.TextColor)
+			step2_title:SizeToContents()
+			y_offset = y_offset + 25
+
+			local step2_desc = content:Add("DLabel")
+			step2_desc:SetPos(20, y_offset)
+			step2_desc:SetText("If you don't have Ollama installed, download it from:")
+			step2_desc:SetTextColor(EasyChat.TextColor)
+			step2_desc:SizeToContents()
+			y_offset = y_offset + 20
+
+			local step2_link = content:Add("DLabelURL")
+			step2_link:SetPos(20, y_offset)
+			step2_link:SetText("https://ollama.com/download")
+			step2_link:SetURL("https://ollama.com/download")
+			step2_link:SetColor(Color(100, 149, 237))
+			step2_link:SizeToContents()
+			y_offset = y_offset + 35
+
+			-- Step 3
+			local step3_title = content:Add("DLabel")
+			step3_title:SetPos(10, y_offset)
+			step3_title:SetText("Step 3: Download the translation model")
+			step3_title:SetFont("DermaDefaultBold")
+			step3_title:SetTextColor(EasyChat.TextColor)
+			step3_title:SizeToContents()
+			y_offset = y_offset + 25
+
+			local step3_desc = content:Add("DLabel")
+			step3_desc:SetPos(20, y_offset)
+			step3_desc:SetText("Open a terminal/command prompt and run:")
+			step3_desc:SetTextColor(EasyChat.TextColor)
+			step3_desc:SizeToContents()
+			y_offset = y_offset + 20
+
+			local step3_cmd = content:Add("DLabel")
+			step3_cmd:SetPos(20, y_offset)
+			step3_cmd:SetText("ollama pull gemma3")
+			step3_cmd:SetFont("DebugOverlay")
+			step3_cmd:SetTextColor(Color(0, 150, 0))
+			step3_cmd:SizeToContents()
+			y_offset = y_offset + 25
+
+			local step3_note = content:Add("DLabel")
+			step3_note:SetPos(20, y_offset)
+			step3_note:SetText("This will download the Gemma3 model (~5GB). This may take a while.")
+			step3_note:SetTextColor(EasyChat.TextColor)
+			step3_note:SizeToContents()
+			y_offset = y_offset + 35
+
+			-- Step 4
+			local step4_title = content:Add("DLabel")
+			step4_title:SetPos(10, y_offset)
+			step4_title:SetText("Step 4: Restart EasyChat")
+			step4_title:SetFont("DermaDefaultBold")
+			step4_title:SetTextColor(EasyChat.TextColor)
+			step4_title:SizeToContents()
+			y_offset = y_offset + 25
+
+			local step4_desc = content:Add("DLabel")
+			step4_desc:SetPos(20, y_offset)
+			step4_desc:SetText("In the game console, run:")
+			step4_desc:SetTextColor(EasyChat.TextColor)
+			step4_desc:SizeToContents()
+			y_offset = y_offset + 20
+
+			local step4_cmd = content:Add("DLabel")
+			step4_cmd:SetPos(20, y_offset)
+			step4_cmd:SetText("easychat_reload")
+			step4_cmd:SetFont("DebugOverlay")
+			step4_cmd:SetTextColor(Color(0, 150, 0))
+			step4_cmd:SizeToContents()
+			y_offset = y_offset + 35
+
+			-- Final note
+			local final_note = content:Add("DLabel")
+			final_note:SetPos(10, y_offset)
+			final_note:SetText("After completing these steps, the status indicator above should show 'Ollama ready'.")
+			final_note:SetFont("DermaDefaultBold")
+			final_note:SetTextColor(EasyChat.TextColor)
+			final_note:SizeToContents()
+			y_offset = y_offset + 35
+
+			-- Performance note
+			local perf_note_title = content:Add("DLabel")
+			perf_note_title:SetPos(10, y_offset)
+			perf_note_title:SetText("Performance Note:")
+			perf_note_title:SetFont("DermaDefaultBold")
+			perf_note_title:SetTextColor(Color(220, 120, 0))
+			perf_note_title:SizeToContents()
+			y_offset = y_offset + 25
+
+			local perf_note = content:Add("DLabel")
+			perf_note:SetPos(20, y_offset)
+			perf_note:SetText("Translations may be slow on older hardware or systems without a dedicated GPU.")
+			perf_note:SetTextColor(EasyChat.TextColor)
+			perf_note:SizeToContents()
+			y_offset = y_offset + 20
+
+			local perf_note2 = content:Add("DLabel")
+			perf_note2:SetPos(20, y_offset)
+			perf_note2:SetText("First-time translations may take longer as the model loads into memory.")
+			perf_note2:SetTextColor(EasyChat.TextColor)
+			perf_note2:SizeToContents()
+			y_offset = y_offset + 25
+
+			-- Troubleshooting
+			local trouble_title = content:Add("DLabel")
+			trouble_title:SetPos(10, y_offset)
+			trouble_title:SetText("Troubleshooting:")
+			trouble_title:SetFont("DermaDefaultBold")
+			trouble_title:SetTextColor(EasyChat.TextColor)
+			trouble_title:SizeToContents()
+			y_offset = y_offset + 25
+
+			local trouble_desc = content:Add("DLabel")
+			trouble_desc:SetPos(20, y_offset)
+			trouble_desc:SetText("• Make sure Ollama server is running (it should start automatically)")
+			trouble_desc:SetTextColor(EasyChat.TextColor)
+			trouble_desc:SizeToContents()
+			y_offset = y_offset + 20
+
+			local trouble_desc2 = content:Add("DLabel")
+			trouble_desc2:SetPos(20, y_offset)
+			trouble_desc2:SetText("• Check that the gemma3 model downloaded successfully")
+			trouble_desc2:SetTextColor(EasyChat.TextColor)
+			trouble_desc2:SizeToContents()
+			y_offset = y_offset + 20
+
+			local trouble_desc3 = content:Add("DLabel")
+			trouble_desc3:SetPos(20, y_offset)
+			trouble_desc3:SetText("• Verify the gm_ollama module is in your garrysmod/lua/bin folder")
+			trouble_desc3:SetTextColor(EasyChat.TextColor)
+			trouble_desc3:SizeToContents()
+
+			frame:Center()
+			frame:MakePopup()
+		end
 
 		settings:AddSpacer(category_name)
 
-		settings:AddConvarSetting(category_name, "boolean", EC_TRANSLATE_OUT_MSG, "Переводить свои сообщения в чате")
-		build_translation_auto_complete(settings:AddConvarSetting(category_name, "string", EC_TRANSLATE_OUT_SRC_LANG, "Ваш язык"))
-		build_translation_auto_complete(settings:AddConvarSetting(category_name, "string", EC_TRANSLATE_OUT_TARGET_LANG, "Их язык"))
+		local translate_out_msg = settings:AddConvarSetting(category_name, "boolean", EC_TRANSLATE_OUT_MSG, "Translate your chat messages")
+		translate_out_msg:GetParent():DockMargin(10, 0, 0, 20)
+		build_translation_auto_complete(settings:AddConvarSetting(category_name, "string", EC_TRANSLATE_OUT_SRC_LANG, "Your language"))
+		build_translation_auto_complete(settings:AddConvarSetting(category_name, "string", EC_TRANSLATE_OUT_TARGET_LANG, "Their language"), true)
 
 		settings:AddSpacer(category_name)
 
-		settings:AddConvarSetting(category_name, "boolean", EC_TRANSLATE_INC_MSG, "Переводить другие сообщения в чате")
-		build_translation_auto_complete(settings:AddConvarSetting(category_name, "string", EC_TRANSLATE_INC_TARGET_LANG, "Ваш язык"))
-		build_translation_auto_complete(settings:AddConvarSetting(category_name, "string", EC_TRANSLATE_INC_SRC_LANG, "Их язык"))
+		local translate_inc_msg = settings:AddConvarSetting(category_name, "boolean", EC_TRANSLATE_INC_MSG, "Translate other's chat messages")
+		translate_inc_msg:GetParent():DockMargin(10, 0, 0, 20)
+		build_translation_auto_complete(settings:AddConvarSetting(category_name, "string", EC_TRANSLATE_INC_TARGET_LANG, "Your language"), true)
+		build_translation_auto_complete(settings:AddConvarSetting(category_name, "string", EC_TRANSLATE_INC_SRC_LANG, "Their language"))
 	end
 end
 

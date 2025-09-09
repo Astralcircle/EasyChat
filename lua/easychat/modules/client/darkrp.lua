@@ -1,1 +1,0 @@
-return "DarkRP Compat"

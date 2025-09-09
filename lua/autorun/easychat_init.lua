@@ -1,6 +1,5 @@
 AddCSLuaFile("easychat/networking.lua")
 AddCSLuaFile("easychat/server_config.lua")
-AddCSLuaFile("easychat/migrations.lua")
 AddCSLuaFile("easychat/unicode_transliterator.lua")
 AddCSLuaFile("easychat/chathud.lua")
 AddCSLuaFile("easychat/markup.lua")

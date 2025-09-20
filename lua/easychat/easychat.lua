@@ -2781,7 +2781,7 @@ if CLIENT then
 			if chat_text_type == "servermsg" and EC_SERVER_MSG:GetBool() then
 				local cvar_name, cvar_value = text:match("^Server cvar '([a-zA-Z_]+)' changed to (.+)$")
 				if cvar_name and cvar_value then
-					chat.AddText(COLOR_GRAY, "Server ", COLOR_RED, cvar_name, COLOR_GRAY, " changed to ", COLOR_RED, cvar_value)
+					chat.AddText(COLOR_GRAY, "Серверное значение ", COLOR_RED, cvar_name, COLOR_GRAY, " изменено на ", COLOR_RED, cvar_value)
 				else
 					chat.AddText(COLOR_GRAY, text)
 				end

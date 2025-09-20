@@ -94,7 +94,7 @@ function PANEL:Init()
 		-- with a single text node, it also doesnt invoke chromium HTML parser which is relatively fast
 		copy_menu:AddOption("Clear Chatlog", function() self:QueueJavascript([[RICHTEXT.textContent = "";]]) end)
 		copy_menu:AddSpacer()
-		copy_menu:AddOption("Cancel", function() copy_menu:Remove() end)
+		copy_menu:AddOption("Отмена", function() copy_menu:Remove() end)
 		copy_menu:Open()
 	end)
 

@@ -1035,7 +1035,7 @@ if CLIENT then
 		frame.OkButton = btn_ok
 
 		local btn_cancel = frame:Add("DButton")
-		btn_cancel:SetText(data.cancel_text or "Cancel")
+		btn_cancel:SetText(data.cancel_text or "Отмена")
 		btn_cancel:Dock(RIGHT)
 		btn_cancel:SetSize(90, 50)
 		btn_cancel.DoClick = function() frame:Close() end

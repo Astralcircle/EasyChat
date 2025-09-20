@@ -52,7 +52,7 @@ local MAIN_TAB = {
 				end)
 			end
 			switch_menu:AddSpacer()
-			switch_menu:AddOption("Cancel", function() switch_menu:Remove() end)
+			switch_menu:AddOption("Отмена", function() switch_menu:Remove() end)
 			switch_menu:Open()
 		end
 

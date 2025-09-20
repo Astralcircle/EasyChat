@@ -539,7 +539,7 @@ local function create_default_settings()
 				end
 			end):SetImage("icon16/shield.png")
 			tab_menu:AddSpacer()
-			tab_menu:AddOption("Cancel", function() tab_menu:Remove() end)
+			tab_menu:AddOption("Отмена", function() tab_menu:Remove() end)
 
 			tab_menu:Open()
 		end
@@ -957,7 +957,7 @@ local function create_default_settings()
 			prefix_menu:AddOption("Modify", modify_rank):SetImage("icon16/shield.png")
 			prefix_menu:AddOption("Delete", delete_rank):SetImage("icon16/shield.png")
 			prefix_menu:AddSpacer()
-			prefix_menu:AddOption("Cancel", function() prefix_menu:Remove() end)
+			prefix_menu:AddOption("Отмена", function() prefix_menu:Remove() end)
 			prefix_menu:Open()
 		end
 

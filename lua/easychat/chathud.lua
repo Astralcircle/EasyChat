@@ -349,7 +349,7 @@ end
 local stop_part = {
 	Usage = "<stop>",
 	Examples = {
-		"<color=255,0,0>Hello <stop>World!"
+		"<color=255,0,0>Привет <stop>Мир!"
 	}
 }
 
@@ -370,8 +370,8 @@ chathud:RegisterPart("stop", stop_part, "%<(stop)%>")
 local color_part = {
 	Usage = "<color=r,g,b>",
 	Examples = {
-		"<color=255,0,255>I am pink",
-		"<color=255,0,0>Red!"
+		"<color=255,0,255>Я розовый!",
+		"<color=255,0,0>Красный!"
 	}
 }
 
@@ -400,7 +400,7 @@ chathud:RegisterPart("color", color_part)
 local font_part = {
 	Usage = "<font=font_name>",
 	Examples = {
-		"<font=DermaLarge>I am big!"
+		"<font=DermaLarge>Я большой!"
 	}
 }
 
@@ -717,10 +717,10 @@ local emote_part = {
 	RealPos = { X = 0, Y = 0 },
 	Height = 32,
 	HasSetHeight = false,
-	Usage = "<emote=name,size?,provider?> or :name:",
+	Usage = "<emote=name,size?,provider?> или :name:",
 	Examples = {
-		"I am an <emote=shield,32,silkicons> admin",
-		"There is a :dragon:!"
+		"Я <emote=shield,32,silkicons> админ",
+		"Тут дракон :dragon:!"
 	}
 }
 
@@ -1473,7 +1473,7 @@ if CLIENT then
 	concommand.Add("easychat_hud_examples", function()
 		local frame = EasyChat.CreateFrame()
 		frame:SetSize(640, 480)
-		frame:SetTitle("EasyChat Tag Examples")
+		frame:SetTitle("Справка по форматированию")
 		frame:Center()
 		frame:MakePopup()
 
@@ -1492,14 +1492,14 @@ if CLIENT then
 				end
 
 				local title = p:Add("DLabel")
-				title:SetText(("Name: %s"):format(part_name))
+				title:SetText(("Название: %s"):format(part_name))
 				title:Dock(TOP)
 				title:DockMargin(5, 5, 5, 0)
 				title:SetFont("EasyChatFont")
 				title:SetTextColor(color_white)
 
 				local usage = p:Add("DLabel")
-				usage:SetText(("Usage: %s"):format(part.Usage))
+				usage:SetText(("Применение: %s"):format(part.Usage))
 				usage:Dock(TOP)
 				usage:DockMargin(5, 0, 5, 0)
 				usage:SetFont("EasyChatFont")
@@ -1507,7 +1507,7 @@ if CLIENT then
 
 				if istable(part.Examples) and #part.Examples > 0 then
 					local examples = p:Add("DLabel")
-					examples:SetText("Examples:")
+					examples:SetText("Примеры:")
 					examples:Dock(TOP)
 					examples:DockMargin(5, 0, 5, 5)
 					examples:SetFont("EasyChatFont")

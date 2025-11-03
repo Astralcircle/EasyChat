@@ -27,7 +27,7 @@ local SETTINGS = {}
 
 function SETTINGS:Init()
 	self:SetSize(640, 480)
-	self:SetTitle("EasyChat Settings")
+	self:SetTitle("Настройки")
 	self:DockPadding(0, 25, 0, 0)
 
 	self.lblTitle:SetFont("EasyChatFont")
@@ -465,7 +465,7 @@ function SETTINGS:AddCategory(category_name, icon)
 	if not EasyChat.UseDermaSkin then
 		panel.Paint = function() end
 
-		--[[local scrollbar = panel:GetVBar()
+		local scrollbar = panel:GetVBar()
 		scrollbar:SetHideButtons(true)
 		scrollbar.Paint = function(self, w, h)
 			surface.SetDrawColor(EasyChat.OutlayColor)
@@ -476,7 +476,7 @@ function SETTINGS:AddCategory(category_name, icon)
 			local outlay_col = EasyChat.OutlayColor
 			surface.SetDrawColor(outlay_col.r, outlay_col.g, outlay_col.b, 150)
 			surface.DrawRect(0, 0, w, h)
-		end]]--
+		end
 	end
 
 	local new_category = self.Categories:AddSheet(category_name, panel)
@@ -664,7 +664,7 @@ function SETTINGS:AddConvarSettingsSet(category_name, options)
 		self:AddConvarSetting(category_name, "boolean", cvar, description)
 	end
 
-	local setting_reset_options = self:AddSetting(category_name, "action", "Reset Options")
+	local setting_reset_options = self:AddSetting(category_name, "action", "Сбросить настройки")
 	setting_reset_options.DoClick = function()
 		for cvar, _ in pairs(options) do
 			local default_value = tobool(cvar:GetDefault())

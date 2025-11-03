@@ -107,7 +107,7 @@ function EasyChat.IsStringEmpty(str, is_nick)
 	if #sanitized_str == 0 then return true end
 
 	-- if its a nick dont allow under 2 chars
-	if is_nick and utf8.len(sanitized_str) < 2 then
+	if is_nick and utf8.len(sanitized_str) < 1 then
 		return true
 	end
 
@@ -161,7 +161,7 @@ local function make_nick_override_wrapper()
 end
 
 local function rich_nick_wrapper(ply)
-	return EasyChat.NativeNick(ply)
+	return ply:GetNW2String("player_customname", EasyChat.NativeNick(ply))
 end
 
 local clean_name_fns = { "Nick", "Name", "GetName", "GetNick" }
@@ -436,7 +436,7 @@ if CLIENT then
 	local NO_COLOR = Color(0, 0, 0, 0)
 	local LINK_COLOR = Color(68, 151, 206)
 	local UNKNOWN_COLOR = Color(110, 247, 177)
-	local UPLOADING_TEXT = "[uploading image...]"
+	local UPLOADING_TEXT = "[загрузка изображения...]"
 
 	-- general
 	local EC_ENABLE = CreateConVar("easychat_enable", "1", {FCVAR_ARCHIVE, FCVAR_USERINFO}, "Use easychat or not")
@@ -603,7 +603,7 @@ if CLIENT then
 	load_chatbox_colors()
 
 	local default_chat_mode = {
-		Name = "Say",
+		Name = "Сказать",
 		Callback = function(text) EasyChat.SendGlobalMessage(text, false, false) end,
 	}
 
@@ -708,7 +708,7 @@ if CLIENT then
 		if ok == true then return false end
 
 		if EC_GLOBAL_ON_OPEN:GetBool() then
-			EasyChat.OpenTab("Global")
+			EasyChat.OpenTab("Чат")
 		end
 
 		-- make sure to get rid of the possible completion
@@ -737,7 +737,7 @@ if CLIENT then
 		EasyChat.GUI.ChatBox:MakePopup()
 
 		local active_tab = EasyChat.GetActiveTab()
-		if EC_GLOBAL_ON_OPEN:GetBool() and active_tab.Name == "Global" then
+		if EC_GLOBAL_ON_OPEN:GetBool() and active_tab.Name == "Чат" then
 			EasyChat.GUI.TextEntry:RequestFocus()
 		else
 			local cur_tab = active_tab.Tab
@@ -951,7 +951,7 @@ if CLIENT then
 		frame.TextEntry = text_entry
 
 		local btn = frame:Add("DButton")
-		btn:SetText("Confirm")
+		btn:SetText("Подтвердить")
 		btn:SetTextColor(EasyChat.TextColor)
 		btn:SetTall(25)
 		btn:Dock(BOTTOM)
@@ -1035,7 +1035,7 @@ if CLIENT then
 		frame.OkButton = btn_ok
 
 		local btn_cancel = frame:Add("DButton")
-		btn_cancel:SetText(data.cancel_text or "Cancel")
+		btn_cancel:SetText(data.cancel_text or "Отмена")
 		btn_cancel:Dock(RIGHT)
 		btn_cancel:SetSize(90, 50)
 		btn_cancel.DoClick = function() frame:Close() end
@@ -1108,60 +1108,31 @@ if CLIENT then
 			return
 		end
 
-		local decoded_body = util.JSONToTable(body)
-		if not decoded_body then
-			on_imgur_failure("could not json decode body")
-			return
-		end
-
-		if not decoded_body.success then
-			on_imgur_failure(("%s: %s"):format(
-				decoded_body.status or "unknown status?",
-				decoded_body.data and decoded_body.data.error or "unknown error"
-			))
-			return
-		end
-
-		local url = decoded_body.data and decoded_body.data.link
-		if not url then
-			on_imgur_failure("success but link wasn't found?")
-			return
-		end
-
-		EasyChat.Print(("imgur uploaded: %s"):format(tostring(url)))
-		return url
+		EasyChat.Print(("imgur uploaded: %s"):format(tostring(body)))
+		return body
 	end
 
 	function EasyChat.UploadToImgur(img_base64, callback)
-		local ply_nick, ply_steamid = LocalPlayer():Nick(), LocalPlayer():SteamID()
-		local params = {
-			image = img_base64,
-			type = "base64",
-			name = tostring(os.time()),
-			title = ("%s - %s"):format(ply_nick, ply_steamid),
-			description = ("%s (%s) on %s"):format(ply_nick, ply_steamid, os.date("%d/%m/%Y at %H:%M")),
-		}
+		local body, boundary = "", tostring(os.time())
+		body = body .. "--" .. boundary .. "\r\nContent-Disposition: form-data; name=\"reqtype\"\r\n\r\nfileupload\r\n"
+		body = body .. "--" .. boundary .. "\r\nContent-Disposition: form-data; name=\"fileToUpload\"; filename=\"image.png\"\r\nContent-Type: image/png\r\n\r\n"
+		body = body .. util.Base64Decode(img_base64) .. "\r\n"
+		body = body .. "--" .. boundary .. "--\r\n"
 
-		local headers = {}
-		headers["Authorization"] = "Client-ID a3ee0bab335ecee"
-
-		local http_data = {
+		HTTP({
 			failed = function(...)
-				on_imgur_failure(...)
-				callback(nil)
+				callback(on_imgur_failure(...))
 			end,
 			success = function(...)
-				local url = on_imgur_success(...)
-				callback(url)
+				callback(on_imgur_success(...))
 			end,
-			method = "post",
-			url = "https://api.imgur.com/3/image.json",
-			parameters = params,
-			headers = headers,
-		}
+			method = "POST",
+			url = "https://catbox.moe/user/api.php",
+			body = body,
+			headers = {["Content-Type"] = "multipart/form-data; boundary=" .. boundary, ["Content-Length"] = #body}
+		})
 
-		HTTP(http_data)
-		EasyChat.Print(("sent picture (%s) to imgur"):format(string.NiceSize(#img_base64)))
+		EasyChat.Print(string.format("sent picture (%s) to imgur", string.NiceSize(#img_base64)))
 	end
 
 	local emote_lookup_tables = {}
@@ -1558,7 +1529,7 @@ if CLIENT then
 
 					local lp = LocalPlayer()
 					if IsValid(lp) and lp == arg and EC_USE_ME:GetBool() then
-						append_text(richtext, "me")
+						append_text(richtext, "Я")
 					else
 						if empty_nick then
 							append_text(richtext, "[NO NAME]")
@@ -1806,20 +1777,20 @@ if CLIENT then
 		ec_ctrl_shortcuts = {}
 		ec_alt_shortcuts = {}
 
-		EasyChat.AddMode("Team", function(text)
+		EasyChat.AddMode("Команда", function(text)
 			EasyChat.SendGlobalMessage(text, true, false)
 		end)
 
-		EasyChat.AddMode("Local", function(text)
+		EasyChat.AddMode("Локальный", function(text)
 			EasyChat.SendGlobalMessage(text, false, true)
 		end)
 
-		EasyChat.AddMode("Console", function(text)
+		EasyChat.AddMode("Консоль", function(text)
 			if IsConCommandBlocked(text) then
 				local text_entry = EasyChat.GetMainTextEntry()
 				if IsValid(text_entry) then
 					local command = text:Split(" ")[1]
-					text_entry:TriggerBlink(("'%s' IS BLOCKED! USE THE CONSOLE!"):format(command))
+					text_entry:TriggerBlink(("'%s' ЗАБЛОКИРОВАНА! ИСПОЛЬЗУЙТЕ КОНСОЛЬ!"):format(command))
 				end
 
 				return
@@ -1962,8 +1933,8 @@ if CLIENT then
 
 			local lp = LocalPlayer()
 			if IsValid(lp) and lp == ply and EC_USE_ME:GetBool() then
-				global_append_text("me")
-				table.insert(data, "me")
+				global_append_text("Я")
+				table.insert(data, "Я")
 			else
 				if empty_nick then
 					global_insert_color_change(UNKNOWN_COLOR.r, UNKNOWN_COLOR.g, UNKNOWN_COLOR.b)
@@ -2168,16 +2139,16 @@ if CLIENT then
 			end
 
 			local global_tab = vgui.Create("ECChatTab")
-			EasyChat.AddTab("Global", global_tab, "icon16/comments.png")
-			EasyChat.SetFocusForOn("Global", global_tab.TextEntry)
+			EasyChat.AddTab("Чат", global_tab, "icon16/comments.png")
+			EasyChat.SetFocusForOn("Чат", global_tab.TextEntry)
 
 			if not EasyChat.UseDermaSkin then
 				global_tab.RichText:InsertColorChange(255, 255, 255, 255)
 			end
 
-			global_tab.RichText.HistoryName = "global"
+			global_tab.RichText.HistoryName = "Чат"
 			if EC_HISTORY:GetBool() then
-				local history = EasyChat.ReadFromHistory("global")
+				local history = EasyChat.ReadFromHistory("Чат")
 				if not EasyChat.IsStringEmpty(history) then
 					if EasyChat.UseDermaSkin then
 						local new_col = global_tab.RichText:GetSkin().text_normal
@@ -2185,7 +2156,7 @@ if CLIENT then
 					end
 
 					global_tab.RichText:AppendText(history)
-					local historynotice = "\n^^^^^ Last Session History ^^^^^\n\n"
+					local historynotice = "\n^^^^^ История последней сессии ^^^^^\n\n"
 					global_tab.RichText:AppendText(historynotice)
 				end
 			end
@@ -2404,8 +2375,8 @@ if CLIENT then
 
 			local steam_id64 = util.SteamIDTo64(steam_id)
 			local ply_menu = DermaMenu()
-			ply_menu:AddOption("Set Title", function()
-				local frame = EasyChat.AskForInput("Set Title", function(title)
+			ply_menu:AddOption("Установить заголовок", function()
+				local frame = EasyChat.AskForInput("Установить заголовок", function(title)
 					local succ, err = EasyChat.Config:WritePlayerTitle(steam_id, title)
 					if not succ then
 						notification.AddLegacy(err, NOTIFY_ERROR, 3)
@@ -2449,7 +2420,7 @@ if CLIENT then
 				end
 			end):SetImage("icon16/shield.png")
 
-			ply_menu:AddOption("Remove Title", function()
+			ply_menu:AddOption("Удалить заголовок", function()
 				local succ, err = EasyChat.Config:DeletePlayerTitle(steam_id)
 				if not succ then
 					notification.AddLegacy(err, NOTIFY_ERROR, 3)
@@ -2459,8 +2430,8 @@ if CLIENT then
 
 			local ply = player.GetBySteamID(steam_id)
 			if IsValid(ply) then
-				ply_menu:AddOption("Set Name", function()
-					local frame = EasyChat.AskForInput("Set Name", function(name)
+				ply_menu:AddOption("Установить имя", function()
+					local frame = EasyChat.AskForInput("Установить имя", function(name)
 						local succ, err = EasyChat.Config:WritePlayerName(ply, name)
 						if not succ then
 							notification.AddLegacy(err, NOTIFY_ERROR, 3)
@@ -2473,52 +2444,52 @@ if CLIENT then
 
 			ply_menu:AddSpacer()
 
-			ply_menu:AddOption("Open Steam Profile", function() EasyChat.OpenURL("https://steamcommunity.com/profiles/" .. steam_id64) end)
-			ply_menu:AddOption("Copy Name", function()
+			ply_menu:AddOption("Открыть профиль", function() EasyChat.OpenURL("https://steamcommunity.com/profiles/" .. steam_id64) end)
+			ply_menu:AddOption("Скопировать имя", function()
 				SetClipboardText(ply_name)
-				notification.AddLegacy("Copied player name", NOTIFY_GENERIC, 3)
+				notification.AddLegacy("Скопировано имя игрока", NOTIFY_GENERIC, 3)
 			end)
 
-			ply_menu:AddOption("Copy SteamID", function()
+			ply_menu:AddOption("Скопировать SteamID", function()
 				SetClipboardText(steam_id)
-				notification.AddLegacy("Copied player SteamID", NOTIFY_GENERIC, 3)
+				notification.AddLegacy("Скопирован SteamID игрока", NOTIFY_GENERIC, 3)
 			end)
 
-			ply_menu:AddOption("Copy SteamID64", function()
+			ply_menu:AddOption("Скопировать SteamID64", function()
 				SetClipboardText(steam_id64)
-				notification.AddLegacy("Copied player SteamID64", NOTIFY_GENERIC, 3)
+				notification.AddLegacy("Скопирован SteamID64 игрока", NOTIFY_GENERIC, 3)
 			end)
 
 			-- we dont use IsBlockedPlayer because it could return true if its a Steam block
 			if EasyChat.BlockedPlayers[steam_id] then
-				ply_menu:AddOption("Unblock Player", function() EasyChat.UnblockPlayer(steam_id) end)
+				ply_menu:AddOption("Разблокировать игрока", function() EasyChat.UnblockPlayer(steam_id) end)
 			else
-				ply_menu:AddOption("Block Player", function() EasyChat.BlockPlayer(steam_id) end)
+				ply_menu:AddOption("Заблокировать игрока", function() EasyChat.BlockPlayer(steam_id) end)
 			end
 
 			ply_menu:AddSpacer()
 
-			ply_menu:AddOption("Cancel", function() ply_menu:Remove() end)
+			ply_menu:AddOption("Отмена", function() ply_menu:Remove() end)
 			ply_menu:Open()
 		end
 
 		local function handle_steam_id(steam_id)
 			local id_menu = DermaMenu()
 			local steam_id64 = util.SteamIDTo64(steam_id)
-			id_menu:AddOption("Open Steam Profile", function() EasyChat.OpenURL("https://steamcommunity.com/profiles/" .. steam_id64) end)
-			id_menu:AddOption("Copy SteamID", function() SetClipboardText(steam_id) end)
-			id_menu:AddOption("Copy SteamID64", function() SetClipboardText(steam_id64) end)
+			id_menu:AddOption("Открыть профиль", function() EasyChat.OpenURL("https://steamcommunity.com/profiles/" .. steam_id64) end)
+			id_menu:AddOption("Скопировать SteamID", function() SetClipboardText(steam_id) end)
+			id_menu:AddOption("Скопировать SteamID64", function() SetClipboardText(steam_id64) end)
 
 			-- we dont use IsBlockedPlayer because it could return true if its a Steam block
 			if EasyChat.BlockedPlayers[steam_id] then
-				id_menu:AddOption("Unblock Player", function() EasyChat.UnblockPlayer(steam_id) end)
+				id_menu:AddOption("Разблокировать игрока", function() EasyChat.UnblockPlayer(steam_id) end)
 			else
-				id_menu:AddOption("Block Player", function() EasyChat.BlockPlayer(steam_id) end)
+				id_menu:AddOption("Заблокировать игрока", function() EasyChat.BlockPlayer(steam_id) end)
 			end
 
 			id_menu:AddSpacer()
 
-			id_menu:AddOption("Cancel", function() id_menu:Remove() end)
+			id_menu:AddOption("Отмена", function() id_menu:Remove() end)
 			id_menu:Open()
 		end
 
@@ -2810,7 +2781,7 @@ if CLIENT then
 			if chat_text_type == "servermsg" and EC_SERVER_MSG:GetBool() then
 				local cvar_name, cvar_value = text:match("^Server cvar '([a-zA-Z_]+)' changed to (.+)$")
 				if cvar_name and cvar_value then
-					chat.AddText(COLOR_GRAY, "Server ", COLOR_RED, cvar_name, COLOR_GRAY, " changed to ", COLOR_RED, cvar_value)
+					chat.AddText(COLOR_GRAY, "Серверное значение ", COLOR_RED, cvar_name, COLOR_GRAY, " изменено на ", COLOR_RED, cvar_value)
 				else
 					chat.AddText(COLOR_GRAY, text)
 				end
@@ -2969,14 +2940,6 @@ if CLIENT then
 			end
 		end)
 
-		if jit.arch == "x64" and not cookie.GetString("ECChromiumWarn") then
-			-- warn related to chromium regression
-			EasyChat.AddText(EasyChat.GUI.RichText, COLOR_RED, "IF YOU ARE HAVING TROUBLES TO TYPE SOME CHARACTERS PLEASE TYPE", color_white, " easychat_legacy_entry 1 ",
-			COLOR_RED, "OR" ,color_white, " easychat_non_qwerty 1", COLOR_RED, "IN YOUR CONSOLE. THE ISSUE IS DUE TO A REGRESSION IN CHROMIUM. MORE INFO HERE: https://github.com/Facepunch/garrysmod-issues/issues/4414\n"
-			.. "IF YOU STILL HAVE ISSUES PLEASE DO REPORT THEM HERE: https://github.com/Earu/EasyChat/issues")
-			cookie.Set("ECChromiumWarn", "1")
-		end
-
 		hook.Add("ECFactoryReset", TAG, function()
 			cookie.Delete("ECChromiumWarn")
 			--cookie.Delete("ECShowDonateButton")
@@ -3017,7 +2980,7 @@ if CLIENT then
 		msg_components = msg_components or {}
 
 		table.insert(msg_components, COLOR_LOCAL)
-		table.insert(msg_components, "(Local) ")
+		table.insert(msg_components, "(Локально) ")
 
 		return msg_components
 	end
@@ -3026,7 +2989,7 @@ if CLIENT then
 		msg_components = msg_components or {}
 
 		table.insert(msg_components, COLOR_TEAM)
-		table.insert(msg_components, "(Team) ")
+		table.insert(msg_components, "(Команда) ")
 
 		return msg_components
 	end
@@ -3049,7 +3012,7 @@ if CLIENT then
 
 				local text_entry = EasyChat.GetMainTextEntry()
 				if IsValid(text_entry) then
-					text_entry:TriggerBlink("TOO BIG")
+					text_entry:TriggerBlink("СЛИШКОМ МНОГО")
 				end
 
 				return false

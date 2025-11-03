@@ -1225,7 +1225,7 @@ local function create_default_settings()
 
 			local step1_desc3 = content:Add("DLabel")
 			step1_desc3:SetPos(20, y_offset)
-			step1_desc3:SetText("Если папки "bin" не существует, создайте ее")
+			step1_desc3:SetText("Если папки \"bin\" не существует, создайте ее")
 			step1_desc3:SetTextColor(EasyChat.TextColor)
 			step1_desc3:SizeToContents()
 			y_offset = y_offset + 20

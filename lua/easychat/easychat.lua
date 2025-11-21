@@ -106,8 +106,8 @@ function EasyChat.IsStringEmpty(str, is_nick)
 	local sanitized_str = EasyChat.ExtendedStringTrim(str, true)
 	if #sanitized_str == 0 then return true end
 
-	-- if its a nick dont allow under 2 chars
-	if is_nick and utf8.len(sanitized_str) < 2 then
+	-- don't allow empty nicks
+	if is_nick and utf8.len(sanitized_str) == 0 then
 		return true
 	end
 

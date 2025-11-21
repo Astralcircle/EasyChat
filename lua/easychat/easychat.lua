@@ -161,7 +161,7 @@ local function make_nick_override_wrapper()
 end
 
 local function rich_nick_wrapper(ply)
-	return EasyChat.NativeNick(ply)
+	return ply:GetNW2String("player_customname", EasyChat.NativeNick(ply))
 end
 
 local clean_name_fns = { "Nick", "Name", "GetName", "GetNick" }
@@ -2978,3 +2978,4 @@ function EasyChat.Reload()
 end
 
 concommand.Add("easychat_reload", EasyChat.Reload)
+

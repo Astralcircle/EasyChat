@@ -220,7 +220,6 @@ include("easychat/networking.lua")
 if SERVER then
 	util.AddNetworkString(NET_SET_TYPING)
 
-	local EC_VERSION_WARNING = CreateConVar("easychat_version_warnings", "1", FCVAR_ARCHIVE, "Should we warn users if EasyChat is outdated")
 	local WORKSHOP_ID = "1182471500"
 	local is_workshop = nil
 	function EasyChat.IsWorkshopInstall()
@@ -236,122 +235,6 @@ if SERVER then
 		is_workshop = false
 		return false
 	end
-
-	--[[local function retrieve_commit_time(commit)
-		local time = -1
-		if not commit.commit and commit.commit.author and commit.commit.author.date then
-			return time
-		end
-
-		commit.commit.author.date:gsub("(%d%d%d%d)%-(%d%d)%-(%d%d)T(%d%d)%:(%d%d)%:(%d%d)Z", function(year, month, day, hour, min, sec)
-			time = os.time({
-				day = day, month = month, year = year,
-				hour = hour, min = min, sec = sec
-			})
-		end)
-
-		return time
-	end]]
-
-	-- ensures the sha is always sync'd with git if the folder can be found
-	--[[local function get_known_version_sha()
-		local current_sha = cookie.GetString("ECLatestSHA")
-
-		local files, _ = file.Find("addons/easychat/.git/refs/heads/","GAME")
-		local found_ref = false
-		if #files > 0 and file.Exists("addons/easychat/.git/refs/heads/master", "GAME") then
-			local git_sha = (file.Read("addons/easychat/.git/refs/heads/master", "GAME") or ""):Trim()
-			if  #git_sha > 0 and current_sha ~= git_sha then
-				current_sha = git_sha
-				cookie.Set("ECLatestSHA", git_sha)
-			end
-
-			found_ref = true
-		end
-
-		if not found_ref then
-			files, _ = file.Find("lua/easychat/.git/refs/heads/", "GAME")
-			if #files > 0 and file.Exists("lua/easychat/.git/refs/heads/master", "GAME") then
-				local git_sha = (file.Read("lua/easychat/.git/refs/heads/master", "GAME") or ""):Trim()
-				if #git_sha > 0 and current_sha ~= git_sha then
-					current_sha = git_sha
-					cookie.Set("ECLatestSHA", git_sha)
-				end
-			end
-		end
-
-		return current_sha
-	end]]
-
-	--local DEFAULT_FILE_PATH = "lua/easychat/easychat.lua"
-	local is_outdated = false
-	local old_version, new_version
-	local is_new_version = false
-	--[[local function check_version()
-		if EasyChat.IsWorkshopInstall() then
-			EasyChat.Print("Running workshop version")
-			return
-		end
-
-		http.Fetch("https://api.github.com/repos/Earu/EasyChat/commits/master", function(body, _, _, code)
-			if code ~= 200 then return end
-			local commit = util.JSONToTable(body)
-			if not commit then return end
-			if not commit.sha then return end
-
-			local commit_time = retrieve_commit_time(commit)
-			local cur_edit_time = file.Time(DEFAULT_FILE_PATH, "GAME")
-			if istable(commit.files) and #commit.files > 0 then
-				local changed_file = commit.files[1]
-				local changed_file_path = commit.files[1].filename or DEFAULT_FILE_PATH
-				if changed_file.status == "modified" then
-					cur_edit_time = file.Time(changed_file_path, "GAME")
-				elseif changed_file.status == "added" then
-					cur_edit_time = file.Exists(changed_file_path, "GAME") and commit_time + 1 or 0
-				elseif changed_file.status == "removed" then
-					cur_edit_time = file.Exists(changed_file_path, "GAME") and 0 or commit_time + 1
-				end
-			end
-
-			local latest_sha = get_known_version_sha()
-			if not latest_sha then
-				-- we dont want to set the SHA if we have an outdated version
-				if commit_time > cur_edit_time then
-					is_outdated = true
-					EasyChat.Print("Running unknown outdated version")
-				else
-					is_new_version = true
-					cookie.Set("ECLatestSHA", commit.sha)
-					EasyChat.Print("Setting and running version ", commit.sha)
-				end
-
-				return
-			end
-
-			if latest_sha ~= commit.sha then
-				if commit_time > cur_edit_time then
-					-- same file as old but different sha, new update but not installed ?
-					is_outdated = true
-					old_version, new_version = latest_sha, commit.sha
-					EasyChat.Print("Running outdated version ", latest_sha)
-				else
-					-- only update version if the last file edit was AFTER the latest commit
-					if commit_time ~= -1 and cur_edit_time >= commit_time then
-						-- our latest file edit is different than the one we registered which means we installed a new update
-						is_new_version = true
-						cookie.Set("ECLatestSHA", commit.sha)
-						EasyChat.Print("Running version ", commit.sha)
-					end
-				end
-			-- in theory this should never happen but what do I know
-			elseif commit_time > cur_edit_time then
-				is_outdated = true
-				EasyChat.Print("Running unknown outdated version")
-			else
-				EasyChat.Print("Running version ", latest_sha)
-			end
-		end)
-	end]]
 
 	function EasyChat.Init()
 		EasyChat.Transliterator = include("easychat/unicode_transliterator.lua")
@@ -402,33 +285,6 @@ if SERVER then
 		end
 
 		safe_hook_run("ECPostInitialized")
-	end)
-
-	-- we can't do that in Initialize because the http lib is sometimes not available
-	--[[hook.Add("Think", TAG, function()
-		check_version()
-		hook.Remove("Think", TAG)
-	end)]]
-
-	hook.Add("ECOpened", TAG, function(ply)
-		if not ply:IsAdmin() then return end
-		if ply.ECHasVersionWarned then return end
-
-		if is_outdated and EC_VERSION_WARNING:GetBool() then
-			local msg_components = { COLOR_GRAY, "The server is running an", COLOR_RED, " outdated ", COLOR_GRAY, "version of", COLOR_RED, " EasyChat" }
-			if old_version and new_version then
-				table.Add(msg_components, { COLOR_GRAY, " (current: ", COLOR_RED, old_version, COLOR_GRAY, " | newest: ", COLOR_RED, new_version, COLOR_GRAY, ")." })
-			else
-				table.Add(msg_components, { COLOR_GRAY, "." })
-			end
-
-			table.insert(msg_components, "\nConsider updating.")
-			EasyChat.PlayerAddText(ply, unpack(msg_components))
-		elseif is_new_version then
-			ply:SendLua([[cookie.Delete("ECChromiumWarn")]])
-		end
-
-		ply.ECHasVersionWarned = true
 	end)
 end
 
@@ -2938,11 +2794,6 @@ if CLIENT then
 			if EC_HUD_SH_CLEAR:GetBool() and text == "sh" or text:match("%ssh%s") then
 				chathud:StopComponents()
 			end
-		end)
-
-		hook.Add("ECFactoryReset", TAG, function()
-			cookie.Delete("ECChromiumWarn")
-			--cookie.Delete("ECShowDonateButton")
 		end)
 
 		safe_hook_run("ECInitialized")

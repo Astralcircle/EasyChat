@@ -158,11 +158,11 @@ function macro_processor:IsValidMacro(macro_name, macro)
 end
 
 function macro_processor:RegisterMacro(macro_name, macro)
-	if not self:IsValidMacro(macro_name, macro) then return false, "invalid macro" end
+	if not self:IsValidMacro(macro_name, macro) then return false, "Невалидный макрос" end
 
 	macro.PerCharacter = macro.PerCharacter or false
 	macro.IsLua = macro.IsLua or false
-	if macro.IsLua and not self:CompileLuaMacro(macro) then return false, "could not compile macro" end
+	if macro.IsLua and not self:CompileLuaMacro(macro) then return false, "Не удалось скомпилировать макрос" end
 
 	if not file.Exists(self.Directory, "DATA") then
 		file.CreateDir(self.Directory)

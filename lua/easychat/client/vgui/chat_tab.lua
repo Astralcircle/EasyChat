@@ -52,13 +52,13 @@ local MAIN_TAB = {
 				end)
 			end
 			switch_menu:AddSpacer()
-			switch_menu:AddOption("Cancel", function() switch_menu:Remove() end)
+			switch_menu:AddOption("Отмена", function() switch_menu:Remove() end)
 			switch_menu:Open()
 		end
 
 		local use_new_text_entry = (EC_LEGACY_ENTRY and not EC_LEGACY_ENTRY:GetBool()) or not EC_LEGACY_ENTRY
 		self.TextEntry = self:Add((can_use_cef and use_new_text_entry) and "TextEntryX" or "TextEntryLegacy")
-		self.TextEntry:SetPlaceholderText("type something...")
+		self.TextEntry:SetPlaceholderText("напишите что-нибудь...")
 
 		self.EmotePicker = vgui.Create("ECEmotePicker")
 		self.EmotePicker:SetVisible(false)

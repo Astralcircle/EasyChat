@@ -189,11 +189,6 @@ if CLIENT then
 			else
 				chat.AddText(black_color, " ▸ ", white_color, "Last seen ", cyan_color, seen_date, white_color, " at ", teal_color, os.date("%H:%M", last_seen_time), gray_color, formatted_diff)
 			end
-
-			-- let me be special
-			if network_id == "STEAM_0:0:80006525" then
-				chat.AddText(black_color, " ▸ ", teal_color, "EasyChat", white_color, " Developer!")
-			end
 		else
 			if reason == "Gave up connecting" then
 				chat.AddText(red_color, " ● ", ply_col, name, gray_color, formatted_id, red_color, "gave up", white_color, " connecting")

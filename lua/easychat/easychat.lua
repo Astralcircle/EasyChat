@@ -1108,60 +1108,31 @@ if CLIENT then
 			return
 		end
 
-		local decoded_body = util.JSONToTable(body)
-		if not decoded_body then
-			on_imgur_failure("could not json decode body")
-			return
-		end
-
-		if not decoded_body.success then
-			on_imgur_failure(("%s: %s"):format(
-				decoded_body.status or "unknown status?",
-				decoded_body.data and decoded_body.data.error or "unknown error"
-			))
-			return
-		end
-
-		local url = decoded_body.data and decoded_body.data.link
-		if not url then
-			on_imgur_failure("success but link wasn't found?")
-			return
-		end
-
-		EasyChat.Print(("imgur uploaded: %s"):format(tostring(url)))
-		return url
+		EasyChat.Print(("imgur uploaded: %s"):format(tostring(body)))
+		return body
 	end
 
 	function EasyChat.UploadToImgur(img_base64, callback)
-		local ply_nick, ply_steamid = LocalPlayer():Nick(), LocalPlayer():SteamID()
-		local params = {
-			image = img_base64,
-			type = "base64",
-			name = tostring(os.time()),
-			title = ("%s - %s"):format(ply_nick, ply_steamid),
-			description = ("%s (%s) on %s"):format(ply_nick, ply_steamid, os.date("%d/%m/%Y at %H:%M")),
-		}
+		local body, boundary = "", tostring(os.time())
+		body = body .. "--" .. boundary .. "\r\nContent-Disposition: form-data; name=\"reqtype\"\r\n\r\nfileupload\r\n"
+		body = body .. "--" .. boundary .. "\r\nContent-Disposition: form-data; name=\"fileToUpload\"; filename=\"image.png\"\r\nContent-Type: image/png\r\n\r\n"
+		body = body .. util.Base64Decode(img_base64) .. "\r\n"
+		body = body .. "--" .. boundary .. "--\r\n"
 
-		local headers = {}
-		headers["Authorization"] = "Client-ID a3ee0bab335ecee"
-
-		local http_data = {
+		HTTP({
 			failed = function(...)
-				on_imgur_failure(...)
-				callback(nil)
+				callback(on_imgur_failure(...))
 			end,
 			success = function(...)
-				local url = on_imgur_success(...)
-				callback(url)
+				callback(on_imgur_success(...))
 			end,
-			method = "post",
-			url = "https://api.imgur.com/3/image.json",
-			parameters = params,
-			headers = headers,
-		}
+			method = "POST",
+			url = "https://catbox.moe/user/api.php",
+			body = body,
+			headers = {["Content-Type"] = "multipart/form-data; boundary=" .. boundary, ["Content-Length"] = #body}
+		})
 
-		HTTP(http_data)
-		EasyChat.Print(("sent picture (%s) to imgur"):format(string.NiceSize(#img_base64)))
+		EasyChat.Print(string.format("sent picture (%s) to imgur", string.NiceSize(#img_base64)))
 	end
 
 	local emote_lookup_tables = {}

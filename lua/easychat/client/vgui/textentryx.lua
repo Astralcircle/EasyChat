@@ -172,14 +172,14 @@ function PANEL:Init()
 
 	self:AddInternalCallback("OnRightClick", function()
 		local paste_menu = DermaMenu()
-		paste_menu:AddOption("Paste", function()
+		paste_menu:AddOption("Вставить", function()
 			self:QueueJavascript([[{
 				const ev = new ClipboardEvent("paste");
 				TEXT_ENTRY.dispatchEvent(ev);
 			}]])
 		end)
 		paste_menu:AddSpacer()
-		paste_menu:AddOption("Cancel", function() paste_menu:Remove() end)
+		paste_menu:AddOption("Отмена", function() paste_menu:Remove() end)
 		paste_menu:Open()
 	end)
 

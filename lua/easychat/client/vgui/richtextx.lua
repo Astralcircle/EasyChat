@@ -78,7 +78,7 @@ function PANEL:Init()
 	self:AddInternalCallback("GetFindText", function() return self.FindText end)
 
 	local function find_text()
-		EasyChat.AskForInput("Find", function(input)
+		EasyChat.AskForInput("Найти", function(input)
 			self.FindText = input
 			self:QueueJavascript("RichTextX.GetFindText(window.find);")
 		end, false)
@@ -87,14 +87,14 @@ function PANEL:Init()
 
 	self:AddInternalCallback("OnRightClick", function(selected_text)
 		local copy_menu = DermaMenu()
-		copy_menu:AddOption("Copy", function() SetClipboardText(selected_text) end)
-		copy_menu:AddOption("Find", find_text)
+		copy_menu:AddOption("Скопировать", function() SetClipboardText(selected_text) end)
+		copy_menu:AddOption("Найти", find_text)
 		copy_menu:AddSpacer()
 		-- setting the textContent node of the richtext clears all the children and replaces it
 		-- with a single text node, it also doesnt invoke chromium HTML parser which is relatively fast
-		copy_menu:AddOption("Clear Chatlog", function() self:QueueJavascript([[RICHTEXT.textContent = "";]]) end)
+		copy_menu:AddOption("Очистить чат", function() self:QueueJavascript([[RICHTEXT.textContent = "";]]) end)
 		copy_menu:AddSpacer()
-		copy_menu:AddOption("Cancel", function() copy_menu:Remove() end)
+		copy_menu:AddOption("Отмена", function() copy_menu:Remove() end)
 		copy_menu:Open()
 	end)
 

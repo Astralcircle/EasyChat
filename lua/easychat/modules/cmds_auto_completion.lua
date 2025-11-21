@@ -29,7 +29,7 @@ end
 
 if CLIENT then
 	local EC_CMDS_SUGGESTIONS = CreateConVar("easychat_cmd_suggestions", "1", FCVAR_ARCHIVE, "Shows suggestions for commands")
-	EasyChat.RegisterConvar(EC_CMDS_SUGGESTIONS, "Displays command suggestions")
+	EasyChat.RegisterConvar(EC_CMDS_SUGGESTIONS, "Отображать автозаполнение для команд")
 
 	local color_white = color_white
 	local black_color = Color(0, 0, 0, 200)
@@ -266,7 +266,7 @@ if CLIENT then
 			-- account for the panel that shows people that can "hear" you
 			local cur_mode = EasyChat.GetCurrentMode()
 			local localui_panel = EasyChat.GUI.LocalPanel
-			local is_local_mode = cur_mode and cur_mode.Name == "Local" and IsValid(localui_panel)
+			local is_local_mode = cur_mode and cur_mode.Name == "Локальный" and IsValid(localui_panel)
 
 			if not should_left_side then
 				pos_x = chat_x + chat_w + 2

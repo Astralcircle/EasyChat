@@ -15,20 +15,9 @@ local default_config = {
 	OverrideClientSettings = true,
 	AllowTagsInNames = true,
 	AllowTagsInMessages = true,
-	UserGroups = {
-		--[[["players"] = {
-			EmoteName = "user",
-			EmoteSize = 16,
-			EmoteProvider = silkicons,
-			Tag = "[<hscan>Plebian<stop>]"
-		}]]
-	},
-	Titles = {
-		--["STEAM_0:0:80006525"] = "EasyChat Dev"
-	},
-	Tabs = {
-		--["Lua"] = false
-	}
+	UserGroups = {},
+	Titles = {},
+	Tabs = {}
 }
 
 if SERVER then
@@ -251,7 +240,7 @@ if SERVER then
 		file.Write(MODULE_IGNORE_LIST_PATH, table.concat(ignore_paths, "\n"))
 
 		EasyChat.Print(("%s changed the module ignore list, a restart is required"):format(ply))
-		EasyChat.Warn(ply, "EasyChat's module ignore list updated. A restart is required.")
+		EasyChat.Warn(ply, "Список игнорируемых модулей EasyChat обновлен. Требуется перезагрузка.")
 		EasyChat.RunOnNextFrame(function()
 			net.Start(NET_MODULE_IGNORE_LIST)
 			net.WriteTable(ignore_paths)
@@ -261,7 +250,7 @@ if SERVER then
 end
 
 if CLIENT then
-	local ADMIN_WARN = "You need to be an admin to do that"
+	local ADMIN_WARN = "Вам нужно быть администратором для этого"
 
 	local config = default_config
 	config.ModuleIgnoreList = {}
@@ -288,7 +277,7 @@ if CLIENT then
 		end
 
 		if #newly_allowed_tabs > 0 then
-			local msg = ("Chat tabs (%s) got unrestricted. Reload the chatbox to get access to them.")
+			local msg = ("Вкладки чата (%s) были разблокированы. Перезагрузите чат для доступа к ним.")
 				:format(table.concat(newly_allowed_tabs, ", "))
 			EasyChat.Warn(msg)
 		end
@@ -298,7 +287,7 @@ if CLIENT then
 		local data_len = net.ReadDouble()
 		local data = net.ReadData(data_len)
 		if #data < data_len then
-			EasyChat.Warn("EasyChat's server config is TOO BIG, tell the admin(s) / owner(s).")
+			EasyChat.Warn("Конфигурация сервера СЛИШКОМ БОЛЬШАЯ, сообщите об этом администратору/владельцу")
 			return
 		end
 
@@ -327,7 +316,7 @@ if CLIENT then
 		emote_name = (emote_name or ""):Trim()
 		emote_size = tonumber(emote_size) or -1
 		emote_provider = (emote_provider or ""):Trim()
-		if #user_group == 0 then return false, "No usergroup specified" end
+		if #user_group == 0 then return false, "Группа не указана" end
 
 		net.Start(NET_WRITE_USER_GROUP)
 		net.WriteString(user_group)
@@ -344,7 +333,7 @@ if CLIENT then
 		if not LocalPlayer():IsAdmin() then return false, ADMIN_WARN end
 
 		user_group = (user_group or ""):Trim()
-		if #user_group == 0 then return false, "No usergroup specified" end
+		if #user_group == 0 then return false, "Группа не указана" end
 
 		net.Start(NET_DEL_USER_GROUP)
 		net.WriteString(user_group)
@@ -357,7 +346,7 @@ if CLIENT then
 		if not LocalPlayer():IsAdmin() then return false, ADMIN_WARN end
 
 		tab_name = (tab_name or ""):Trim()
-		if #tab_name == 0 then return false, "No tab specified" end
+		if #tab_name == 0 then return false, "Вкладка не указана" end
 
 		net.Start(NET_WRITE_TAB)
 		net.WriteString(tab_name)
@@ -371,10 +360,10 @@ if CLIENT then
 		if not LocalPlayer():IsAdmin() then return false, ADMIN_WARN end
 
 		steam_id = (steam_id or ""):Trim()
-		if #steam_id == 0 then return false, "Invalid SteamID" end
+		if #steam_id == 0 then return false, "Неверный SteamID" end
 
 		title = (title or ""):Trim()
-		if #title == 0 then return false, "No title specified" end
+		if #title == 0 then return false, "Титул не указан" end
 
 		net.Start(NET_WRITE_PLY_TITLE)
 		net.WriteString(steam_id)
@@ -388,7 +377,7 @@ if CLIENT then
 		if not LocalPlayer():IsAdmin() then return false, ADMIN_WARN end
 
 		steam_id = (steam_id or ""):Trim()
-		if #steam_id == 0 then return false, "Invalid SteamID" end
+		if #steam_id == 0 then return false, "Неверный SteamID" end
 
 		net.Start(NET_DEL_PLY_TITLE)
 		net.WriteString(steam_id)
@@ -429,8 +418,8 @@ if CLIENT then
 
 	function config:WritePlayerName(ply, name)
 		if not LocalPlayer():IsAdmin() then return false, ADMIN_WARN end
-		if not IsValid(ply) then return false, "Invalid Player" end
-		if #name > 32 then return false, "Name Too Long" end
+		if not IsValid(ply) then return false, "Неверный игрок" end
+		if #name > 32 then return false, "Имя слишком длинное" end
 
 		net.Start(NET_WRITE_PLY_NAME)
 		net.WriteEntity(ply)

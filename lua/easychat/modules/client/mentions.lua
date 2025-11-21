@@ -36,22 +36,22 @@ end
 
 do
 	local settings = EasyChat.Settings
-	local category_name = "Mentions"
+	local category_name = "Упоминания"
 
 	settings:AddCategory(category_name)
 
 	settings:AddConvarSettingsSet(category_name, {
-		[EC_MENTION] = "Color messages containing your name",
-		[EC_MENTION_FLASH] = "Flashes your game when you are mentioned",
-		[EC_MENTION_SHOW_MISSED] = "Show mentions you have missed when AFK / tabbed out"
+		[EC_MENTION] = "Подсвечивать сообщения, содержащие ваше имя",
+		[EC_MENTION_FLASH] = "Мигать окном игры при упоминании вас",
+		[EC_MENTION_SHOW_MISSED] = "Отображать пропущенные упоминания когда вы сворачивали игру"
 	})
 
 	settings:AddSpacer(category_name)
 
-	local setting_mention_color = settings:AddSetting(category_name, "color", "Mention Color")
+	local setting_mention_color = settings:AddSetting(category_name, "color", "Цвет упоминаний")
 	setting_mention_color:SetColor(mentions:GetColor())
 
-	local setting_save_color = settings:AddSetting(category_name, "action", "Save Mention Color")
+	local setting_save_color = settings:AddSetting(category_name, "action", "Сохранить цвет упоминаний")
 	setting_save_color.DoClick = function()
 		local color = setting_mention_color:GetColor()
 		EC_MENTION_COLOR:SetString(("%d %d %d"):format(color.r, color.g, color.b))
@@ -59,10 +59,10 @@ do
 
 	settings:AddSpacer(category_name)
 
-	settings:AddConvarSetting(category_name, "boolean", EC_MENTION_FILTERS, "Enable mention filters")
-	local setting_filters = settings:AddSetting(category_name, "list", "Filters")
+	settings:AddConvarSetting(category_name, "boolean", EC_MENTION_FILTERS, "Включить фильтры упоминаний")
+	local setting_filters = settings:AddSetting(category_name, "list", "Фильтры")
 	setting_filters.List:SetMultiSelect(false)
-	setting_filters.List:AddColumn("Filter")
+	setting_filters.List:AddColumn("Фильтр")
 
 	local function build_filter_list()
 		setting_filters.List:Clear()
@@ -73,16 +73,16 @@ do
 
 	build_filter_list()
 
-	local setting_add_filter = settings:AddSetting(category_name, "action", "Add Filter")
+	local setting_add_filter = settings:AddSetting(category_name, "action", "Добавить фильтр")
 	setting_add_filter.DoClick = function()
-		EasyChat.AskForInput("Add Filter", function(filter)
+		EasyChat.AskForInput("Добавить фильтр", function(filter)
 			table.insert(mentions.Filters, filter)
 			save_filters()
 			build_filter_list()
 		end, false)
 	end
 
-	local setting_remove_filter = settings:AddSetting(category_name, "action", "Remove Filter")
+	local setting_remove_filter = settings:AddSetting(category_name, "action", "Удалить фильтр")
 	setting_remove_filter.DoClick = function()
 		local _, selected_line = setting_filters.List:GetSelectedLine()
 		if not IsValid(selected_line) then return end
@@ -116,11 +116,11 @@ local function create_mention_panel()
 	frame.btnClose:SetFont("DermaDefaultBold")
 	frame.btnClose:SetText("X")
 
-	frame:SetTitle("Missed Mentions")
+	frame:SetTitle("Пропущенные упоминания")
 	frame.lblTitle:SetFont("EasyChatFont")
 
 	local btn_ok = frame:Add("DButton")
-	btn_ok:SetText("Ok")
+	btn_ok:SetText("ОК")
 	btn_ok:SetTall(30)
 	btn_ok:Dock(BOTTOM)
 	btn_ok:DockMargin(5, 5, 5, 5)
@@ -276,7 +276,7 @@ hook.Add("OnPlayerChat", "EasyChatModuleMention", function(ply, msg, is_team, is
 		system.FlashWindow()
 	end
 
-	EasyChat.FlashTab("Global")
+	EasyChat.FlashTab("Чат")
 
 	local msg_components = {}
 	if is_dead then

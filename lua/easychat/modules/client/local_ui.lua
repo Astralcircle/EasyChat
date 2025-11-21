@@ -18,12 +18,12 @@ end
 
 panel:SetWide(150)
 panel.old_paint = panel.Paint
-local panel_title = "Message Receivers"
+local panel_title = "Вас услышат"
 local ec_cvar_dist = GetConVar("easychat_local_msg_distance")
 function panel:Paint(w, h)
 	if not EasyChat.IsOpened() then return end
-	if EasyChat.GetActiveTab().Name ~= "Global" then return end
-	if EasyChat.GetCurrentMode().Name ~= "Local" then return end
+	if EasyChat.GetActiveTab().Name ~= "Чат" then return end
+	if EasyChat.GetCurrentMode().Name ~= "Локальный" then return end
 
 	if EasyChat.UseDermaSkin then
 		self:old_paint(w, h)

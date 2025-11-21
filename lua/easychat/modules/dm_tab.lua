@@ -46,7 +46,7 @@ if CLIENT then
 			self.DMList = self:Add("DListView")
 			self.DMList:SetWide(100)
 			self.DMList:Dock(LEFT)
-			self.DMList:AddColumn("Chats")
+			self.DMList:AddColumn("Чаты")
 			self.DMList.OnRowSelected = function(self, index, row)
 				local ply = row.Player
 				if IsValid(ply) then
@@ -161,13 +161,13 @@ if CLIENT then
 			if EC_HISTORY:GetBool() then
 				local history = EasyChat.ReadFromHistory(id64)
 				if EasyChat.IsStringEmpty(history) then
-					EasyChat.AddText(richtext, "This is the beginning of your conversation!\n\n")
+					EasyChat.AddText(richtext, "Это начало вашего разговора!\n\n")
 				else
 					richtext:AppendText(history) -- so we do not log twice
-					richtext:AppendText("\n^^^^^ Last Session History ^^^^^\n\n")
+					richtext:AppendText("\n^^^^^ История последней сессии ^^^^^\n\n")
 				end
 			else
-				EasyChat.AddText(richtext, "This is the beginning of your conversation!\n\n")
+				EasyChat.AddText(richtext, "Это начало вашего разговора!\n\n")
 			end
 
 			return chat
@@ -204,15 +204,15 @@ if CLIENT then
 				net.WriteString(message)
 				net.SendToServer()
 			else
-				EasyChat.AddText(chat.RichText, "The player you are trying to message is not on the server anymore!")
+				EasyChat.AddText(chat.RichText, "Игрок, которому вы пытаетесь отправить сообщение, больше не на сервере!")
 			end
 
 			self.TextEntry:SetText("")
 		end,
 		Notify = function(self, chat, message)
 			chat.NewMessages = chat.NewMessages + 1
-			EasyChat.FlashTab("DM")
-			_G.chat.AddText(color_white, "[DM | ", chat.Player, color_white, "] " .. message)
+			EasyChat.FlashTab("ЛС")
+			_G.chat.AddText(color_white, "[ЛС | ", chat.Player, color_white, "] " .. message)
 		end,
 		Think = function(self)
 			for _, chat in pairs(self.Chats) do
@@ -257,7 +257,7 @@ if CLIENT then
 			dmtab:Notify(chat, message)
 		else
 			local activetabname = EasyChat.GetActiveTab().Tab.Name
-			if (activetabname == "DM" and dmtab.ActiveChat ~= chat) or activetabname ~= "DM" then
+			if (activetabname == "ЛС" and dmtab.ActiveChat ~= chat) or activetabname ~= "ЛС" then
 				dmtab:Notify(chat, message)
 			end
 		end
@@ -278,7 +278,7 @@ if CLIENT then
 
 	hook.Add("ECTabChanged", "EasyChatModuleDMTab", function(_, tab)
 		if not IsValid(dmtab) then return end
-		if tab == "DM" then
+		if tab == "ЛС" then
 			local chat = dmtab.ActiveChat
 			if IsValid(chat.Player) and chat.NewMessages > 0 then
 				chat.NewMessages = 0
@@ -296,15 +296,15 @@ if CLIENT then
 
 	hook.Add("ECInitialized", "EasyChatModuleDMTab", function()
 		if not IsValid(dmtab) then return end
-		for _, ply in pairs(player.GetAll()) do
+		for _, ply in player.Iterator() do
 			if ply ~= LocalPlayer() then
 				dmtab:CreateChat(ply)
 			end
 		end
 	end)
 
-	EasyChat.AddTab("DM", dmtab, "icon16/group.png")
-	EasyChat.SetFocusForOn("DM", dmtab.TextEntry)
+	EasyChat.AddTab("ЛС", dmtab, "icon16/group.png")
+	EasyChat.SetFocusForOn("ЛС", dmtab.TextEntry)
 end
 
 return "Direct Messages"

@@ -33,8 +33,8 @@ local EC_HUD_SMOOTH = GetConVar("easychat_hud_smooth")
 local color_hex_part = {
 	Usage = "<c=hexadecimal>",
 	Examples = {
-		"<c=f00>red text!",
-		"<c=00ff00>green text!"
+		"<c=f00>красный текст!",
+		"<c=00ff00>зеленый текст!"
 	}
 }
 
@@ -78,9 +78,9 @@ chathud:RegisterPart("c", color_hex_part)
 local hsv_part = {
 	OkInNicks = false,
 	RunExpression = function() return 360, 1, 1 end,
-	Usage = "<hsv=expression> or <hsv=hue,saturation,value>",
+	Usage = "<hsv=expression> или <hsv=hue,saturation,value>",
 	Examples = {
-		"<hsv=t()*300>Rainbow text"
+		"<hsv=t()*300>Радужный текст"
 	}
 }
 
@@ -118,9 +118,9 @@ chathud:RegisterPart("hsv", hsv_part)
 local bhsv_part = {
 	OkInNicks = false,
 	RunExpression = function() return 360, 1, 1 end,
-	Usage = "<bhsv=expression> or <bhsv=hue,saturation,value>",
+	Usage = "<bhsv=expression> или <bhsv=hue,saturation,value>",
 	Examples = {
-		"<bhsv=t()*300>Rainbow background"
+		"<bhsv=t()*300>Радужный фон"
 	}
 }
 
@@ -166,10 +166,10 @@ chathud:RegisterPart("bhsv", bhsv_part)
 local flash_part = {
 	TargetColor = Color(255, 0, 0),
 	Color = Color(255, 0, 0),
-	Usage = "<flash> or <flash=r,g,b>",
+	Usage = "<flash> или <flash=r,g,b>",
 	Examples = {
-		"<flash=255,0,0>Red flashing text",
-		"<flash=0,255,255>Cyan flashing text",
+		"<flash=255,0,0>Красный мигающий текст",
+		"<flash=0,255,255>Голубой мигающий текст",
 	}
 }
 
@@ -207,11 +207,11 @@ chathud:RegisterPart("flash", flash_part, "%<(flash)%>")
 ]]-------------------------------------------------------------------------------
 local alpha_part = {
 	Alpha = 255,
-	Usage = "<flash> or <flash=alpha>",
+	Usage = "<flash> или <flash=alpha>",
 	OkInNicks = false,
 	Examples = {
-		"<flash=155>Going half transparent",
-		"<flash>Going fully transparent",
+		"<flash=155>Становлюсь полупрозрачным",
+		"<flash>Становлюсь полностью прозрачным",
 	}
 }
 
@@ -255,10 +255,10 @@ chathud:RegisterPart("a", alpha_part)
 local hscan_part = {
 	Speed = 1,
 	ScanColor = Color(9, 155, 234),
-	Usage = "<hscan> or <hscan=speed,r,g,b>",
+	Usage = "<hscan> или <hscan=speed,r,g,b>",
 	Examples = {
-		"<hscan>normal horizonal scan",
-		"<hscan=3,0,255,0>fast green scan"
+		"<hscan>нормальное горизантальное сканирование",
+		"<hscan=3,0,255,0>быстрое зеленое сканирование"
 	}
 }
 
@@ -297,10 +297,10 @@ chathud:RegisterPart("hscan", hscan_part, "%<(hscan)%>")
 local vscan_part = {
 	Speed = 1,
 	ScanColor = Color(234, 9, 61),
-	Usage = "<vscan> or <vscan=speed,r,g,b>",
+	Usage = "<vscan> или <vscan=speed,r,g,b>",
 	Examples = {
-		"<vscan>normal vertical scan",
-		"<vscan=3,0,255,0>fast green scan"
+		"<vscan>нормальное вертикальное сканирование",
+		"<vscan=3,0,255,0>быстрое зеленое сканирование"
 	}
 }
 
@@ -340,10 +340,10 @@ local scale_part = {
 	OkInNicks = false,
 	RunExpression = function() return 1 end,
 	Enabled = false,
-	Usage = "<scale=size> or <scale=expression>",
+	Usage = "<scale=size> или <scale=expression>",
 	Examples = {
-		"<scale=3>Big text",
-		"<scale=sin(t()*3)>Size changing text"
+		"<scale=3>Большой текст",
+		"<scale=sin(t()*3)>Текст изменяющий размер"
 	}
 }
 
@@ -392,10 +392,10 @@ chathud:RegisterPart("scale", scale_part)
 local rotate_part = {
 	OkInNicks = false,
 	RunExpression = function() return 1 end,
-	Usage = "<rotate=angle> or <rotate=expression>",
+	Usage = "<rotate=angle> или <rotate=expression>",
 	Examples = {
 		"<rotate=90>:) :D",
-		"<rotate=t()*300>zoom zoom I rotate"
+		"<rotate=t()*300>зум зум я вращаюсь"
 	}
 }
 
@@ -444,7 +444,7 @@ chathud:RegisterPart("rotate", rotate_part)
 local z_rotate_part = {
 	OkInNicks = false,
 	RunExpression = function() return 1 end,
-	Usage = "<zrotate=angle> or <zrotate=expression>",
+	Usage = "<zrotate=angle> или <zrotate=expression>",
 	Examples = {
 		"<zrotate=90>:) :D",
 		"<zrotate=t()*300>zoom zoom I rotate"
@@ -610,10 +610,10 @@ local translate_part = {
 	OkInNicks = false,
 	RunExpression = function() return 0, 0 end,
 	Offset = { X = 0, Y = 0 },
-	Usage = "<translate=x,y> or <translate=expression>",
+	Usage = "<translate=x,y> или <translate=expression>",
 	Examples = {
-		"<translate=100,0>To the right",
-		"<translate=rand()*10,rand()*10>Im angry!"
+		"<translate=100,0>Направо",
+		"<translate=rand()*10,rand()*10>Я злой!"
 	}
 }
 
@@ -665,8 +665,8 @@ local carat_colors = {
 local carat_color_part = {
 	Usage = "^number or <caratcol=number>",
 	Examples = {
-		"^5this is blue",
-		"^13this is red"
+		"^5это голубой",
+		"^13это красный"
 	}
 }
 
@@ -698,7 +698,7 @@ chathud:RegisterPart("caratcol", carat_color_part, "%^([0-9][1-5]?)", {
 local wrong_part = {
 	Usage = "<wrong>",
 	Examples = {
-		"<wrong>This text is wrong"
+		"<wrong>Этот текст неверен"
 	}
 }
 
@@ -729,7 +729,7 @@ chathud:RegisterPart("wrong", wrong_part, "%<(wrong)%>")
 local background_part = {
 	Usage = "<background=r,g,b>",
 	Examples = {
-		"<background=0,255,255>Cyan background",
+		"<background=0,255,255>Голубой фон",
 	}
 }
 
@@ -785,8 +785,8 @@ local mc_colors = {
 local mc_color_part = {
 	Usage = "&value or <mccol=value>",
 	Examples = {
-		"&6this is orange",
-		"&ethis is yellow"
+		"&6это оранжевый",
+		"&eэто желтый"
 	}
 }
 

@@ -33,7 +33,7 @@ if SERVER then
 	end
 
 	function EasyChat.Warn(ply, msg)
-		EasyChat.PlayerAddText(ply, COLOR_RED, "[WARN] " ..  msg)
+		EasyChat.PlayerAddText(ply, COLOR_RED, "[!] " ..  msg)
 	end
 
 	local function print_chat_msg(ply, msg, is_team, is_dead)
@@ -44,12 +44,12 @@ if SERVER then
 
 		if is_team then
 			table.insert(print_args, COLOR_TEAM)
-			table.insert(print_args, "(Team) ")
+			table.insert(print_args, "(Команде) ")
 		end
 
 		if is_dead then
 			table.insert(print_args, COLOR_DEAD)
-			table.insert(print_args, "*DEAD* ")
+			table.insert(print_args, "*МЁРТВ* ")
 		end
 
 		local stripped_ply_nick = ply:Nick()
@@ -200,14 +200,14 @@ if SERVER then
 		-- it HAS to be malicious
 		if #msg > EC_MAX_CHARS:GetInt() then
 			EasyChat.SafeHookRun("ECBlockedMessage", ply, msg, is_team, is_local, "too big")
-			EasyChat.Warn(ply, ("NOT SENT (TOO BIG): %s..."):format(msg:sub(1, 100)))
+			EasyChat.Warn(ply, ("НЕ ОТПРАВЛЕНО (СЛИШКОМ БОЛЬШОЕ): %s..."):format(msg:sub(1, 100)))
 			return false
 		end
 
 		-- anti-spam
 		if spam_watch(ply, msg) then
 			EasyChat.SafeHookRun("ECBlockedMessage", ply, msg, is_team, is_local, "spam")
-			EasyChat.Warn(ply, ("NOT SENT (SPAM): %s..."):format(msg:sub(1, 100)))
+			EasyChat.Warn(ply, ("НЕ ОТПРАВЛЕНО (СПАМ): %s..."):format(msg:sub(1, 100)))
 			return false
 		end
 
@@ -478,7 +478,7 @@ if CLIENT then
 				if retries > MAX_RETRIES then
 					chat.AddText(
 						DISCONNECTED_COLOR,
-						"[DISCONNECTED] ",
+						"[ОТКЛЮЧЕН] ",
 						COLOR_PRINT_CHAT_MSG,
 						user_name,
 						COLOR_PRINT_CHAT_MSG,

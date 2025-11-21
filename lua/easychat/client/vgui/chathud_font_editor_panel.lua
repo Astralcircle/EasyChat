@@ -42,7 +42,7 @@ local EDITOR = {
 
 		self:SetSize(600, 410)
 		self:Center()
-		self:SetTitle("EC ChatHUD Font Editor")
+		self:SetTitle("Редактор шрифтов")
 		self.lblTitle:SetFont("EasyChatFont")
 		self.btnMaxim:Hide()
 		self.btnMinim:Hide()
@@ -70,7 +70,7 @@ local EDITOR = {
 
 		self.FontSize:SetSize(width, 20)
 		self.FontSize:SetPos(x, total_height)
-		self.FontSize:SetText("Font size")
+		self.FontSize:SetText("Размер шрифта")
 		self.FontSize:SetDecimals(0)
 		self.FontSize:SetMax(254)
 		self.FontSize:SetMin(5)
@@ -79,7 +79,7 @@ local EDITOR = {
 
 		self.FontWeight:SetSize(width, 20)
 		self.FontWeight:SetPos(x, total_height)
-		self.FontWeight:SetText("Font weight")
+		self.FontWeight:SetText("Вес шрифта")
 		self.FontWeight:SetDecimals(0)
 		self.FontWeight:SetMax(1000)
 		self.FontWeight:SetMin(200)
@@ -88,7 +88,7 @@ local EDITOR = {
 
 		self.FontScanlines:SetSize(width, 20)
 		self.FontScanlines:SetPos(x, total_height)
-		self.FontScanlines:SetText("Font scanlines")
+		self.FontScanlines:SetText("Сканлайны шрифта")
 		self.FontScanlines:SetDecimals(0)
 		self.FontScanlines:SetMin(0)
 		self.FontScanlines:SetMax(10)
@@ -103,7 +103,7 @@ local EDITOR = {
 				checkbox:SetChecked(prop_default)
 			end
 
-			checkbox:SetText("Font " .. prop_name)
+			checkbox:SetText("Параметр " .. prop_name)
 			checkbox:SetSize(width, 20)
 			checkbox:SetPos(x, total_height)
 
@@ -114,7 +114,7 @@ local EDITOR = {
 
 		self.ResetFont:SetPos(x, total_height)
 		self.ResetFont:SetSize(width, 20)
-		self.ResetFont:SetText("Reset Font")
+		self.ResetFont:SetText("Сбросить шрифт")
 		self.ResetFont.DoClick = function(_)
 			self:ResetFontData()
 		end
@@ -122,7 +122,7 @@ local EDITOR = {
 
 		self.ApplyFont:SetPos(x, total_height)
 		self.ApplyFont:SetSize(width, 20)
-		self.ApplyFont:SetText("Apply Font")
+		self.ApplyFont:SetText("Применить шрифт")
 		self.ApplyFont.DoClick = function(_)
 			self:SaveFontData()
 		end
@@ -245,7 +245,7 @@ local EDITOR = {
 		file.Write(file_path, json)
 
 		EasyChat.SafeHookRun("ECHUDFontChanged", data)
-		notification.AddLegacy("Successfully applied your font settings", NOTIFY_HINT, 5)
+		notification.AddLegacy("Настройки шрифта успешно применены", NOTIFY_HINT, 5)
 	end,
 	ResetFontData = function(self)
 		local shadow_data = table.Copy(default_font_data)

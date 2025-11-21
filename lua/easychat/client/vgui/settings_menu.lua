@@ -27,7 +27,7 @@ local SETTINGS = {}
 
 function SETTINGS:Init()
 	self:SetSize(640, 480)
-	self:SetTitle("EasyChat Settings")
+	self:SetTitle("Настройки")
 	self:DockPadding(0, 25, 0, 0)
 
 	self.lblTitle:SetFont("EasyChatFont")
@@ -291,7 +291,7 @@ local COLOR_SETTING = {
 		self.Title = self:Add("DLabel")
 		self.Title:SetFont("ECSettingsFont")
 		self.Title:SetTall(font_height)
-		self.Title:SetText("Unknown")
+		self.Title:SetText("Неизвестно")
 		self.Title:Dock(TOP)
 		self.Title:DockMargin(0, 0, 0, 5)
 
@@ -538,7 +538,7 @@ local convar_type_callbacks = {
 		number_wang:SetValue(cvar:GetInt())
 
 		local btn = number_wang:Add("DButton")
-		btn:SetText("Save")
+		btn:SetText("Сохранить")
 		btn:SetImage("icon16/bullet_disk.png")
 		btn:SetFont("ECSettingsFont")
 		btn:SetTall(number_wang:GetTall())
@@ -569,7 +569,7 @@ local convar_type_callbacks = {
 			local new_value = self:GetValue()
 			cvar:SetInt(new_value)
 			old_value = new_value
-			notification.AddLegacy(("Applied setting changes: %s -> %d"):format(cvar:GetName(), new_value), NOTIFY_HINT, 5)
+			notification.AddLegacy(("Применены изменения настроек: %s -> %d"):format(cvar:GetName(), new_value), NOTIFY_HINT, 5)
 		end
 
 		btn.DoClick = function(self)
@@ -588,7 +588,7 @@ local convar_type_callbacks = {
 		text_entry:SetText(cvar:GetString())
 
 		local btn = text_entry:Add("DButton")
-		btn:SetText("Save")
+		btn:SetText("Сохранить")
 		btn:SetImage("icon16/bullet_disk.png")
 		btn:SetFont("ECSettingsFont")
 		btn:SetTall(text_entry:GetTall())
@@ -664,7 +664,7 @@ function SETTINGS:AddConvarSettingsSet(category_name, options)
 		self:AddConvarSetting(category_name, "boolean", cvar, description)
 	end
 
-	local setting_reset_options = self:AddSetting(category_name, "action", "Reset Options")
+	local setting_reset_options = self:AddSetting(category_name, "action", "Сбросить настройки")
 	setting_reset_options.DoClick = function()
 		for cvar, _ in pairs(options) do
 			local default_value = tobool(cvar:GetDefault())

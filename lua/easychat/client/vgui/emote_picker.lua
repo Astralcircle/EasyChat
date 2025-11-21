@@ -149,7 +149,7 @@ local PICKER = {
 				end
 
 				local emote_count = no_search and table.Count(lookup_table) or i
-				category:SetLabel(("%s (%d emotes)"):format(lookup_name, emote_count - 1))
+				category:SetLabel(("%s (%d эмодзи)"):format(lookup_name, emote_count - 1))
 				category:SetContents(category_panel)
 				self.Categories[lookup_name] = category
 			end

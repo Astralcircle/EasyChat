@@ -30,13 +30,13 @@ local CHATBOX = {
 		self.BtnClose:SetZPos(10)
 		self.BtnClose:SetFont("DermaDefaultBold")
 		self.BtnClose:SetText("X")
-		self.BtnClose:SetTooltip("Close")
+		self.BtnClose:SetTooltip("Закрыть")
 
 		self.BtnMaxim:SetSize(30, 33)
 		self.BtnMaxim:SetZPos(10)
 		self.BtnMaxim:SetFont("DermaLarge")
 		self.BtnMaxim:SetText("▭")
-		self.BtnMaxim:SetTooltip("Maximize")
+		self.BtnMaxim:SetTooltip("Развернуть")
 		self.BtnMaxim.IsFullScreen = false
 		self.BtnMaxim.DoClick = function(self)
 			if not self.IsFullScreen then
@@ -55,7 +55,7 @@ local CHATBOX = {
 		self.BtnSettings:SetSize(30, 29)
 		self.BtnSettings:SetZPos(10)
 		self.BtnSettings:SetText("")
-		self.BtnSettings:SetTooltip("Settings")
+		self.BtnSettings:SetTooltip("Настройки")
 		self.BtnSettings:SetImage("icon16/cog.png")
 		self.BtnSettings.DoClick = function()
 			if not EasyChat.OpenSettings then return end -- too early
@@ -86,7 +86,7 @@ local CHATBOX = {
 				self:Hide()
 			end)
 			donate_menu:AddSpacer()
-			donate_menu:AddOption("Cancel", function() donate_menu:Remove() end)
+			donate_menu:AddOption("Отмена", function() donate_menu:Remove() end)
 
 			donate_menu:Open()
 		end
@@ -139,7 +139,7 @@ local CHATBOX = {
 			end
 
 			tabs_menu:AddSpacer()
-			tabs_menu:AddOption("Cancel", function() tabs_menu:Remove() end)
+			tabs_menu:AddOption("Отмена", function() tabs_menu:Remove() end)
 			tabs_menu:Open()
 		end
 

@@ -46,6 +46,7 @@ if CLIENT then
 			self.DMList = self:Add("DListView")
 			self.DMList:SetWide(100)
 			self.DMList:Dock(LEFT)
+			self.DMList:SetMultiSelect(false)
 			self.DMList:AddColumn("Чаты")
 			self.DMList.OnRowSelected = function(self, index, row)
 				local ply = row.Player
@@ -180,11 +181,11 @@ if CLIENT then
 			chat.RichText:Remove()
 			self.Chats[ply] = nil
 
-			self.DMList:Clear()
-			for _, chat in pairs(self.Chats) do
-				local line = self.DMList:AddLine(chat.Player:Nick())
-				chat.Line = line
-				line.Player = chat.Player
+			for _, line in ipairs(self.DMList:GetLines()) do
+				if line.Player == ply then
+					self.DMList:RemoveLine(line:GetID())
+					break
+				end
 			end
 		end,
 		SendMessage = function(self, message)

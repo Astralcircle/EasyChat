@@ -857,7 +857,7 @@ local function create_default_settings()
 		local prefix_list = setting_usergroups.List
 		prefix_list:SetMultiSelect(true)
 		prefix_list:AddColumn("Группа")
-		prefix_list:AddColumn("Эмоция")
+		prefix_list:AddColumn("Эмодзи")
 		prefix_list:AddColumn("Тег")
 
 		local function build_emote_tag(emote_name, emote_size, emote_provider)
@@ -900,7 +900,7 @@ local function create_default_settings()
 				setting_usergroup:SetText(usergroup)
 			end
 
-			local setting_emote_name = settings:AddSetting(category_name, "string", "Эмоция")
+			local setting_emote_name = settings:AddSetting(category_name, "string", "Эмодзи")
 			setting_emote_name:SetParent(frame)
 			setting_emote_name:DockMargin(5, 15, 5, 10)
 			if usergroup then

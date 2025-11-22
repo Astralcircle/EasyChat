@@ -98,13 +98,28 @@ if CLIENT then
 
 				self.DMList.Paint = function(self, w, h)
 					surface.SetDrawColor(EasyChat.OutlayColor)
-					surface.DrawRect(0, 0, w, h)
+					surface.DrawRect(0, 0, self.VBar.Enabled and w - 16 or w, h)
 					surface.SetDrawColor(EasyChat.TabOutlineColor)
 					surface.DrawOutlinedRect(0, 0, w, h)
 				end
 
+				local scrollbar = self.DMList.VBar
+				scrollbar:SetHideButtons(true)
+
+				scrollbar.Paint = function(self, w, h)
+					surface.SetDrawColor(EasyChat.OutlayColor)
+					surface.DrawLine(w - 1, 0, w - 1, h)
+				end
+
+				scrollbar.btnGrip.Paint = function(self, w, h)
+					local outlay_col = EasyChat.OutlayColor
+					surface.SetDrawColor(outlay_col.r, outlay_col.g, outlay_col.b, 150)
+					surface.DrawRect(0, 0, w, h)
+				end
+
 				local header = self.DMList.Columns[1].Header
 				header:SetTextColor(Color(255, 255, 255))
+
 				header.Paint = function(self, w, h)
 					surface.SetDrawColor(EasyChat.TabColor)
 					surface.DrawRect(0, 0, w, h)
@@ -180,14 +195,8 @@ if CLIENT then
 
 			local chat = self.Chats[ply]
 			chat.RichText:Remove()
+			self.DMList:RemoveLine(chat.Line:GetID())
 			self.Chats[ply] = nil
-
-			for _, line in ipairs(self.DMList:GetLines()) do
-				if line.Player == ply then
-					self.DMList:RemoveLine(line:GetID())
-					break
-				end
-			end
 		end,
 		SendMessage = function(self, message)
 			local i = self.DMList:GetSelectedLine()

@@ -157,15 +157,33 @@ if CLIENT then
 
 			local chat = {
 				Player = ply,
-				Name = ply:Nick(),
+				Name = ply:RichNick(),
 				RichText = richtext,
 				NewMessages = 0
 			}
 
 			local line = self.DMList:AddLine(chat.Name)
+
 			if not EasyChat.UseDermaSkin then
-				line.Columns[1]:SetTextColor(Color(255, 255, 255))
+				local linetext = line.Columns[1]
+
+				function linetext:Paint(w, h)
+					if self:GetText() ~= self.CacheText then
+						self.CacheText = self:GetText()
+						self.CacheMarkup = ec_markup.AdvancedParse(self:GetText(), {
+							default_font = "DermaDefault",
+							no_shadow = true,
+							nick = true
+						})
+					end
+
+					local mark = self.CacheMarkup
+					mark:Draw(5, h / 2 - mark:GetTall() / 2)
+
+					return true
+				end
 			end
+
 			line.Player = ply
 			chat.Line = line
 
@@ -231,9 +249,9 @@ if CLIENT then
 				if not IsValid(chat.Player) then return end
 
 				if chat.NewMessages > 0 then
-					line:SetColumnText(1, chat.Player:Nick() .. " (" .. chat.NewMessages .. ")")
+					line:SetColumnText(1, chat.Player:RichNick() .. "<stop> (" .. chat.NewMessages .. ")")
 				else
-					line:SetColumnText(1, chat.Player:Nick())
+					line:SetColumnText(1, chat.Player:RichNick())
 				end
 			end
 		end,

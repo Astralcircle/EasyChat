@@ -47,6 +47,7 @@ if CLIENT then
 			self.DMList:SetWide(100)
 			self.DMList:Dock(LEFT)
 			self.DMList:SetMultiSelect(false)
+			self.DMList:SetSortable(true)
 			self.DMList:AddColumn("Чаты")
 			self.DMList.OnRowSelected = function(self, index, row)
 				local ply = row.Player

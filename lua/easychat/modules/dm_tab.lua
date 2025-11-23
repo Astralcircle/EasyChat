@@ -187,9 +187,7 @@ if CLIENT then
 			function line:Paint(w, h)
 				if chat.NewMessages > 0 then
 					local color = EasyChat.Mentions and EasyChat.Mentions:GetColor() or Color(244, 167, 66)
-					local alpha = color.a - 100
-
-					surface.SetDrawColor(color.r, color.g, color.b, alpha > 0 and alpha or 100)
+					surface.SetDrawColor(color.r, color.g, color.b, 25)
 					surface.DrawRect(0, 0, w, h)
 				end
 

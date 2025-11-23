@@ -182,6 +182,19 @@ if CLIENT then
 			}
 
 			local line = self.DMList:AddLine(chat.Name)
+			local paint = line.Paint
+
+			function line:Paint(w, h)
+				if chat.NewMessages > 0 then
+					local color = EasyChat.Mentions and EasyChat.Mentions:GetColor() or Color(244, 167, 66)
+					local alpha = color.a - 100
+
+					surface.SetDrawColor(color.r, color.g, color.b, alpha > 0 and alpha or 100)
+					surface.DrawRect(0, 0, w, h)
+				end
+
+				return paint(self, w, h)
+			end
 
 			if not EasyChat.UseDermaSkin then
 				local linetext = line.Columns[1]

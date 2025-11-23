@@ -3159,4 +3159,3 @@ function EasyChat.Reload()
 end
 
 concommand.Add("easychat_reload", EasyChat.Reload)
-

@@ -3153,12 +3153,10 @@ function EasyChat.Reload()
 	EasyChat.Init()
 
 	if SERVER then
-		for _, v in ipairs(player.GetAll()) do
-			v:SendLua([[EasyChat.Reload()]])
-		end
-
+		BroadcastLua([[EasyChat.Reload()]])
 		EasyChat.Config:Send(player.GetAll(), true)
 	end
 end
 
 concommand.Add("easychat_reload", EasyChat.Reload)
+

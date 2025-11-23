@@ -48,7 +48,6 @@ if CLIENT then
 			self.DMList:Dock(LEFT)
 			self.DMList:SetMultiSelect(false)
 			self.DMList:SetSortable(true)
-			self.DMList:AddColumn("Чаты")
 			self.DMList.OnRowSelected = function(self, index, row)
 				local ply = row.Player
 				if IsValid(ply) then
@@ -63,6 +62,26 @@ if CLIENT then
 					self:RemoveLine(index)
 				end
 			end
+
+			local performLayout = self.DMList.PerformLayout
+
+			self.DMList.PerformLayout = function(self, w, h)
+				self:ResizeColumn(w)
+				return performLayout(self, w, h)
+			end
+
+			self.DMList.ResizeColumn = function(self, size)
+				local clampedsize = math.ceil(math.Clamp(size, 100, 200))
+
+				if clampedsize ~= frame.DMList:GetWide() then
+					frame.DMList:SetWide(clampedsize)
+				end
+
+				return clampedsize
+			end
+
+			local column = self.DMList:AddColumn("Чаты")
+			column.ResizeColumn = self.DMList.ResizeColumn
 
 			self.TextEntry = self:Add("TextEntryLegacy")
 			self.TextEntry:SetTall(20)

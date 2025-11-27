@@ -623,7 +623,7 @@ local function create_default_settings()
 		build_tab_list()
 		hook.Add("ECSettingsOpened", tab_list, build_tab_list)
 
-		local setting_apply_tab = settings:AddSetting(category_name, "action", "Скрыть / Показать вкладку")
+		local setting_apply_tab = settings:AddSetting(category_name, "action", "Скрыть/показать вкладку")
 		setting_apply_tab.DoClick = function()
 			local selected_lines = tab_list:GetSelected()
 			for _, selected_line in pairs(selected_lines) do
@@ -1464,7 +1464,7 @@ local function add_chathud_markup_settings()
 
 	settings:AddSpacer(category_name)
 
-	local setting_help = settings:AddSetting(category_name, "action", "Показать помощь и примеры")
+	local setting_help = settings:AddSetting(category_name, "action", "Показать помощь/примеры")
 	setting_help.DoClick = function()
 		RunConsoleCommand("easychat_hud_examples")
 	end

@@ -130,15 +130,16 @@ if SERVER then
 		end
 	end)
 
-	local function restricted_receive(net_string, callback)
+	local function restricted_receive(net_string, superadmin, callback)
 		net.Receive(net_string, function(len, ply)
 			if not ply:IsAdmin() then return end
+			if superadmin and not ply:IsSuperAdmin() then return end
 
 			callback(len, ply)
 		end)
 	end
 
-	restricted_receive(NET_WRITE_USER_GROUP, function(_, ply)
+	restricted_receive(NET_WRITE_USER_GROUP, true, function(_, ply)
 		local user_group = net.ReadString()
 		local tag = net.ReadString()
 		local emote_name = net.ReadString()
@@ -157,7 +158,7 @@ if SERVER then
 		EasyChat.Print(("%s changed the usergroup prefix for: %s"):format(ply, user_group))
 	end)
 
-	restricted_receive(NET_DEL_USER_GROUP, function(_, ply)
+	restricted_receive(NET_DEL_USER_GROUP, true, function(_, ply)
 		local user_group = net.ReadString()
 		config.UserGroups[user_group] = nil
 
@@ -166,7 +167,7 @@ if SERVER then
 		EasyChat.Print(("%s deleted the usergroup prefix for: %s"):format(ply, user_group))
 	end)
 
-	restricted_receive(NET_WRITE_TAB, function(_, ply)
+	restricted_receive(NET_WRITE_TAB, true, function(_, ply)
 		local tab_name = net.ReadString()
 		local is_allowed = net.ReadBool()
 		config.Tabs[tab_name] = is_allowed
@@ -176,7 +177,7 @@ if SERVER then
 		EasyChat.Print(("%s changed tab \"%s\" restrictions to: %s"):format(ply, tab_name, is_allowed and "allowed" or "restricted"))
 	end)
 
-	restricted_receive(NET_WRITE_PLY_TITLE, function(_, ply)
+	restricted_receive(NET_WRITE_PLY_TITLE, false, function(_, ply)
 		local steam_id = net.ReadString()
 		local title = net.ReadString()
 		config.Titles[steam_id] = title
@@ -188,7 +189,7 @@ if SERVER then
 		EasyChat.Print(("%s changed title for: %s (%s)"):format(ply, IsValid(target) and target or steam_id, title))
 	end)
 
-	restricted_receive(NET_DEL_PLY_TITLE, function(_, ply)
+	restricted_receive(NET_DEL_PLY_TITLE, false, function(_, ply)
 		local steam_id = net.ReadString()
 		config.Titles[steam_id] = nil
 
@@ -199,7 +200,7 @@ if SERVER then
 		EasyChat.Print(("%s removed title for: %s"):format(ply, IsValid(target) and target or steam_id))
 	end)
 
-	restricted_receive(NET_WRITE_SETTING_OVERRIDE, function(_, ply)
+	restricted_receive(NET_WRITE_SETTING_OVERRIDE, true, function(_, ply)
 		local should_override = net.ReadBool()
 		config.OverrideClientSettings = should_override
 		config:Save()
@@ -207,7 +208,7 @@ if SERVER then
 		EasyChat.Print(("%s changed settings override to: %s"):format(ply, should_override))
 	end)
 
-	restricted_receive(NET_WRITE_TAGS_IN_NAMES, function(_, ply)
+	restricted_receive(NET_WRITE_TAGS_IN_NAMES, true, function(_, ply)
 		local allow_tags = net.ReadBool()
 		config.AllowTagsInNames = allow_tags
 		config:Save()
@@ -215,7 +216,7 @@ if SERVER then
 		EasyChat.Print(("%s changed usage of tags in player names to: %s"):format(ply, allow_tags))
 	end)
 
-	restricted_receive(NET_WRITE_TAGS_IN_MESSAGES, function(_, ply)
+	restricted_receive(NET_WRITE_TAGS_IN_MESSAGES, true, function(_, ply)
 		local allow_tags = net.ReadBool()
 		config.AllowTagsInMessages = allow_tags
 		config:Save()
@@ -223,7 +224,7 @@ if SERVER then
 		EasyChat.Print(("%s changed usage of tags in messages to: %s"):format(ply, allow_tags))
 	end)
 
-	restricted_receive(NET_WRITE_PLY_NAME, function(_, ply)
+	restricted_receive(NET_WRITE_PLY_NAME, false, function(_, ply)
 		local target_ply = net.ReadEntity()
 		local name = net.ReadString()
 		if not IsValid(target_ply) then return end
@@ -231,7 +232,7 @@ if SERVER then
 		EasyChat.SafeHookRun("ECPlayerNameChange", ply, target_ply, target_ply:RichNick(), name)
 	end)
 
-	restricted_receive(NET_MODULE_IGNORE_LIST, function(_, ply)
+	restricted_receive(NET_MODULE_IGNORE_LIST, true, function(_, ply)
 		local ignore_paths = net.ReadTable()
 		if file.Exists(MODULE_IGNORE_LIST_PATH, "DATA") then
 			file.Delete(MODULE_IGNORE_LIST_PATH)
@@ -250,7 +251,8 @@ if SERVER then
 end
 
 if CLIENT then
-	local ADMIN_WARN = "Вам нужно быть администратором для этого"
+	local ADMIN_WARN = "Вам нужно быть админом для этого"
+	local SUPERADMIN_WARN = "Вам нужно быть суперадмином для этого"
 
 	local config = default_config
 	config.ModuleIgnoreList = {}
@@ -309,7 +311,7 @@ if CLIENT then
 	end)
 
 	function config:WriteUserGroup(user_group, tag, emote_name, emote_size, emote_provider)
-		if not LocalPlayer():IsAdmin() then return false, ADMIN_WARN end
+		if not LocalPlayer():IsSuperAdmin() then return false, SUPERADMIN_WARN end
 
 		user_group = (user_group or ""):Trim()
 		tag = (tag or ""):Trim()
@@ -330,7 +332,7 @@ if CLIENT then
 	end
 
 	function config:DeleteUserGroup(user_group)
-		if not LocalPlayer():IsAdmin() then return false, ADMIN_WARN end
+		if not LocalPlayer():IsSuperAdmin() then return false, SUPERADMIN_WARN end
 
 		user_group = (user_group or ""):Trim()
 		if #user_group == 0 then return false, "Группа не указана" end
@@ -343,7 +345,7 @@ if CLIENT then
 	end
 
 	function config:WriteTab(tab_name, allowed)
-		if not LocalPlayer():IsAdmin() then return false, ADMIN_WARN end
+		if not LocalPlayer():IsSuperAdmin() then return false, SUPERADMIN_WARN end
 
 		tab_name = (tab_name or ""):Trim()
 		if #tab_name == 0 then return false, "Вкладка не указана" end
@@ -387,7 +389,7 @@ if CLIENT then
 	end
 
 	function config:WriteSettingOverride(should_override)
-		if not LocalPlayer():IsAdmin() then return false, ADMIN_WARN end
+		if not LocalPlayer():IsSuperAdmin() then return false, SUPERADMIN_WARN end
 
 		net.Start(NET_WRITE_SETTING_OVERRIDE)
 		net.WriteBool(should_override or false)
@@ -397,7 +399,7 @@ if CLIENT then
 	end
 
 	function config:WriteTagsInNames(allow)
-		if not LocalPlayer():IsAdmin() then return false, ADMIN_WARN end
+		if not LocalPlayer():IsSuperAdmin() then return false, SUPERADMIN_WARN end
 
 		net.Start(NET_WRITE_TAGS_IN_NAMES)
 		net.WriteBool(allow or false)
@@ -407,7 +409,7 @@ if CLIENT then
 	end
 
 	function config:WriteTagsInMessages(allow)
-		if not LocalPlayer():IsAdmin() then return false, ADMIN_WARN end
+		if not LocalPlayer():IsSuperAdmin() then return false, SUPERADMIN_WARN end
 
 		net.Start(NET_WRITE_TAGS_IN_MESSAGES)
 		net.WriteBool(allow or false)
@@ -430,7 +432,7 @@ if CLIENT then
 	end
 
 	function config:WriteModuleIgnoreList(paths)
-		if not LocalPlayer():IsAdmin() then return false, ADMIN_WARN end
+		if not LocalPlayer():IsSuperAdmin() then return false, SUPERADMIN_WARN end
 
 		net.Start(NET_MODULE_IGNORE_LIST)
 		net.WriteTable(paths)

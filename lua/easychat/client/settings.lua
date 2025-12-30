@@ -113,7 +113,7 @@ local function create_default_settings()
 
 		blocked_players_list.DoDoubleClick = function(_, _, line)
 			local steam_id = line:GetColumnText(1)
-			if not steam_id or #steam_id:Trim() <= 0 then return end
+			if not steam_id or #string.Trim(steam_id) <= 0 then return end
 
 			local steam_id64 = util.SteamIDTo64(steam_id)
 			EasyChat.OpenURL("https://steamcommunity.com/profiles/" .. steam_id64)
@@ -196,7 +196,7 @@ local function create_default_settings()
 		setting_secondary_mode.GetAutoComplete = function(self, text)
 			local suggestions = {}
 			for _, mode in pairs(EasyChat.Modes) do
-				table.insert(suggestions, mode.Name:lower())
+				table.insert(suggestions, string.lower(mode.Name))
 			end
 
 			return suggestions
@@ -250,7 +250,7 @@ local function create_default_settings()
 		local setting_timestamps_color = settings:AddSetting(category_name, "color", "Цвет временных меток")
 		setting_timestamps_color:SetColor(EasyChat.TimestampColor)
 		setting_timestamps_color.OnValueChanged = function(_, color)
-			EC_TIMESTAMPS_COLOR:SetString(("%d %d %d"):format(color.r, color.g, color.b))
+			EC_TIMESTAMPS_COLOR:SetString(string.format("%d %d %d", color.r, color.g, color.b))
 		end
 
 		local setting_reset_timestamps = settings:AddSetting(category_name, "action", "Сбросить настройки")
@@ -747,7 +747,7 @@ local function create_default_settings()
 				if not IsValid(src_panel) then return end
 				local x, y = src_panel:GetPos()
 				surface.SetFont(src_panel.Label:GetFont() or "DermaDefault")
-				local w, _ = surface.GetTextSize(src_panel.Label:GetText() .. (" "):rep(4))
+				local w, _ = surface.GetTextSize(src_panel.Label:GetText() .. "    ")
 
 				self:SetPos(x + w + 50, y)
 			end
@@ -863,21 +863,21 @@ local function create_default_settings()
 		local function build_emote_tag(emote_name, emote_size, emote_provider)
 			local emote_tag = ""
 			if #emote_name > 0 then
-				emote_tag = ("<emote=%s"):format(emote_name)
+				emote_tag = string.format("<emote=%s", emote_name)
 				if emote_size ~= -1 then
-					emote_tag = ("%s,%d"):format(emote_tag, emote_size)
+					emote_tag = string.format("%s,%d", emote_tag, emote_size)
 				end
 
 				if #emote_provider > 0 then
 					-- add a comma for proper markup parsing
 					if emote_size == -1 then
-						emote_tag = ("%s,"):format(emote_tag)
+						emote_tag = string.format("%s,", emote_tag)
 					end
 
-					emote_tag = ("%s,%s"):format(emote_tag, emote_provider)
+					emote_tag = string.format("%s,%s", emote_tag, emote_provider)
 				end
 
-				emote_tag = ("%s>"):format(emote_tag)
+				emote_tag = string.format("%s>", emote_tag)
 			end
 
 			return emote_tag
@@ -905,7 +905,7 @@ local function create_default_settings()
 			setting_emote_name:DockMargin(5, 15, 5, 10)
 			if usergroup then
 				local prefix_data = EasyChat.Config.UserGroups[usergroup]
-				local text = build_emote_tag(prefix_data.EmoteName, prefix_data.EmoteSize or -1, prefix_data.EmoteProvider or ""):match("<emote=(.*)>")
+				local text = string.match(build_emote_tag(prefix_data.EmoteName, prefix_data.EmoteSize or -1, prefix_data.EmoteProvider or ""), "<emote=(.*)>")
 				if text then
 					setting_emote_name:SetText(text)
 				end
@@ -923,7 +923,7 @@ local function create_default_settings()
 			setting_save:Dock(BOTTOM)
 			setting_save:DockMargin(5, 10, 5, 5)
 			setting_save.DoClick = function()
-				local emote_components = setting_emote_name:GetText():Split(",")
+				local emote_components = string.Split(setting_emote_name:GetText(), ",")
 				-- emote_name, emote_size, emote_provider
 
 				local succ, err = EasyChat.Config:WriteUserGroup(
@@ -946,19 +946,19 @@ local function create_default_settings()
 			local function build_mk()
 				if not IsValid(frame) then return end
 
-				local input_str = ("%s<stop>"):format(setting_tag:GetText():Trim())
-				local emote_components =  setting_emote_name:GetText():Split(",")
+				local input_str = string.format("%s<stop>", string.Trim(setting_tag:GetText()))
+				local emote_components =  string.Split(setting_emote_name:GetText(), ",")
 				local emote_tag = build_emote_tag(
-					emote_components[1]:Trim(), -- emote name
+					string.Trim(emote_components[1]), -- emote name
 					tonumber(emote_components[2]) or -1, -- emote size
-					(emote_components[3] or ""):Trim() -- emote provider
+					string.Trim(emote_components[3] or "") -- emote provider
 				)
 
 				if #emote_tag > 0 then
-					input_str = ("%s %s"):format(input_str, emote_tag)
+					input_str = string.format("%s %s", input_str, emote_tag)
 				end
 
-				input_str = ("%s %s<stop>: Hello!"):format(input_str, LocalPlayer():RichNick())
+				input_str = string.format("%s %s<stop>: Hello!", input_str, LocalPlayer():RichNick())
 				mk = ec_markup.Parse(input_str)
 			end
 
@@ -1029,12 +1029,12 @@ local function create_default_settings()
 				local emote_display = build_emote_tag(prefix_data.EmoteName, prefix_data.EmoteSize or -1, prefix_data.EmoteProvider or "")
 				local line = prefix_list:AddLine(usergroup, emote_display, prefix_data.Tag)
 
-				local input_str = ("%s<stop>"):format(prefix_data.Tag)
+				local input_str = string.format("%s<stop>", prefix_data.Tag)
 				if #emote_display > 0 then
-					input_str = ("%s %s"):format(input_str, emote_display)
+					input_str = string.format("%s %s", input_str, emote_display)
 				end
 
-				input_str = ("%s %s"):format(input_str, LocalPlayer():RichNick())
+				input_str = string.format("%s %s", input_str, LocalPlayer():RichNick())
 				local mk = ec_markup.Parse(input_str)
 				local mk_w, mk_h = mk:GetWide(), mk:GetTall()
 
@@ -1108,13 +1108,13 @@ local function create_default_settings()
 
 		local function build_translation_auto_complete(text_entry, is_target)
 			text_entry.GetAutoComplete = function(self, text)
-				text = text:lower()
+				text = string.lower(text)
 
 				local suggestions = {}
 				for complete_name, shortcut in pairs(valid_languages) do
 					if is_target and shortcut == "auto" then continue end -- dont show auto as a target language
-					if complete_name:lower():match(text) or shortcut:match(text) then
-						table.insert(suggestions, ("%s (%s)"):format(shortcut, complete_name))
+					if string.match(string.lower(complete_name), text) or string.match(shortcut, text) then
+						table.insert(suggestions, string.format("%s (%s)", shortcut, complete_name))
 					end
 				end
 
@@ -1127,7 +1127,7 @@ local function create_default_settings()
 				if key_code == KEY_TAB then
 					local suggestion = self:GetAutoComplete(language_input)[language_selection]
 					if suggestion then
-						local country_code = suggestion:match("^(.+)%s%(")
+						local country_code = string.match(suggestion, "^(.+)%s%(")
 						self:SetText(country_code)
 						EasyChat.RunOnNextFrame(function()
 							self:RequestFocus()  -- keep focus
@@ -1154,12 +1154,12 @@ local function create_default_settings()
 
 			local old_enter = text_entry.OnEnter
 			function text_entry.OnEnter(self)
-				local country_code = self:GetText():match("^(.+)%s%(")
+				local country_code = string.match(self:GetText(), "^(.+)%s%(")
 				if country_code then
 					self:SetText(country_code)
 				end
 
-				country_code = self:GetText():Trim()
+				country_code = string.Trim(self:GetText())
 				if not table.HasValue(valid_languages, country_code) then
 					notification.AddLegacy("Неверный код страны", NOTIFY_ERROR, 3)
 					surface.PlaySound("buttons/button11.wav")
@@ -1473,7 +1473,7 @@ local function add_chathud_markup_settings()
 	for part_name, _ in pairs(EasyChat.ChatHUD.Parts) do
 		local cvar = get_cvar("easychat_tag_" .. part_name)
 		if cvar then
-			tag_options[cvar] = ("%s теги"):format(part_name)
+			tag_options[cvar] = string.format("%s теги", part_name)
 		end
 	end
 

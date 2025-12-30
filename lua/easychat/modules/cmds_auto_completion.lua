@@ -7,15 +7,15 @@ if SERVER and istable(_G.aowl) then
 		local cmds_str = ""
 		if istable(_G.aowl.cmds) then
 			for cmd_name in pairs(aowl.cmds) do
-				cmds_str = ("%s,%s"):format(cmds_str, cmd_name)
+				cmds_str = string.format("%s,%s", cmds_str, cmd_name)
 			end
 		elseif istable(_G.aowl.Commands) then
 			for cmd_name in pairs(aowl.Commands) do
-				cmds_str = ("%s,%s"):format(cmds_str, cmd_name)
+				cmds_str = string.format("%s,%s", cmds_str, cmd_name)
 			end
 		elseif istable(_G.aowl.commands) then
 			for cmd_name in pairs(aowl.commands) do
-				cmds_str = ("%s,%s"):format(cmds_str, cmd_name)
+				cmds_str = string.format("%s,%s", cmds_str, cmd_name)
 			end
 		end
 
@@ -75,12 +75,12 @@ if CLIENT then
 			local ulx_cmds = {}
 			for _, category in pairs(categories) do
 				for _, cmd_table in ipairs(category) do
-					local cmd_name = cmd_table.cmd:gsub("^ulx%s", "")
+					local cmd_name = string.gsub(cmd_table.cmd, "^ulx%s", "")
 					local args = {}
 					for _, arg in ipairs(cmd_table.args) do
 						local ulx_arg_type = ulx_args_lookup[arg.type]
 						if ulx_arg_type then
-							local display_arg = ("<%s>"):format(ulx_arg_type)
+							local display_arg = string.format("<%s>", ulx_arg_type)
 							table.insert(args, display_arg)
 						end
 					end
@@ -141,7 +141,7 @@ if CLIENT then
 				end
 			end
 
-			local srv_cmds = cmds_str:Split(",")
+			local srv_cmds = string.Split(cmds_str, ",")
 			for _, cmd_name in ipairs(srv_cmds) do
 				aowl_cmds[cmd_name] = {}
 			end
@@ -193,25 +193,25 @@ if CLIENT then
 		for identifier in SortedPairsByValue(EasyChat.CmdSuggestions.Priorities) do
 			local cmds = EasyChat.CmdSuggestions.Handlers[identifier]
 
-			local prefix = text:match(("^%s"):format(cmds.Prefix))
+			local prefix = string.match(text, string.format("^%s", cmds.Prefix))
 			if not prefix then
 				continue
 			end
 
-			local args = text:sub(2):Split(" ")
+			local args = string.Split(string.sub(text, 2), " ")
 			-- if we dont have a command dont proceed anyway
 			if not args[1] then
 				continue
 			end
 
-			local cmd = args[1]:lower():PatternSafe()
+			local cmd = string.PatternSafe(string.lower(args[1]))
 			table.remove(args, 1) -- remove the command from the args
 
 			local options_count = 0
 			local options = {}
 			for cmd_name, cmd_args in pairs(cmds.Lookup) do
-				if cmd_name:lower():match(cmd) then
-					options[("%s%s"):format(prefix, cmd_name)] = cmd_args
+				if string.match(string.lower(cmd_name), cmd) then
+					options[string.format("%s%s", prefix, cmd_name)] = cmd_args
 					options_count = options_count + 1
 				end
 			end
@@ -313,7 +313,7 @@ if CLIENT then
 			local cmds = EasyChat.CmdSuggestions.Handlers[identifier]
 			if cmds.ActiveOptionsCount == 0 then continue end
 			if not cmds.ActiveOptions then continue end
-			if text:match(" ") then continue end
+			if string.match(text, " ") then continue end
 
 			all_options = table.Merge(all_options, cmds.ActiveOptions)
 			all_options_count = all_options_count + cmds.ActiveOptionsCount

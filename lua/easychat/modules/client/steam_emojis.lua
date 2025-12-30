@@ -4,7 +4,7 @@ local function emoji_count(content, char)
 	local x = 0
 	local pos = 1
 	for i = 1, #content do
-		local new_pos = content:find(char, pos, true)
+		local new_pos = string.find(content, char, pos, true)
 		if not new_pos then
 			break
 		end
@@ -31,7 +31,7 @@ http.Fetch(EMOTE_PACKAGE_URL, function(body, _, _, code)
 
 	file.Write(EMOTS, body)
 	local count = emoji_count(body, ",")
-	EasyChat.Print(("Saved steam emojis lookup table with %d references to: %s"):format(count, EMOTS))
+	EasyChat.Print(string.format("Saved steam emojis lookup table with %d references to: %s", count, EMOTS))
 	parse_emote_file(body)
 end, function(err)
 	EasyChat.Print(true, err)
@@ -48,14 +48,14 @@ local cache = {}
 parse_emote_file = function(EMOTICONS)
 	local split_pattern = ","
 	local start = 1
-	local split_start, split_end = EMOTICONS:find(split_pattern, start, true)
+	local split_start, split_end = string.find(EMOTICONS, split_pattern, start, true)
 	while split_start do
-		cache[EMOTICONS:sub(start, split_start - 1)] = UNCACHED
+		cache[string.sub(EMOTICONS, start, split_start - 1)] = UNCACHED
 		start = split_end + 1
-		split_start, split_end = EMOTICONS:find(split_pattern, start, true)
+		split_start, split_end = string.find(EMOTICONS, split_pattern, start, true)
 	end
 
-	cache[EMOTICONS:sub(start)] = UNCACHED
+	cache[string.sub(EMOTICONS, start)] = UNCACHED
 end
 
 local function get_steam_emote(name)
@@ -93,17 +93,17 @@ local function get_steam_emote(name)
 			return fail(code)
 		end
 
-		local start, ending = data:find([[src="data:image/png;base64,]], 1, true)
+		local start, ending = string.find(data, [[src="data:image/png;base64,]], 1, true)
 		if not start then
 			return fail("ending")
 		end
 
-		local start2, _ = data:find([["]], ending + 64, true)
+		local start2, _ = string.find(data, [["]], ending + 64, true)
 		if not start2 then
 			return fail("start2")
 		end
 
-		data = data:sub(ending + 1, start2 - 1)
+		data = string.sub(data, ending + 1, start2 - 1)
 		if not data or data == "" then
 			return fail("sub")
 		end

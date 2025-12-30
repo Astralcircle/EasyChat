@@ -15,7 +15,7 @@ local PICKER = {
 		self.Mixer:Dock(FILL)
 		self.Mixer:DockMargin(0, 0, 0, 10)
 		self.Mixer.ValueChanged = function(_, new_col)
-			local col_str = ("<color=%d,%d,%d>"):format(new_col.r or 255, new_col.g or 255, new_col.b or 255)
+			local col_str = string.format("<color=%d,%d,%d>", new_col.r or 255, new_col.g or 255, new_col.b or 255)
 			self.BtnColor:SetText(col_str)
 			self.BtnColor:SetColor(new_col)
 			self.BtnColor.CurrentColorString = col_str

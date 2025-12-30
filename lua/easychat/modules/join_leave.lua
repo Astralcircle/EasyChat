@@ -93,8 +93,8 @@ if CLIENT then
 
 	local FRIEND_CACHE_PATH = "easychat/friend_cache.txt"
 	local friend_ids = {}
-	for _, line in ipairs((file.Read(FRIEND_CACHE_PATH, "DATA") or ""):Split("\n")) do
-		friend_ids[line:Trim()] = true
+	for _, line in ipairs(string.Split((file.Read(FRIEND_CACHE_PATH, "DATA") or ""), "\n")) do
+		friend_ids[string.Trim(line)] = true
 	end
 
 	local function check_player_friendship(ply)
@@ -167,7 +167,7 @@ if CLIENT then
 				seen_date = os.date("%D", last_seen_time)
 			end
 
-			formatted_diff = (" (%s назад)"):format(string.NiceTime(last_seen_diff))
+			formatted_diff = string.format(" (%s назад)", string.NiceTime(last_seen_diff))
 		end
 
 		local ply_col = team.GetColor(team_id)
@@ -180,7 +180,7 @@ if CLIENT then
 			end
 		end
 
-		local formatted_id = (" (%s) "):format(network_id)
+		local formatted_id = string.format(" (%s) ", network_id)
 		if is_join then
 			chat.AddText(green_color, " ● ", ply_col, name, gray_color, formatted_id, white_color, green_color, "заспавнился")
 

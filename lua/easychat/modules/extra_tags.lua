@@ -39,20 +39,20 @@ local color_hex_part = {
 }
 
 function color_hex_part:HexToRGB(hex)
-	hex = hex:Replace("#","")
+	hex = string.Replace(hex, "#", "")
 
 	local function n(input) return tonumber(input) or 255 end
 
 	if #hex == 3 then
 		return
-			n("0x" .. hex:sub(1, 1)) * 17,
-			n("0x" .. hex:sub(2, 2)) * 17,
-			n("0x" .. hex:sub(3, 3)) * 17
+			n("0x" .. string.sub(hex, 1, 1)) * 17,
+			n("0x" .. string.sub(hex, 2, 2)) * 17,
+			n("0x" .. string.sub(hex, 3, 3)) * 17
 	else
 		return
-			n("0x" .. hex:sub(1, 2)),
-			n("0x" .. hex:sub(3, 4)),
-			n("0x" .. hex:sub(5, 6))
+			n("0x" .. string.sub(hex, 1, 2)),
+			n("0x" .. string.sub(hex, 3, 4)),
+			n("0x" .. string.sub(hex, 5, 6))
 	end
 end
 
@@ -174,7 +174,7 @@ local flash_part = {
 }
 
 function flash_part:Ctor(str)
-	local flash_components = str:Split(",")
+	local flash_components = string.Split(str, ",")
 	self.TargetColor = Color(
 		tonumber(flash_components[1]) or self.TargetColor.r,
 		tonumber(flash_components[2]) or self.TargetColor.g,
@@ -263,7 +263,7 @@ local hscan_part = {
 }
 
 function hscan_part:Ctor(str)
-	local hscan_components = str:Split(",")
+	local hscan_components = string.Split(str, ",")
 	self.Speed = math.Clamp(tonumber(hscan_components[1]) or 1, 1, 5)
 	self.ScanColor = Color(
 		tonumber(hscan_components[2]) or self.ScanColor.r,
@@ -305,7 +305,7 @@ local vscan_part = {
 }
 
 function vscan_part:Ctor(str)
-	local hscan_components = str:Split(",")
+	local hscan_components = string.Split(str, ",")
 	self.Speed = math.Clamp(tonumber(hscan_components[1]) or 1, 1, 5)
 	self.ScanColor = Color(
 		tonumber(hscan_components[2]) or self.ScanColor.r,
@@ -513,10 +513,10 @@ local texture_part = {
 }
 
 function texture_part:Ctor(str)
-	local texture_components = str:Split(",")
+	local texture_components = string.Split(str, ",")
 
-	local path = texture_components[1]:Trim()
-	local mat = Material(path, path:EndsWith(".png") and "nocull noclamp" or nil)
+	local path = string.Trim(texture_components[1])
+	local mat = Material(path, string.EndsWith(path, ".png") and "nocull noclamp" or nil)
 	if not mat then
 		self.Invalid = true
 		self.TextureSize = math.Clamp(tonumber(texture_components[2]) or (CLIENT and draw.GetFontHeight(self.HUD.DefaultFont) or 16), 16, 64)
@@ -671,7 +671,7 @@ local carat_color_part = {
 }
 
 function carat_color_part:Ctor(num)
-	local col = carat_colors[num:Trim()]
+	local col = carat_colors[string.Trim(num)]
 	if col then
 		self.Color = col
 	else
@@ -734,7 +734,7 @@ local background_part = {
 }
 
 function background_part:Ctor(str)
-	local col_components = str:Split(",")
+	local col_components = string.Split(str, ",")
 	local r, g, b =
 		tonumber(col_components[1]) or 255,
 		tonumber(col_components[2]) or 255,
@@ -791,7 +791,7 @@ local mc_color_part = {
 }
 
 function mc_color_part:Ctor(num)
-	local col = mc_colors[num:Trim()]
+	local col = mc_colors[string.Trim(num)]
 	if col then
 		self.Color = col
 	else

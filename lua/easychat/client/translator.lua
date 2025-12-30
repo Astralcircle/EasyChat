@@ -27,14 +27,14 @@ end
 -- Extract translated text from JSON response
 local function extract_translation_from_json(response)
 	-- Try to find JSON in the response
-	local json_start = response:find("{") or 1
-	local json_end = response:find("}", json_start) or #response
+	local json_start = string.find(response, "{") or 1
+	local json_end = string.find(response, "}", json_start) or #response
 
-	local json_str = response:sub(json_start, json_end)
+	local json_str = string.sub(response, json_start, json_end)
 	local success, json_data = pcall(util.JSONToTable, json_str)
 
 	if success and json_data and json_data.translation and json_data.source_language then
-		return json_data.translation:Trim(), json_data.source_language:Trim():lower()
+		return string.Trim(json_data.translation), string.lower(string.Trim(json_data.source_language))
 	end
 
 	return nil
@@ -122,7 +122,7 @@ Translate now:]], prompt_specifics, text)
 				return
 			end
 
-			if detected_language == target_language:lower() or detected_language == "unknown" then
+			if detected_language == string.lower(target_language) or detected_language == "unknown" then
 				on_finish(false) -- dont translate if the language is the same
 				return
 			end

@@ -402,10 +402,10 @@ function PANEL:GetCaretPos()
 end
 
 function PANEL:SetCaretPos(offset)
-	self:QueueJavascript(([[
+	self:QueueJavascript(string.format([[
 		TEXT_ENTRY.selectionStart = %d;
 		TEXT_ENTRY.selectionEnd = %d;
-	]]):format(offset, offset))
+	]], offset, offset))
 	self.CaretPos = offset
 end
 
@@ -442,11 +442,11 @@ PANEL.SetValueInProgress = PANEL.SetTextInProgress
 function PANEL:AllowInput(last_char) end
 
 local function color_to_css(col)
-	return ("rgba(%d, %d, %d, %d)"):format(col.r, col.g, col.b, col.a / 255)
+	return string.format("rgba(%d, %d, %d, %d)", col.r, col.g, col.b, col.a / 255)
 end
 
 function PANEL:SetTextColor(col)
-	self:QueueJavascript(([[TEXT_ENTRY.style.color = "%s";]]):format(color_to_css(col)))
+	self:QueueJavascript(string.format([[TEXT_ENTRY.style.color = "%s";]], color_to_css(col)))
 	self.TextColor = col
 end
 
@@ -456,11 +456,11 @@ end
 
 function PANEL:SetPlaceholderColor(col)
 	self.PlaceholderColor = col
-	self:QueueJavascript(([[COMPLETION.style.color = "%s"]]):format(color_to_css(col)))
+	self:QueueJavascript(string.format([[COMPLETION.style.color = "%s"]], color_to_css(col)))
 end
 
 function PANEL:SetCompletionText(text)
-	if not text or text:Trim() == "" then
+	if not text or string.Trim(text) == "" then
 		self.CompletionText = nil
 	else
 		self.CompletionText = text
@@ -473,7 +473,7 @@ end
 
 function PANEL:SetBackgroundColor(col)
 	self.BackgroundColor = col
-	self:QueueJavascript(([[TEXT_ENTRY.style.backgroundColor = "%s";]]):format(color_to_css(col)))
+	self:QueueJavascript(string.format([[TEXT_ENTRY.style.backgroundColor = "%s";]], color_to_css(col)))
 end
 
 function PANEL:GetBackgroundColor()

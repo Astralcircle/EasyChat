@@ -185,8 +185,8 @@ end
 
 function PANEL:SetBGColor(r, g, b)
 	local color = istable(r) and r or Color(r, g, b)
-	local css_color = ("rgb(%d,%d,%d)"):format(color.r, color.g, color.b)
-	self:QueueJavascript(("RICHTEXT.style.background = `%s`;"):format(css_color))
+	local css_color = string.format("rgb(%d,%d,%d)", color.r, color.g, color.b)
+	self:QueueJavascript(string.format("RICHTEXT.style.background = `%s`;", css_color))
 	self.RichTextXBackgroundColor = color
 end
 
@@ -198,7 +198,7 @@ end
 function PANEL:SetFontInternal(lua_font)
 	if not surface.GetLuaFonts then return end
 	local fonts_data, _ = surface.GetLuaFonts()
-	local font_data = fonts_data[lua_font:lower()]
+	local font_data = fonts_data[string.lower(lua_font)]
 	if not font_data then return end
 
 	self:SetFontData(font_data)
@@ -217,7 +217,7 @@ function PANEL:OnTextHover(text_value, is_hover)
 end
 
 function PANEL:AppendText(text)
-	local css_color = ("rgb(%d,%d,%d)"):format(self.CurrentColor.r, self.CurrentColor.g, self.CurrentColor.b)
+	local css_color = string.format("rgb(%d,%d,%d)", self.CurrentColor.r, self.CurrentColor.g, self.CurrentColor.b)
 	self.TextToAppend[#self.TextToAppend + 1] = { text, self.ClickableTextValue, css_color }
 
 	self:QueueJavascript([[

@@ -526,7 +526,7 @@ end
 
 function SETTINGS:AddChangeCallback(cvar, on_change)
 	local cvar_name = cvar:GetName()
-	local callback_name = ("EasyChatSetting_%s"):format(cvar_name)
+	local callback_name = string.format("EasyChatSetting_%s", cvar_name)
 	cvars.RemoveChangeCallback(cvar_name, callback_name)
 	cvars.AddChangeCallback(cvar_name, on_change, callback_name)
 end
@@ -569,7 +569,7 @@ local convar_type_callbacks = {
 			local new_value = self:GetValue()
 			cvar:SetInt(new_value)
 			old_value = new_value
-			notification.AddLegacy(("Применены изменения настроек: %s -> %d"):format(cvar:GetName(), new_value), NOTIFY_HINT, 5)
+			notification.AddLegacy(string.format("Применены изменения настроек: %s -> %d", cvar:GetName(), new_value), NOTIFY_HINT, 5)
 		end
 
 		btn.DoClick = function(self)
@@ -600,7 +600,7 @@ local convar_type_callbacks = {
 			btn.Paint = function() end
 		end
 
-		local old_value = text_entry:GetText():Trim()
+		local old_value = string.Trim(text_entry:GetText())
 		local old_paint = text_entry.Paint
 		text_entry.Paint = function(self, w, h)
 			old_paint(self, w, h)
@@ -616,10 +616,10 @@ local convar_type_callbacks = {
 		end
 
 		text_entry.OnEnter = function(self)
-			local new_value = self:GetText():Trim()
+			local new_value = string.Trim(self:GetText())
 			cvar:SetString(new_value)
 			old_value = new_value
-			notification.AddLegacy(("Applied setting changes: %s -> %s"):format(cvar:GetName(), new_value), NOTIFY_HINT, 5)
+			notification.AddLegacy(string.format("Применены изменения настроек: %s -> %s", cvar:GetName(), new_value), NOTIFY_HINT, 5)
 		end
 
 		btn.DoClick = function(self)

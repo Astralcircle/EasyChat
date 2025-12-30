@@ -99,7 +99,7 @@ if CLIENT then
 				elseif code == KEY_ENTER or code == KEY_PAD_ENTER then
 					local text = EasyChat.ExtendedStringTrim(self:GetText())
 					if #text > 0 then
-						frame:SendMessage(text:sub(1, 3000))
+						frame:SendMessage(string.sub(text, 1, 3000))
 					end
 				end
 			end

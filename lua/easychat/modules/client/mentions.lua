@@ -11,8 +11,8 @@ EasyChat.Mentions = mentions
 
 if file.Exists(FILTER_PATH, "DATA") then
 	local contents = file.Read(FILTER_PATH, "DATA")
-	if #contents:Trim() > 0 then
-		mentions.Filters = ("\r?\n"):Explode(contents, true)
+	if #string.Trim(contents) > 0 then
+		mentions.Filters = string.Explode("\r?\n", contents, true)
 	else
 		mentions.Filters = {}
 	end
@@ -26,7 +26,7 @@ local function save_filters()
 end
 
 function mentions:GetColor()
-	local r, g, b = EC_MENTION_COLOR:GetString():match("^(%d%d?%d?) (%d%d?%d?) (%d%d?%d?)")
+	local r, g, b = string.match(EC_MENTION_COLOR:GetString(), "^(%d%d?%d?) (%d%d?%d?) (%d%d?%d?)")
 	r = r and tonumber(r) or 244
 	g = g and tonumber(g) or 167
 	b = b and tonumber(b) or 66
@@ -54,7 +54,7 @@ do
 	local setting_save_color = settings:AddSetting(category_name, "action", "Сохранить цвет упоминаний")
 	setting_save_color.DoClick = function()
 		local color = setting_mention_color:GetColor()
-		EC_MENTION_COLOR:SetString(("%d %d %d"):format(color.r, color.g, color.b))
+		EC_MENTION_COLOR:SetString(string.format("%d %d %d", color.r, color.g, color.b))
 	end
 
 	settings:AddSpacer(category_name)
@@ -204,7 +204,7 @@ local function filter_match(text)
 	-- if its using malformed patterns, we dont want to break
 	local succ, ret = pcall(function()
 		for _, filter in pairs(mentions.Filters) do
-			if text:match(filter) then return true end
+			if string.match(text, filter) then return true end
 		end
 
 		return false
@@ -229,16 +229,16 @@ function mentions:IsMention(msg)
 	local should_mention = EasyChat.SafeHookRun("ECShouldBeMention", msg)
 	if should_mention == false then return false end
 
-	local stripped_msg = ec_markup.GetText(msg):lower()
+	local stripped_msg = string.lower(ec_markup.GetText(msg))
 	if filter_match(stripped_msg) then return true end
 
 	local ply = LocalPlayer()
 	if not IsValid(ply) then return false end
 	if not ply.Nick then return false end
 
-	local ply_name = (ply:Nick() or ""):lower():PatternSafe()
-	local nick_mention = stripped_msg:match(ply_name)
-	local is_nick_match = not stripped_msg:match("^[%!%.%/]") and nick_mention
+	local ply_name = string.PatternSafe(string.lower(ply:Nick() or ""))
+	local nick_mention = string.match(stripped_msg, ply_name)
+	local is_nick_match = not string.match(stripped_msg, "^[%!%.%/]") and nick_mention
 	return is_nick_match and #nick_mention > 1
 end
 

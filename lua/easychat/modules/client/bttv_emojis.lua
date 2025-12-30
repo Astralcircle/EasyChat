@@ -43,7 +43,7 @@ end)
 
 local function fetchEmotes(depth, before)
 	if depth > 25 then -- Fetch the top 25 pages of approx 100 emotes each, should be enough
-		EasyChat.Print(("Loaded %d BTTV emote references"):format(table.Count(cache)))
+		EasyChat.Print(string.format("Loaded %d BTTV emote references", table.Count(cache)))
 		return
 	end
 	local url = LOOKUP_SHARED_TABLE_URL .. (before and ("&before=" .. before) or "")
@@ -94,7 +94,7 @@ end
 
 local function get_bttv_url(name, callback)
 	if lookup_gif[name] then
-		local gif_url = BTTV_CDN_URL:format(lookup_gif[name])
+		local gif_url = string.format(BTTV_CDN_URL, lookup_gif[name])
 		http.Post(GIFTOVTF_URL, { url = gif_url }, function(data, len, hdr, http_code)
 			if http_code ~= 200 or not data or #data < 10 then
 				EasyChat.Print(true, "Could not get GIF info for ", name, ": " .. tostring(http_code))
@@ -122,7 +122,7 @@ local function get_bttv_url(name, callback)
 			EasyChat.Print(true, "Could not get GIF info for ", name, ": " .. err)
 		end)
 	else
-		callback(BTTV_CDN_URL:format(lookup[name]))
+		callback(string.format(BTTV_CDN_URL, lookup[name]))
 	end
 end
 
@@ -190,7 +190,7 @@ local function get_bttv(name)
 				return fail(code)
 			end
 
-			if url:EndsWith(".vtf") then
+			if string.EndsWith(url, ".vtf") then
 				file.Write(path2, data)
 				local mat = gif_material(name, path2)
 				if not mat or mat:IsError() then

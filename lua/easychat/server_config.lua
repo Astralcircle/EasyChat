@@ -122,7 +122,7 @@ if SERVER then
 		if ply:IsAdmin() and file.Exists(MODULE_IGNORE_LIST_PATH, "DATA") then
 			EasyChat.RunOnNextFrame(function()
 				local file_contents = file.Read(MODULE_IGNORE_LIST_PATH, "DATA")
-				local paths = ("\r?\n"):Explode(file_contents, true)
+				local paths = string.Explode("\r?\n", file_contents, true)
 				net.Start(NET_MODULE_IGNORE_LIST)
 				net.WriteTable(paths)
 				net.Send(ply)
@@ -155,7 +155,7 @@ if SERVER then
 
 		config:Save()
 		config:Send(player.GetAll(), true)
-		EasyChat.Print(("%s changed the usergroup prefix for: %s"):format(ply, user_group))
+		EasyChat.Print(string.format("%s changed the usergroup prefix for: %s", ply, user_group))
 	end)
 
 	restricted_receive(NET_DEL_USER_GROUP, true, function(_, ply)
@@ -164,7 +164,7 @@ if SERVER then
 
 		config:Save()
 		config:Send(player.GetAll(), true)
-		EasyChat.Print(("%s deleted the usergroup prefix for: %s"):format(ply, user_group))
+		EasyChat.Print(string.format("%s deleted the usergroup prefix for: %s", ply, user_group))
 	end)
 
 	restricted_receive(NET_WRITE_TAB, true, function(_, ply)
@@ -174,7 +174,7 @@ if SERVER then
 
 		config:Save()
 		config:Send(player.GetAll(), true)
-		EasyChat.Print(("%s changed tab \"%s\" restrictions to: %s"):format(ply, tab_name, is_allowed and "allowed" or "restricted"))
+		EasyChat.Print(string.format("%s changed tab \"%s\" restrictions to: %s", ply, tab_name, is_allowed and "allowed" or "restricted"))
 	end)
 
 	restricted_receive(NET_WRITE_PLY_TITLE, false, function(_, ply)
@@ -186,7 +186,7 @@ if SERVER then
 		config:Send(player.GetAll(), true)
 
 		local target = player.GetBySteamID(steam_id)
-		EasyChat.Print(("%s changed title for: %s (%s)"):format(ply, IsValid(target) and target or steam_id, title))
+		EasyChat.Print(string.format("%s changed title for: %s (%s)", ply, IsValid(target) and target or steam_id, title))
 	end)
 
 	restricted_receive(NET_DEL_PLY_TITLE, false, function(_, ply)
@@ -197,7 +197,7 @@ if SERVER then
 		config:Send(player.GetAll(), true)
 
 		local target = player.GetBySteamID(steam_id)
-		EasyChat.Print(("%s removed title for: %s"):format(ply, IsValid(target) and target or steam_id))
+		EasyChat.Print(string.format("%s removed title for: %s", ply, IsValid(target) and target or steam_id))
 	end)
 
 	restricted_receive(NET_WRITE_SETTING_OVERRIDE, true, function(_, ply)
@@ -205,7 +205,7 @@ if SERVER then
 		config.OverrideClientSettings = should_override
 		config:Save()
 		config:Send(player.GetAll(), true)
-		EasyChat.Print(("%s changed settings override to: %s"):format(ply, should_override))
+		EasyChat.Print(string.format("%s changed settings override to: %s", ply, should_override))
 	end)
 
 	restricted_receive(NET_WRITE_TAGS_IN_NAMES, true, function(_, ply)
@@ -213,7 +213,7 @@ if SERVER then
 		config.AllowTagsInNames = allow_tags
 		config:Save()
 		config:Send(player.GetAll(), true)
-		EasyChat.Print(("%s changed usage of tags in player names to: %s"):format(ply, allow_tags))
+		EasyChat.Print(string.format("%s changed usage of tags in player names to: %s", ply, allow_tags))
 	end)
 
 	restricted_receive(NET_WRITE_TAGS_IN_MESSAGES, true, function(_, ply)
@@ -221,7 +221,7 @@ if SERVER then
 		config.AllowTagsInMessages = allow_tags
 		config:Save()
 		config:Send(player.GetAll(), true)
-		EasyChat.Print(("%s changed usage of tags in messages to: %s"):format(ply, allow_tags))
+		EasyChat.Print(string.format("%s changed usage of tags in messages to: %s", ply, allow_tags))
 	end)
 
 	restricted_receive(NET_WRITE_PLY_NAME, false, function(_, ply)
@@ -240,7 +240,7 @@ if SERVER then
 
 		file.Write(MODULE_IGNORE_LIST_PATH, table.concat(ignore_paths, "\n"))
 
-		EasyChat.Print(("%s changed the module ignore list, a restart is required"):format(ply))
+		EasyChat.Print(string.format("%s changed the module ignore list, a restart is required", ply))
 		EasyChat.Warn(ply, "Список игнорируемых модулей EasyChat обновлен. Требуется перезагрузка.")
 		EasyChat.RunOnNextFrame(function()
 			net.Start(NET_MODULE_IGNORE_LIST)
@@ -279,8 +279,7 @@ if CLIENT then
 		end
 
 		if #newly_allowed_tabs > 0 then
-			local msg = ("Вкладки чата (%s) были разблокированы. Перезагрузите чат для доступа к ним.")
-				:format(table.concat(newly_allowed_tabs, ", "))
+			local msg = string.format("Вкладки чата (%s) были разблокированы. Перезагрузите чат для доступа к ним.", table.concat(newly_allowed_tabs, ", "))
 			EasyChat.Warn(msg)
 		end
 	end
@@ -313,11 +312,11 @@ if CLIENT then
 	function config:WriteUserGroup(user_group, tag, emote_name, emote_size, emote_provider)
 		if not LocalPlayer():IsSuperAdmin() then return false, SUPERADMIN_WARN end
 
-		user_group = (user_group or ""):Trim()
-		tag = (tag or ""):Trim()
-		emote_name = (emote_name or ""):Trim()
+		user_group = string.Trim(user_group or "")
+		tag = string.Trim(tag or "")
+		emote_name = string.Trim(emote_name or "")
 		emote_size = tonumber(emote_size) or -1
-		emote_provider = (emote_provider or ""):Trim()
+		emote_provider = string.Trim(emote_provider or "")
 		if #user_group == 0 then return false, "Группа не указана" end
 
 		net.Start(NET_WRITE_USER_GROUP)
@@ -334,7 +333,7 @@ if CLIENT then
 	function config:DeleteUserGroup(user_group)
 		if not LocalPlayer():IsSuperAdmin() then return false, SUPERADMIN_WARN end
 
-		user_group = (user_group or ""):Trim()
+		user_group = string.Trim(user_group or "")
 		if #user_group == 0 then return false, "Группа не указана" end
 
 		net.Start(NET_DEL_USER_GROUP)
@@ -347,7 +346,7 @@ if CLIENT then
 	function config:WriteTab(tab_name, allowed)
 		if not LocalPlayer():IsSuperAdmin() then return false, SUPERADMIN_WARN end
 
-		tab_name = (tab_name or ""):Trim()
+		tab_name = string.Trim(tab_name or "")
 		if #tab_name == 0 then return false, "Вкладка не указана" end
 
 		net.Start(NET_WRITE_TAB)
@@ -361,10 +360,10 @@ if CLIENT then
 	function config:WritePlayerTitle(steam_id, title)
 		if not LocalPlayer():IsAdmin() then return false, ADMIN_WARN end
 
-		steam_id = (steam_id or ""):Trim()
+		steam_id = string.Trim(steam_id or "")
 		if #steam_id == 0 then return false, "Неверный SteamID" end
 
-		title = (title or ""):Trim()
+		title = string.Trim(title or "")
 		if #title == 0 then return false, "Титул не указан" end
 
 		net.Start(NET_WRITE_PLY_TITLE)
@@ -378,7 +377,7 @@ if CLIENT then
 	function config:DeletePlayerTitle(steam_id)
 		if not LocalPlayer():IsAdmin() then return false, ADMIN_WARN end
 
-		steam_id = (steam_id or ""):Trim()
+		steam_id = string.Trim(steam_id or "")
 		if #steam_id == 0 then return false, "Неверный SteamID" end
 
 		net.Start(NET_DEL_PLY_TITLE)

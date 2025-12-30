@@ -22,7 +22,7 @@ end
 function PANEL:OnTab() end
 
 function PANEL:SetCompletionText(text)
-	if not text or text:Trim() == "" then
+	if not text or string.Trim(text) == "" then
 		self.CompletionText = nil
 	else
 		self.CompletionText = text

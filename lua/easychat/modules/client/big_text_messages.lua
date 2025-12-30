@@ -4,7 +4,7 @@ local function update_big_chat_font(default_font_data)
 	local font_data
 
 	if not default_font_data then
-		font_data = table.Copy(surface.GetLuaFonts()[EasyChat.ChatHUD.DefaultFont:lower()])
+		font_data = table.Copy(surface.GetLuaFonts()[string.lower(EasyChat.ChatHUD.DefaultFont)])
 	else
 		font_data = table.Copy(default_font_data)
 	end
@@ -23,7 +23,7 @@ update_big_chat_font()
 
 hook.Add("ECHUDFontChanged", "EasyChatModuleBigChatText", update_big_chat_font)
 hook.Add("OnPlayerChat", "EasyChatModuleBigChatText", function(ply, msg, is_team, is_dead, is_local)
-	local match = msg:match("![!1]+$")
+	local match = string.match(msg, "![!1]+$")
 	if not match then return end
 	if #match < 3 then return end
 

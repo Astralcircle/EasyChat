@@ -258,7 +258,7 @@ local function call_component_function(component, fn_name, default, ...)
 		ErrorNoHaltWithStack("[EC] Error in \"" .. fn_name .. "\" function: " .. err)
 	end, component, ...) }
 
-	local success = table.remove(rets, 1)
+	local success = table_remove(rets, 1)
 	if success then return unpack(rets) end
 
 	return default
@@ -279,7 +279,7 @@ function default_part:Ctor()
 end
 
 function default_part:ToString()
-	return ("<%s=%s>"):format(self.Type, self.TextInput)
+	return string.format("<%s=%s>", self.Type, self.TextInput)
 end
 
 function default_part:IsHovered()
@@ -725,9 +725,9 @@ local emote_part = {
 }
 
 function emote_part:Ctor(str)
-	local em_components = str:Split(",")
+	local em_components = string.Split(str, ",")
 	local name, size, requested_provider =
-		em_components[1]:Trim(),
+		string.Trim(em_components[1]),
 		tonumber(em_components[2]),
 		em_components[3]
 
@@ -740,7 +740,7 @@ function emote_part:Ctor(str)
 	end
 
 	if requested_provider then
-		requested_provider = requested_provider:Trim()
+		requested_provider = string.Trim(requested_provider)
 	end
 
 	self:TryGetEmote(name, requested_provider)
@@ -1201,19 +1201,19 @@ local function transliterate(str)
 	local ret = ""
 
 	local old_end_pos = 1
-	local start_pos, end_pos = str:find(transliterate_tag_pattern)
+	local start_pos, end_pos = string.find(str, transliterate_tag_pattern)
 	while start_pos do
-		local tag = str:sub(start_pos, end_pos)
-		local str_chunk = str:sub(old_end_pos, start_pos - 1)
+		local tag = string.sub(str, start_pos, end_pos)
+		local str_chunk = string.sub(str, old_end_pos, start_pos - 1)
 		str_chunk = EasyChat.Transliterator:Transliterate(str_chunk)
 		ret = ret .. str_chunk .. tag
 
-		local tag_len = tag:len()
+		local tag_len = #tag
 		old_end_pos = start_pos + tag_len
-		start_pos, end_pos = str:find(transliterate_tag_pattern, start_pos + tag_len)
+		start_pos, end_pos = string.find(str, transliterate_tag_pattern, start_pos + tag_len)
 	end
 
-	ret = ret .. EasyChat.Transliterator:Transliterate(str:sub(old_end_pos))
+	ret = ret .. EasyChat.Transliterator:Transliterate(string.sub(str, old_end_pos))
 
 	return ret
 end
@@ -1223,7 +1223,8 @@ function chathud:NormalizeString(str, is_nick)
 
 	if is_nick then
 		-- remove new lines, tabs and uncessary spaces from names
-		str = str:gsub("[\r\n\t]", ""):Trim()
+		str = string.gsub(str, "[\r\n\t]", "")
+		str = string.Trim(str)
 	end
 
 	for _, part in pairs(self.Parts) do
@@ -1464,7 +1465,7 @@ function chathud:AppendImageURL(url)
 end
 
 function chathud:InsertColorChange(r, g, b)
-	local expr = ("%d,%d,%d"):format(r, g, b)
+	local expr = string.format("%d,%d,%d", r, g, b)
 	self:PushPartComponent("color", expr)
 end
 
@@ -1492,14 +1493,14 @@ if CLIENT then
 				end
 
 				local title = p:Add("DLabel")
-				title:SetText(("Название: %s"):format(part_name))
+				title:SetText(string.format("Название: %s", part_name))
 				title:Dock(TOP)
 				title:DockMargin(5, 5, 5, 0)
 				title:SetFont("EasyChatFont")
 				title:SetTextColor(color_white)
 
 				local usage = p:Add("DLabel")
-				usage:SetText(("Применение: %s"):format(part.Usage))
+				usage:SetText(string.format("Применение: %s", part.Usage))
 				usage:Dock(TOP)
 				usage:DockMargin(5, 0, 5, 0)
 				usage:SetFont("EasyChatFont")

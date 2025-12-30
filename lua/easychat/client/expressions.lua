@@ -64,11 +64,11 @@ local expr_env = {
 local blacklist = { "repeat", "until", "function", "end", "\"", "\'", "%[=*%[", "%]=*%]", ":" }
 
 local function compile_expression(str)
-	if not str or str:Trim() == "" then return false, "nil or empty expression" end
+	if not str or string.Trim(str) == "" then return false, "nil or empty expression" end
 
 	for _, word in pairs(blacklist) do
-		if str:find("[%p%s]" .. word) or str:find(word .. "[%p%s]") then
-			return false, ("illegal characters used %q"):format(word)
+		if string.find(str, "[%p%s]" .. word) or string.find(str, word .. "[%p%s]") then
+			return false, string.format("illegal characters used %q", word)
 		end
 	end
 

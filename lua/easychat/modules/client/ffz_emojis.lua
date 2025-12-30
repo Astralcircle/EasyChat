@@ -80,7 +80,7 @@ local function get_ffz(name)
 		-- bad hack
 		if not isvariant then
 			EasyChat.Print("Retrying without variant selector just in case...")
-			http.Fetch(url:Replace("-fe0f.png",".png"), function(data, len, hdr, code)
+			http.Fetch(string.Replace(url, "-fe0f.png", ".png"), function(data, len, hdr, code)
 				if code ~= 200 or len <= 222 then
 					return fail(code)
 				end

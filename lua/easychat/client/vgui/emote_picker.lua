@@ -82,7 +82,7 @@ local PICKER = {
 	OnEmoteClicked = function(self, emote_name)
 	end,
 	Populate = function(self, search)
-		search = (search or ""):Trim()
+		search = string.Trim(search or "")
 		no_search = search == ""
 
 		for category_name, category_panel in pairs(self.Categories) do
@@ -116,7 +116,7 @@ local PICKER = {
 				local i = 1
 				for emote_name, _ in pairs(lookup_table) do
 					if i >= 50 then break end -- lets stop adding
-					if (not no_search and emote_name:find(search, nil, true)) or no_search then
+					if (not no_search and string.find(emote_name, search, nil, true)) or no_search then
 						local succ, emote = pcall(function() return providers[lookup_name](emote_name) end)
 						if succ and emote ~= false then
 							local set_emote_material = function() end
@@ -149,7 +149,7 @@ local PICKER = {
 				end
 
 				local emote_count = no_search and table.Count(lookup_table) or i
-				category:SetLabel(("%s (%d эмодзи)"):format(lookup_name, emote_count - 1))
+				category:SetLabel(string.format("%s (%d эмодзи)", lookup_name, emote_count - 1))
 				category:SetContents(category_panel)
 				self.Categories[lookup_name] = category
 			end

@@ -17,7 +17,7 @@ local MACRO_PANEL = {
 		self.TitleEdit.Paint = function() end
 		self.TitleEdit.DoClick = function()
 			EasyChat.AskForInput("Новое имя макроса", function(macro_name)
-				self.Title:SetText(("<%s>"):format(macro_name))
+				self.Title:SetText(string.format("<%s>", macro_name))
 				local succ, err = macro_processor:RegisterMacro(macro_name, {
 					IsLua = self.IsLua:GetChecked(),
 					PerCharacter = not self.IsLua:GetChecked() and self.PerChar:GetChecked() or false,
@@ -40,7 +40,7 @@ local MACRO_PANEL = {
 		self.Value:SetMultiline(true)
 		self.Value:SetVerticalScrollbarEnabled(true)
 		self.Value.OnChange = function()
-			self.Title:SetText(("<%s> (не сохранено)"):format(self.MacroName))
+			self.Title:SetText(string.format("<%s> (не сохранено)", self.MacroName))
 			self:CacheMarkup()
 		end
 
@@ -65,7 +65,7 @@ local MACRO_PANEL = {
 		self.PerChar:SetText("На символ")
 		self.PerChar:SetPos(10, 135)
 		self.PerChar.OnChange = function()
-			self.Title:SetText(("<%s> (не сохранено)"):format(self.MacroName))
+			self.Title:SetText(string.format("<%s> (не сохранено)", self.MacroName))
 			self:CacheMarkup()
 		end
 
@@ -74,7 +74,7 @@ local MACRO_PANEL = {
 		self.IsLua:SetPos(110, 135)
 		self.IsLua.OnChange = function(_, is_lua)
 			self.PerChar:SetDisabled(is_lua)
-			self.Title:SetText(("<%s> (не сохранено)"):format(self.MacroName))
+			self.Title:SetText(string.format("<%s> (не сохранено)", self.MacroName))
 			self:CacheMarkup()
 		end
 
@@ -163,7 +163,7 @@ local MACRO_PANEL = {
 			macro_processor.Macros[self.MacroName] = macro
 		end
 
-		local str = ("<%s>Hello World!"):format(self.MacroName)
+		local str = string.format("<%s>Hello World!", self.MacroName)
 		str = macro_processor:ProcessString(str)
 
 		self.Markup = ec_markup.AdvancedParse(str, {
@@ -173,7 +173,7 @@ local MACRO_PANEL = {
 	end,
 	SetMacro = function(self, macro_name, macro)
 		self.MacroName = macro_name
-		self.Title:SetText(("<%s>"):format(macro_name))
+		self.Title:SetText(string.format("<%s>", macro_name))
 		self.Value:SetText(macro.Value)
 		self.PerChar:SetChecked(macro.PerCharacter)
 		self.IsLua:SetChecked(macro.IsLua)
@@ -197,7 +197,7 @@ local MACRO_PANEL = {
 			return
 		end
 
-		self.Title:SetText(("<%s>"):format(self.MacroName))
+		self.Title:SetText(string.format("<%s>", self.MacroName))
 	end,
 	DeleteMacro = function(self)
 		macro_processor:DeleteMacro(self.MacroName)
@@ -292,7 +292,7 @@ local MACRO_TAB = {
 		macro_panel:DockMargin(10, 0, 10, 10)
 
 		if is_new then
-			macro_panel.Title:SetText(("<%s> (не сохранено)"):format(macro_name))
+			macro_panel.Title:SetText(string.format("<%s> (не сохранено)", macro_name))
 		end
 
 		self.KnownMacros[macro_name] = true
@@ -303,7 +303,7 @@ local MACRO_TAB = {
 		self.KnownMacros = {}
 		self.List:Clear()
 		for macro_name, macro in pairs(macro_processor.Macros) do
-			if search_input:Trim() == "" or macro_name:match(search_input) then
+			if string.Trim(search_input) == "" or string.match(macro_name, search_input) then
 				self:AddMacroPanel(macro_name, macro, false)
 			end
 		end
@@ -341,9 +341,9 @@ if not cookie.GetNumber("EasyChatExampleMacros") then
 			-- MACRO_INPUT: string, the input passed to the macro
 			-- ^ this does not exclude other macros, tags, whatsoever, youll have to do it yourself
 
-			local chars = MACRO_INPUT:Split("")
+			local chars = string.Split(MACRO_INPUT, "")
 			for i=1, #chars do
-				chars[i] = ("<translate=0,%d>%s"):format(i, chars[i])
+				chars[i] = string.format("<translate=0,%d>%s", i, chars[i])
 			end
 
 			-- returning here "applies" your changes

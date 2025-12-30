@@ -11,9 +11,9 @@ do
 	local function generate_lookup_table(data)
 		lookup = {}
 
-		for line in data:gmatch("[^\r\n]+") do
+		for line in string.gmatch(data, "[^\r\n]+") do
 			local tbl = lookup
-			for str in line:gmatch("[a-f0-9][a-f0-9]+") do
+			for str in string.gmatch(line, "[a-f0-9][a-f0-9]+") do
 				local num = assert(tonumber(str, 16))
 				local t = tbl[num] or {}
 				tbl[num] = t
@@ -24,9 +24,9 @@ do
 		return lookup
 	end
 
-	local data_path = ("%s/%s"):format(FOLDER, "twemojis.txt")
+	local data_path = string.format("%s/%s", FOLDER, "twemojis.txt")
 	local data = file.Read(data_path, "DATA")
-	if data and #data > 100 and data:find("\n", 50, true) then
+	if data and #data > 100 and string.find(data, "\n", 50, true) then
 		generate_lookup_table(data)
 		EasyChat.Print("Loaded twemojis lookup table from from: " .. data_path)
 	else
@@ -34,9 +34,9 @@ do
 			if code ~= 200 then return end
 
 			new_data = util.Decompress(new_data)
-			if not new_data or #new_data < 100 or not new_data:find("\n") then return end
+			if not new_data or #new_data < 100 or not string.find(new_data, "\n") then return end
 
-			file.Write(("%s/%s"):format(FOLDER, "twemojis.txt"), new_data)
+			file.Write(string.format("%s/%s", FOLDER, "twemojis.txt"), new_data)
 			local ret = generate_lookup_table(new_data)
 			if not ret or not next(ret) then return end
 
@@ -65,7 +65,7 @@ local function twemojify_unsafe(str)
 
 		if not found_twemoji_part and seq and code_point ~= variant_selector_16 then
 			local beginning = seq[1][1]
-			table.insert(res, str:sub(lastend, beginning - 1))
+			table.insert(res, string.sub(str, lastend, beginning - 1))
 			table.insert(res, seq)
 			lastend = char_pos
 
@@ -83,7 +83,7 @@ local function twemojify_unsafe(str)
 
 	if seq then
 		local beginning = seq[1][1]
-		table.insert(res, str:sub(lastend, beginning - 1))
+		table.insert(res, string.sub(str, lastend, beginning - 1))
 		table.insert(res, seq)
 		lastend = nil
 	end
@@ -94,7 +94,7 @@ local function twemojify_unsafe(str)
 
 	if next(res) then
 		if lastend then
-			table.insert(res, str:sub(lastend, -1))
+			table.insert(res, string.sub(str, lastend, -1))
 		end
 
 		return res
@@ -171,7 +171,7 @@ http.Fetch(DISCORD_LOOKUP_TABLE_URL, function(body, _, _, code)
 
 	for _, v in ipairs(tbl) do
 		local name = v.name
-		discord_lookup[name] = v.codes:lower():Replace(" ", "-")
+		discord_lookup[name] = string.Replace(string.lower(v.codes), " ", "-")
 		cache[name] = UNCACHED
 	end
 end, function(err)
@@ -179,21 +179,21 @@ end, function(err)
 end)
 
 local function get_twemoji_url(name)
-	return ("https://jdecked.github.io/twemoji/v/latest/72x72/%s.png"):format(discord_lookup[name])
+	return string.format("https://jdecked.github.io/twemoji/v/latest/72x72/%s.png", discord_lookup[name])
 end
 
 local function get_twemoji_url_codepoints(tbl)
 	local formatted = {}
 	for _, num in pairs(tbl) do
-		table.insert(formatted, ("%x"):format(num))
+		table.insert(formatted, string.format("%x", num))
 	end
 
-	return ("https://jdecked.github.io/twemoji/v/latest/72x72/%s.png"):format(table.concat(formatted, "-"))
+	return string.format("https://jdecked.github.io/twemoji/v/latest/72x72/%s.png", table.concat(formatted, "-"))
 end
 
 local function to_hex(str)
-	return str:gsub(".", function(char)
-		return ("%02X"):format(char:byte())
+	return string.gsub(str, ".", function(char)
+		return string.format("%02X", string.byte(char))
 	end)
 end
 
@@ -222,7 +222,7 @@ local function get_twemoji(name, code_point)
 	-- Otherwise download dat shit
 	cache[name] = PROCESSING
 
-	local path = ("%s/%s.png"):format(FOLDER, name)
+	local path = string.format("%s/%s.png", FOLDER, name)
 	local exists = file.Exists(path, "DATA")
 	if exists then
 		local mat = material_data(path)
@@ -242,7 +242,7 @@ local function get_twemoji(name, code_point)
 		-- bad hack
 		if not isvariant then
 			EasyChat.Print("Retrying without variant selector just in case...")
-			fetch(url:Replace("-fe0f.png",".png"), function(data, len, hdr, code)
+			fetch(string.Replace(url, "-fe0f.png", ".png"), function(data, len, hdr, code)
 				if code ~= 200 then return fail(code, true) end
 
 				file.Write(path, data)
@@ -285,7 +285,7 @@ twemoji_part.Usage = nil
 twemoji_part.Examples = nil
 
 function twemoji_part:Ctor(str)
-	local em_components = str:Split(",")
+	local em_components = string.Split(str, ",")
 	local name = em_components[1]
 	self.Height = CLIENT and draw.GetFontHeight(self.HUD.DefaultFont) or 16
 
@@ -339,7 +339,7 @@ function twemoji_part:Normalize(str)
 			end
 
 			data = utf8.char(unpack(twemoji_chars))
-			data = ("<twemoji=%s>"):format(data)
+			data = string.format("<twemoji=%s>", data)
 		end
 
 		table.insert(t, data)

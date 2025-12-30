@@ -5,10 +5,10 @@ local color_white = color_white
 local green_color = Color(0, 255, 0)
 hook.Add("OnPlayerChat", "EasyChatModuleGreenText", function(ply, msg, is_team, is_dead, is_local)
 	if not EC_GREENTEXT:GetBool() then return end
-	local lines = msg:Split("\n")
+	local lines = string.Split(msg, "\n")
 	local has_green_text = false
 	for i, line in ipairs(lines) do
-		if line:match("^>") then
+		if string.match(line, "^>") then
 			has_green_text = true
 			lines[i] = { green_color, line }
 		else

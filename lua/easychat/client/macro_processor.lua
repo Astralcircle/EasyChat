@@ -15,7 +15,7 @@ function macro_processor:ProcessPerCharacter(value, str)
 			if component.Type == "emote" then
 				new_str = new_str .. value .. component:ToString()
 			elseif component.Type == "text" then
-				local chars = component.Content:Split("")
+				local chars = string.Split(component.Content, "")
 				for j, char in ipairs(chars) do
 					if char ~= " " then
 						chars[j] = value .. char
@@ -47,14 +47,14 @@ function macro_processor:ProcessMacro(macro, str)
 
 	-- per character, but takes consideration for some components
 	local previous_end_pos = 1
-	local start_pos, _, other_macro_name = str:find(self.Pattern, 1, false)
+	local start_pos, _, other_macro_name = string.find(str, self.Pattern, 1, false)
 	if not start_pos then -- no need to waste time on non-existent things
 		return self:ProcessPerCharacter(macro.Value, str)
 	end
 
 	local new_str = ""
 	while start_pos do
-		local str_chunk = str:sub(previous_end_pos, start_pos - 1)
+		local str_chunk = string.sub(str, previous_end_pos, start_pos - 1)
 
 		if self.Macros[other_macro_name] then
 			new_str = new_str .. self:ProcessPerCharacter(macro.Value, str_chunk)
@@ -62,43 +62,43 @@ function macro_processor:ProcessMacro(macro, str)
 			new_str = new_str .. str_chunk
 		end
 
-		local other_macro_tag = ("<%s>"):format(other_macro_name)
+		local other_macro_tag = string.format("<%s>", other_macro_name)
 		new_str = new_str .. other_macro_tag
 
-		local pos_offset = other_macro_tag:len()
+		local pos_offset = #other_macro_tag
 		previous_end_pos = start_pos + pos_offset
-		start_pos, _, other_macro_name = str:find(self.Pattern, start_pos + pos_offset, false)
+		start_pos, _, other_macro_name = string.find(str, self.Pattern, start_pos + pos_offset, false)
 	end
 
 	-- complete the new string
-	local str_chunk = str:sub(previous_end_pos)
+	local str_chunk = string.sub(str, previous_end_pos)
 	return new_str .. self:ProcessPerCharacter(macro.Value, str_chunk)
 end
 
 -- TODO: figure out why the fuck this acts weird when passing macro names that dont exist
 function macro_processor:ProcessString(str)
-	local start_pos, _, macro_name = str:find(self.Pattern, 1, false)
+	local start_pos, _, macro_name = string.find(str, self.Pattern, 1, false)
 	while start_pos do
 		local macro = self.Macros[macro_name]
-		local pos_offset = ("<%s>"):format(macro_name):len()
+		local pos_offset = #string.format("<%s>", macro_name)
 		if macro then
 			macro.Name = macro_name -- for the hook
 
-			local str_input = str:sub(start_pos + pos_offset)
+			local str_input = string.sub(str, start_pos + pos_offset)
 			local str_chunk = self:ProcessMacro(macro, str_input)
 			local ret = EasyChat.SafeHookRun("ECOnProcessMacro", macro, str_input, str_chunk)
 			if isstring(ret) then str_chunk = ret end
 
 			if not isstring(str_chunk) then
-				ErrorNoHalt(("[EasyChat] > macro [%s] did not have any return value or was not a string\n"):format(macro_name))
+				ErrorNoHalt(string.format("[EasyChat] > macro [%s] did not have any return value or was not a string\n", macro_name))
 				str_chunk = ""
 			end
 
-			str = str:sub(1, start_pos - 1) .. str_chunk
+			str = string.sub(str, 1, start_pos - 1) .. str_chunk
 
-			start_pos, _, macro_name = str:find(self.Pattern, start_pos, false)
+			start_pos, _, macro_name = string.find(str, self.Pattern, start_pos, false)
 		else
-			start_pos, _, macro_name = str:find(self.Pattern, start_pos + pos_offset, false)
+			start_pos, _, macro_name = string.find(str, self.Pattern, start_pos + pos_offset, false)
 		end
 	end
 
@@ -173,7 +173,7 @@ function macro_processor:RegisterMacro(macro_name, macro)
 		IsLua = macro.IsLua,
 		Value = macro.Value,
 	}, true)
-	file.Write(("%s/%s.txt"):format(self.Directory, macro_name), to_save)
+	file.Write(string.format("%s/%s.txt", self.Directory, macro_name), to_save)
 	self.Macros[macro_name] = macro
 
 	EasyChat.SafeHookRun("ECMacroRegistered", macro_name, macro)
@@ -181,7 +181,7 @@ function macro_processor:RegisterMacro(macro_name, macro)
 end
 
 function macro_processor:DeleteMacro(macro_name)
-	local macro_path = ("%s/%s.txt"):format(self.Directory, macro_name)
+	local macro_path = string.format("%s/%s.txt", self.Directory, macro_name)
 	if file.Exists(macro_path, "DATA") then
 		file.Delete(macro_path)
 	end
@@ -192,10 +192,10 @@ function macro_processor:DeleteMacro(macro_name)
 end
 
 function macro_processor:LoadSavedMacros()
-	local files = (file.Find(self.Directory .. "/*.txt", "DATA"))
+	local files = file.Find(self.Directory .. "/*.txt", "DATA")
 	for _, f in pairs(files) do
-		local path = ("%s/%s"):format(self.Directory, f)
-		local macro_name = f:Replace(".txt", "")
+		local path = string.format("%s/%s", self.Directory, f)
+		local macro_name = string.Replace(f, ".txt", "")
 		local json = file.Read(path, "DATA")
 
 		local macro = util.JSONToTable(json)

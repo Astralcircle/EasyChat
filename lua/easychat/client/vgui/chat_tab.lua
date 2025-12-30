@@ -63,7 +63,7 @@ local MAIN_TAB = {
 		self.EmotePicker = vgui.Create("ECEmotePicker")
 		self.EmotePicker:SetVisible(false)
 		self.EmotePicker.OnEmoteClicked = function(_, emote_name, provider_name)
-			local text = ("%s <emote=%s,32,%s>"):format(self.TextEntry:GetText():Trim(), emote_name, provider_name)
+			local text = string.format("%s <emote=%s,32,%s>", string.Trim(self.TextEntry:GetText()), emote_name, provider_name)
 			self.TextEntry:SetText(text)
 
 			if input.IsKeyDown(KEY_LSHIFT) or input.IsKeyDown(KEY_RSHIFT) then return end
@@ -75,7 +75,7 @@ local MAIN_TAB = {
 		self.ColorPicker:SetVisible(false)
 		self.ColorPicker.DoClick = function(_, btn)
 			local col_str = btn.CurrentColorString
-			local text = ("%s%s"):format(self.TextEntry:GetText():Trim(), col_str)
+			local text = string.format("%s%s", string.Trim(self.TextEntry:GetText()), col_str)
 			self.TextEntry:SetText(text)
 			self.ColorPicker:SetVisible(false)
 			self.TextEntry:RequestFocus()
@@ -212,7 +212,7 @@ local MAIN_TAB = {
 		end
 	end,
 	ComputeNewLineCount = function(self)
-		local _, line_count = self.TextEntry:GetText():gsub(NEW_LINE_PATTERN, "\n")
+		local _, line_count = string.gsub(self.TextEntry:GetText(), NEW_LINE_PATTERN, "\n")
 		surface.SetFont("EasyChatCompletionFont")
 		local tw, _ = surface.GetTextSize(self.TextEntry:GetText())
 		line_count = line_count + math.floor(tw / self.TextEntry:GetWide())

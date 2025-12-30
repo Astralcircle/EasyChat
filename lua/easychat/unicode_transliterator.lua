@@ -30,13 +30,12 @@ else
 			method = "get",
 			headers = {},
 			success = function(code, json)
-				local size = json:len()
 				if code ~= 200 then
-					fail("Could not fetch transliteration lookup: " .. ("HTTP CODE %d"):format(code))
+					fail("Could not fetch transliteration lookup: " .. string.format("HTTP CODE %d", code))
 					return
 				end
 
-				if size == 0 then
+				if #json == 0 then
 					fail("Transliteration lookup is empty?!")
 					timer.Simple(retries * 5, function()
 						fetch_lookup(retries + 1)

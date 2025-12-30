@@ -32,7 +32,7 @@ local blacklisted_fonts = {
 function surface.CreateFont(font_name, font_data)
 	font_name = tostring(font_name)
 
-	if font_data.font and (blacklisted_fonts[font_data.font:lower()] or #font_data.font > 31) then
+	if font_data.font and (blacklisted_fonts[string.lower(font_data.font)] or #font_data.font > 31) then
 		local font = font_data.font
 		font_data.font = nil
 		bad_fonts[#bad_fonts + 1] = { font, debug.getinfo(2) }
@@ -47,13 +47,13 @@ function surface.CreateFont(font_name, font_data)
 		crashing_fonts[font_name] = true
 	end
 
-	local font_name_lower = font_name:lower()
+	local font_name_lower = string.lower(font_name)
 	created[font_name_lower] = false
 	fonts[font_name_lower] = font_data
 	font_data.name = font_name
 
 	for k, _ in pairs(processed) do
-		if tostring(k):lower() == font_name_lower then
+		if string.lower(tostring(k)) == font_name_lower then
 			processed[k] = nil
 		end
 	end
@@ -65,8 +65,8 @@ local function process_font(font_name)
 	if processed[font_name] == nil then
 		processed[font_name] = true
 
-		if not created[font_name:lower()] and fonts[font_name:lower()] then
-			created[font_name:lower()] = true
+		if not created[string.lower(font_name)] and fonts[string.lower(font_name)] then
+			created[string.lower(font_name)] = true
 		end
 	end
 end

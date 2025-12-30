@@ -18,7 +18,7 @@ hook.Add("ShutDown", "EasyChatModuleMsgHistory", save_history)
 hook.Add("ECInitialized", "EasyChatModuleMsgHistory", function()
 	if not IsValid(EasyChat.GUI.TextEntry) then return end
 	local contents = file.Read(HISTORY_PATH, "DATA") or ""
-	EasyChat.GUI.TextEntry.History = contents:Split("\n")
+	EasyChat.GUI.TextEntry.History = string.Split(contents, "\n")
 	EasyChat.GUI.TextEntry.HistoryPos = 0
 end)
 

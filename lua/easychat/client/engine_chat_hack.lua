@@ -87,7 +87,7 @@ local function hack_msg_send()
 				local should_send = EasyChat.SafeHookRun("ECShouldSendMessage", msg)
 				if should_send == false then return end
 
-				local is_team = label:GetText():lower():match("team")
+				local is_team = string.match(string.lower(label:GetText()), "team")
 				EasyChat.SendGlobalMessage(msg, is_team, false)
 			end
 
@@ -122,11 +122,11 @@ local STACK_OFFSET = 4 -- we start at 4 to ignore all the calls from the interna
 local function is_easychat_calling()
 	local data = debug.getinfo(STACK_OFFSET)
 	if data then
-		local ret = data.source:match("^@lua/easychat") ~= nil or data.source:match("^@addons/easychat/lua/easychat") ~= nil
+		local ret = string.match(data.source, "^@lua/easychat") ~= nil or string.match(data.source, "^@addons/easychat/lua/easychat") ~= nil
 		if ret then return true end
 
-		if data.source:match("^@addons") then
-			local chunks = data.source:Split("/")
+		if string.match(data.source, "^@addons") then
+			local chunks = string.Split(data.source, "/")
 			return chunks[1] == "@addons" and chunks[3] == "lua" and chunks[4] == "easychat"
 		end
 	end

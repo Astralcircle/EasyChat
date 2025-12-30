@@ -81,14 +81,14 @@ function EasyChat.ExtendedStringTrim(str, control_chars)
 
 	str = utf8.force(str)
 	if control_chars then
-		str = str:gsub("%c", "")
+		str = string.gsub(str, "%c", "")
 	end
 
 	for unicode, replacement in pairs(trim_lookup) do
-		str = str:gsub(unicode, replacement)
+		str = string.gsub(str, unicode, replacement)
 	end
 
-	return str:Trim()
+	return string.Trim(str)
 end
 
 -- lets not break the addon with bad third-party code but still notify the
@@ -205,9 +205,9 @@ EasyChat.GetModules = get_modules -- maybe useful for modules?
 concommand.Add("easychat_show_modules", function()
 	MsgC(COLOR_PRINT_HEAD, "---- EasyChat Modules ----\n")
 	for _, module in pairs(get_modules()) do
-		MsgC(COLOR_PRINT_GOOD, ("%s\n"):format(module.Name))
+		MsgC(COLOR_PRINT_GOOD, string.format("%s\n", module.Name))
 	end
-	MsgC(COLOR_PRINT_HEAD, ("-"):rep(26) .. "\n")
+	MsgC(COLOR_PRINT_HEAD, string.rep("-", 26) .. "\n")
 end, nil, "Shows all the loaded EasyChat modules")
 
 function PLY:ECIsEnabled()
@@ -412,7 +412,7 @@ if CLIENT then
 	end)
 
 	local function parse_cvar_color(str)
-		local r, g, b = str:match("(%d+) (%d+) (%d+)")
+		local r, g, b = string.match(str, "(%d+) (%d+) (%d+)")
 		r = r or 255
 		g = g or 255
 		b = b or 255
@@ -538,12 +538,12 @@ if CLIENT then
 	end
 
 	local function get_secondary_chat_mode()
-		local secondary_mode_name = EC_SECONDARY:GetString():lower()
+		local secondary_mode_name = string.lower(EC_SECONDARY:GetString())
 		local handled = safe_hook_run("ECSecondaryOpen", secondary_mode_name)
 		if handled ~= true then
 			for i = 0, EasyChat.ModeCount do
 				local mode = EasyChat.Modes[i]
-				if mode.Name:lower() == secondary_mode_name then
+				if string.lower(mode.Name) == secondary_mode_name then
 					return i
 				end
 			end
@@ -713,7 +713,7 @@ if CLIENT then
 	}
 	function EasyChat.IsURL(str)
 		for _, pattern in ipairs(url_patterns) do
-			local start_pos, end_pos = str:find(pattern, 1, false)
+			local start_pos, end_pos = string.find(str, pattern, 1, false)
 			if start_pos then
 				return start_pos, end_pos
 			end
@@ -723,9 +723,9 @@ if CLIENT then
 	end
 
 	function EasyChat.OpenURL(url)
-		local has_protocol = url:find("^%w-://")
+		local has_protocol = string.find(url, "^%w-://")
 		if not has_protocol then
-			url = ("http://%s"):format(url)
+			url = string.format("http://%s", url)
 		end
 
 		if EC_LINKS_CLIPBOARD:GetBool() then
@@ -932,39 +932,41 @@ if CLIENT then
 			return util.Base64Decode(base64)
 		end
 
-		base64 = base64:gsub("[^" .. BASE64 .. "=]", "")
-		base64 = (base64:gsub(".", function(x)
+		base64 = string.gsub(base64, "[^" .. BASE64 .. "=]", "")
+		base64 = string.gsub(base64, ".", function(x)
 			if (x == "=") then return "" end
-			local r, f = "", (BASE64:find(x) - 1)
+			local r, f = "", (string.find(BASE64, x) - 1)
 			for i = 6, 1, -1 do
 				r = r .. (f % 2^i - f % 2^(i - 1) > 0 and "1" or "0")
 			end
 
 			return r
-		end):gsub("%d%d%d?%d?%d?%d?%d?%d?", function(x)
+		end)
+
+		base64 = string.gsub(base64, "%d%d%d?%d?%d?%d?%d?%d?", function(x)
 			if (#x ~= 8) then return "" end
 			local c = 0
 			for i = 1, 8 do
-				c = c + (x:sub(i, i) == "1" and 2^(8 - i) or 0)
+				c = c + (string.sub(x, i, i) == "1" and 2^(8 - i) or 0)
 			end
 
-			return c:char()
-		end))
+			return string.char(c)
+		end)
 
 		return base64
 	end
 
 	local function on_imgur_failure(err)
-		EasyChat.Print(true, ("catbox upload failed: %s"):format(tostring(err)))
+		EasyChat.Print(true, string.format("catbox upload failed: %s", tostring(err)))
 	end
 
 	local function on_imgur_success(code, body, headers)
 		if code ~= 200 then
-			on_imgur_failure(("error code: %d"):format(code))
+			on_imgur_failure(string.format("error code: %d", code))
 			return
 		end
 
-		EasyChat.Print(("catbox uploaded: %s"):format(tostring(body)))
+		EasyChat.Print(string.format("catbox uploaded: %s", tostring(body)))
 		return body
 	end
 
@@ -1027,9 +1029,9 @@ if CLIENT then
 		for i = 1, len, 3 do
 			counter =
 				math.fmod(counter * 8161, 4294967279) + -- 2^32 - 17: Prime!
-				(text:byte(i) * 16776193) +
-				((text:byte(i + 1) or (len - i + 256)) * 8372226) +
-				((text:byte(i + 2) or (len - i + 256)) * 3932164)
+				(string.byte(text, i) * 16776193) +
+				((string.byte(text, i + 1) or (len - i + 256)) * 8372226) +
+				((string.byte(text, i + 2) or (len - i + 256)) * 3932164)
 		end
 
 		return math.fmod(counter, 4294967291) -- 2^32 - 5: Prime (and different from the prime in the loop)
@@ -1062,8 +1064,8 @@ if CLIENT then
 		if not start_pos then
 			append_text(richtext, text)
 		else
-			local url = text:sub(start_pos, end_pos)
-			append_text(richtext, text:sub(1, start_pos - 1))
+			local url = string.sub(text, start_pos, end_pos)
+			append_text(richtext, string.sub(text, 1, start_pos - 1))
 
 			local previous_color
 			if richtext.GetLastColorChange then
@@ -1080,7 +1082,7 @@ if CLIENT then
 			end
 
 			-- recurse for possible other urls after this one
-			append_text_url(richtext, text:sub(end_pos + 1))
+			append_text_url(richtext, string.sub(text, end_pos + 1))
 		end
 	end
 
@@ -1134,14 +1136,14 @@ if CLIENT then
 	}
 	local image_url_exts = { "png", "jpg", "jpeg", "gif", "webp" }
 	local function is_image_url(url)
-		local simple_url = url:gsub("%?[^/]+", ""):lower() -- remove url args, lower for exts like JPG, PNG
+		local simple_url = string.lower(string.gsub(url, "%?[^/]+", "")) -- remove url args, lower for exts like JPG, PNG
 		for _, url_ext in ipairs(image_url_exts) do
-			local pattern = (".%s$"):format(url_ext)
-			if simple_url:match(pattern) then return true end
+			local pattern = string.format(".%s$", url_ext)
+			if string.match(simple_url, pattern) then return true end
 		end
 
 		for _, pattern in ipairs(image_url_patterns) do
-			if url:match(pattern) then return true end
+			if string.match(url, pattern) then return true end
 		end
 
 		return false
@@ -1154,8 +1156,8 @@ if CLIENT then
 		if not start_pos then
 			table.Add(data, global_append_text(text))
 		else
-			local url = text:sub(start_pos, end_pos)
-			table.Add(data, global_append_text(text:sub(1, start_pos - 1)))
+			local url = string.sub(text, start_pos, end_pos)
+			table.Add(data, global_append_text(string.sub(text, 1, start_pos - 1)))
 
 			local previous_color = EasyChat.GUI.RichText:GetLastColorChange()
 			EasyChat.GUI.RichText:InsertColorChange(LINK_COLOR)
@@ -1193,7 +1195,7 @@ if CLIENT then
 			table.insert(data, previous_color)
 
 			-- recurse for possible other urls after this one
-			table.Add(data, global_append_text_url(text:sub(end_pos + 1)))
+			table.Add(data, global_append_text_url(string.sub(text, end_pos + 1)))
 		end
 
 		return data
@@ -1285,7 +1287,7 @@ if CLIENT then
 			file.CreateDir(HISTORY_DIRECTORY)
 		end
 
-		local file_name = ("%s/%s_history.txt"):format(HISTORY_DIRECTORY, name:lower())
+		local file_name = string.format("%s/%s_history.txt", HISTORY_DIRECTORY, string.lower(name))
 		local file_handles = history_file_handles[name]
 		if not file_handles then
 			file_handles = {
@@ -1312,7 +1314,7 @@ if CLIENT then
 	function EasyChat.ReadFromHistory(name)
 		if not name then return "" end
 
-		local file_name = ("%s/%s_history.txt"):format(HISTORY_DIRECTORY, name:lower())
+		local file_name = string.format("%s/%s_history.txt", HISTORY_DIRECTORY, string.lower(name))
 		if not file.Exists(file_name, "DATA") then return "" end
 
 		local history_file = file.Open(file_name, "r", "DATA")
@@ -1331,7 +1333,7 @@ if CLIENT then
 		if not IsValid(richtext) then return false end
 		if not isstring(richtext.ClassName) then return false end
 
-		return richtext.ClassName:lower():match("richtext")
+		return string.match(string.lower(richtext.ClassName), "richtext")
 	end
 
 	function EasyChat.AddText(richtext, ...)
@@ -1379,8 +1381,8 @@ if CLIENT then
 
 					richtext:InsertColorChange(ply_col.r, ply_col.g, ply_col.b, 255)
 					if not arg:IsBot() then
-						richtext:InsertClickableTextStart(("ECPlayerActions: %s|%s")
-							:format(arg:SteamID(), empty_nick and "[БЕЗ ИМЕНИ]" or nick))
+						richtext:InsertClickableTextStart(string.format("ECPlayerActions: %s|%s",
+							arg:SteamID(), empty_nick and "[БЕЗ ИМЕНИ]" or nick))
 					end
 
 					local lp = LocalPlayer()
@@ -1539,8 +1541,8 @@ if CLIENT then
 	]]--
 	function EasyChat.UseRegisteredShortcuts(text_entry, key_code)
 		local pos = text_entry:GetCaretPos()
-		local first = text_entry:GetText():sub(1, pos + 1)
-		local last = text_entry:GetText():sub(pos + 2, #text_entry:GetText())
+		local first = string.sub(text_entry:GetText(), 1, pos + 1)
+		local last = string.sub(text_entry:GetText(), pos + 2, #text_entry:GetText())
 
 		if (input.IsKeyDown(KEY_LCONTROL) or input.IsKeyDown(KEY_RCONTROL)) and ec_ctrl_shortcuts[key_code] then
 			local retrieved, new_caret_pos = ec_ctrl_shortcuts[key_code](text_entry, text_entry:GetText(), pos, first, last)
@@ -1645,8 +1647,8 @@ if CLIENT then
 			if IsConCommandBlocked(text) then
 				local text_entry = EasyChat.GetMainTextEntry()
 				if IsValid(text_entry) then
-					local command = text:Split(" ")[1]
-					text_entry:TriggerBlink(("'%s' ЗАБЛОКИРОВАНА! ИСПОЛЬЗУЙТЕ КОНСОЛЬ!"):format(command))
+					local command = string.Split(text, " ")[1]
+					text_entry:TriggerBlink(string.format("'%s' ЗАБЛОКИРОВАНА! ИСПОЛЬЗУЙТЕ КОНСОЛЬ!", command))
 				end
 
 				return
@@ -1723,22 +1725,22 @@ if CLIENT then
 						end
 
 						if #usergroup_prefix.EmoteName > 0 then
-							local tag = ("<emote=%s"):format(usergroup_prefix.EmoteName)
+							local tag = string.format("<emote=%s", usergroup_prefix.EmoteName)
 
 							if usergroup_prefix.EmoteSize ~= -1 then
-								tag = ("%s,%s"):format(tag, usergroup_prefix.EmoteSize)
+								tag = string.format("%s,%s", tag, usergroup_prefix.EmoteSize)
 							end
 
 							if #usergroup_prefix.EmoteProvider > 0 then
 								-- add a comma here for proper markup parsing
 								if usergroup_prefix.EmoteSize == -1 then
-									tag = ("%s,"):format(tag)
+									tag = string.format("%s,", tag)
 								end
 
-								tag = ("%s,%s"):format(tag, usergroup_prefix.EmoteProvider)
+								tag = string.format("%s,%s", tag, usergroup_prefix.EmoteProvider)
 							end
 
-							tag = ("%s> "):format(tag)
+							tag = string.format("%s> ", tag)
 							EasyChat.ChatHUD:AppendText(tag)
 						end
 					end
@@ -1783,8 +1785,8 @@ if CLIENT then
 			table.insert(data, ply_col)
 
 			if not ply:IsBot() then
-				EasyChat.GUI.RichText:InsertClickableTextStart(("ECPlayerActions: %s|%s")
-					:format(ply:SteamID(), empty_nick and "[БЕЗ ИМЕНИ]" or stripped_ply_nick))
+				EasyChat.GUI.RichText:InsertClickableTextStart(string.format("ECPlayerActions: %s|%s",
+					ply:SteamID(), empty_nick and "[БЕЗ ИМЕНИ]" or stripped_ply_nick))
 			end
 
 			local lp = LocalPlayer()
@@ -2040,7 +2042,7 @@ if CLIENT then
 			if EC_GM_COMPLETE:GetBool() then return end
 			if not EC_NICK_COMPLETE:GetBool() then return end
 
-			local words = text:Split(" ")
+			local words = string.Split(text, " ")
 			local last_word = words[#words]
 
 			local prioritize_nicks = EC_NICK_PRIORITIZE:GetBool()
@@ -2048,8 +2050,8 @@ if CLIENT then
 			local res
 			for _, ply in ipairs(player.GetAll()) do
 				local nick = ply:Nick()
-				local match = nick:lower():match(last_word:lower():PatternSafe())
-				if match and not text:EndsWith(nick) then
+				local match = string.match(string.lower(nick), string.PatternSafe(string.lower(last_word)))
+				if match and not string.EndsWith(text, nick) then
 					local perc = #match / #nick
 					local consider_match = perc > 0.5 or #match >= 3
 					if prioritize_nicks then consider_match = true end
@@ -2145,7 +2147,7 @@ if CLIENT then
 			local msg = EasyChat.ExtendedStringTrim(self:GetText())
 			self:SetText(msg)
 
-			if uploading and msg:match(UPLOADING_TEXT) and not queued_upload then
+			if uploading and string.match(msg, UPLOADING_TEXT) and not queued_upload then
 				local should_send = safe_hook_run("ECShouldSendMessage", msg)
 				if should_send == false then return end
 
@@ -2171,27 +2173,27 @@ if CLIENT then
 			local caret_pos = self:GetCaretPos()
 			local str = self:GetText()
 			local str_start, str_end = utf8.sub(str, 1, caret_pos), utf8.sub(str, caret_pos + 1)
-			self:SetText(("%s%s%s"):format(str_start, UPLOADING_TEXT, str_end))
+			self:SetText(string.format("%s%s%s", str_start, UPLOADING_TEXT, str_end))
 			uploading = true
 
 			EasyChat.UploadToImgur(base64, function(url)
 				if not url then
 					local cur_text = EasyChat.ExtendedStringTrim(self:GetText())
-					if cur_text:match(UPLOADING_TEXT) then
-						self:SetText(cur_text:Replace(UPLOADING_TEXT, ""))
+					if string.match(cur_text, UPLOADING_TEXT) then
+						self:SetText(string.Replace(cur_text, UPLOADING_TEXT, ""))
 					end
 
 					notification.AddLegacy("Ошибка загрузки изображения, проверьте консоль", NOTIFY_ERROR, 3)
 					surface.PlaySound("buttons/button11.wav")
 				else
 					if queued_upload then
-						local msg = queued_upload.Message:Replace(UPLOADING_TEXT, url)
+						local msg = string.Replace(queued_upload.Message, UPLOADING_TEXT, url)
 						queued_upload.Mode.Callback(msg)
 						queued_upload = nil
 					else
 						local cur_text = EasyChat.ExtendedStringTrim(self:GetText())
-						if cur_text:match(UPLOADING_TEXT) then
-							self:SetText(cur_text:Replace(UPLOADING_TEXT, url))
+						if string.match(cur_text, UPLOADING_TEXT) then
+							self:SetText(string.Replace(cur_text, UPLOADING_TEXT, url))
 						end
 					end
 				end
@@ -2368,20 +2370,20 @@ if CLIENT then
 		function EasyChat.GUI.RichText:ActionSignal(name, value)
 			if name ~= "TextClicked" then return end
 
-			local interaction_id = tonumber(value:match("^CustomInteraction: (%d+)"))
+			local interaction_id = tonumber(string.match(value, "^CustomInteraction: (%d+)"))
 			if interaction_id and clickable_callbacks[interaction_id] then
 				clickable_callbacks[interaction_id](self, callbacks_data[interaction_id])
 				return
 			end
 
-			local steam_id, ply_name = value:match("^ECPlayerActions%: (STEAM_%d%:%d%:%d+)|(.+)")
+			local steam_id, ply_name = string.match(value, "^ECPlayerActions%: (STEAM_%d%:%d%:%d+)|(.+)")
 			if steam_id and ply_name then
-				if steam_id == "NULL" or not steam_id:match("STEAM_%d%:%d%:%d+") then return end
+				if steam_id == "NULL" or not string.match(steam_id, "STEAM_%d%:%d%:%d+") then return end
 				handle_player_actions(steam_id, ply_name)
 				return
 			end
 
-			steam_id = value:match("^STEAM_%d%:%d%:%d+")
+			steam_id = string.match(value, "^STEAM_%d%:%d%:%d+")
 			if steam_id then
 				handle_steam_id(steam_id)
 				return
@@ -2453,13 +2455,13 @@ if CLIENT then
 		function EasyChat.GUI.RichText:OnTextHover(text_value, is_hover)
 			if not EasyChat.IsOpened() then return end
 
-			local steam_id = text_value:match("^ECPlayerActions%: (STEAM_%d%:%d%:%d+)") or text_value:match("STEAM_%d%:%d%:%d+")
-			if steam_id and steam_id ~= "NULL" and steam_id:match("STEAM_%d%:%d%:%d+") then
+			local steam_id = string.match(text_value, "^ECPlayerActions%: (STEAM_%d%:%d%:%d+)") or string.match(text_value, "STEAM_%d%:%d%:%d+")
+			if steam_id and steam_id ~= "NULL" and string.match(steam_id, "STEAM_%d%:%d%:%d+") then
 				handle_steam_id_hover(self, steam_id, is_hover)
 				return
 			end
 
-			local interaction_id = tonumber(text_value:match("^CustomInteraction: (%d+)"))
+			local interaction_id = tonumber(string.match(text_value, "^CustomInteraction: (%d+)"))
 			if interaction_id and hoverable_callbacks[interaction_id] then
 				hoverable_callbacks[interaction_id](self, is_hover, callbacks_data[interaction_id])
 				return
@@ -2471,7 +2473,7 @@ if CLIENT then
 
 		-- the hover callback only works with RichTextX
 		function EasyChat.GUI.RichText:AppendClickableText(text, click_callback, hover_callback, ctx)
-			self:InsertClickableTextStart(("CustomInteraction: %d"):format(clickable_callback_id))
+			self:InsertClickableTextStart(string.format("CustomInteraction: %d", clickable_callback_id))
 			append_text(self, text)
 			self:InsertClickableTextEnd()
 
@@ -2635,8 +2637,8 @@ if CLIENT then
 			end
 
 			if chat_text_type == "servermsg" and EC_SERVER_MSG:GetBool() then
-				local cvar_name, cvar_value = text:match("^Server cvar '([a-zA-Z_]+)' changed to (.+)$")
-				if not cvar_name or not cvar_value then cvar_name, cvar_value = text:match("^Переменная сервера '([a-zA-Z_]+)' изменена на (.+)$") end
+				local cvar_name, cvar_value = string.match(text, "^Server cvar '([a-zA-Z_]+)' changed to (.+)$")
+				if not cvar_name or not cvar_value then cvar_name, cvar_value = string.match(text, "^Переменная сервера '([a-zA-Z_]+)' изменена на (.+)$") end
 
 				if cvar_name and cvar_value then
 					chat.AddText(COLOR_GRAY, "Переменная сервера ", COLOR_RED, cvar_name, COLOR_GRAY, " изменена на ", COLOR_RED, cvar_value)
@@ -2793,7 +2795,7 @@ if CLIENT then
 
 		-- for getting rid of chathud related annoying stuff
 		hook.Add("OnPlayerChat", TAG, function(ply, text)
-			if EC_HUD_SH_CLEAR:GetBool() and text == "sh" or text:match("%ssh%s") then
+			if EC_HUD_SH_CLEAR:GetBool() and text == "sh" or string.match(text, "%ssh%s") then
 				chathud:StopComponents()
 			end
 		end)
@@ -2975,4 +2977,3 @@ function EasyChat.Reload()
 end
 
 concommand.Add("easychat_reload", EasyChat.Reload)
-

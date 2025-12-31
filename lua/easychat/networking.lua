@@ -116,7 +116,7 @@ if SERVER then
 		end
 
 		add_to_filter(ply)
-		for _, listener in ipairs(player.GetAll()) do
+		for _, listener in player.Iterator() do
 			if listener ~= ply then
 				local can_see = hook.Run("PlayerCanSeePlayersChat", msg, is_team, listener, ply, is_local)
 				if can_see == true then -- can be another type than a bool
@@ -307,7 +307,7 @@ if CLIENT then
 	local EC_TRANSLATE_OUT_TARGET_LANG = CreateConVar("easychat_translate_out_target_lang", "en", FCVAR_ARCHIVE, "Language to translate your chat messages to")
 
 	local function user_id_to_ply(user_id)
-		for _, ply in ipairs(player.GetAll()) do
+		for _, ply in player.Iterator() do
 			if ply:UserID() == user_id then
 				return ply
 			end
@@ -574,7 +574,7 @@ if CLIENT then
 		local lookup = {}
 
 		if GetConVar("easychat_sync_steam_blocks"):GetBool() then
-			for _, ply in ipairs(player.GetAll()) do
+			for _, ply in player.Iterator() do
 				if ply:GetFriendStatus() == "blocked" then
 					table.insert(lookup, ply:SteamID())
 				end

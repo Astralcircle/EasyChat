@@ -41,7 +41,7 @@ function panel:Paint(w, h)
 	surface.DrawText(panel_title)
 
 	local i = 1
-	for _, ply in pairs(player.GetAll()) do
+	for _, ply in player.Iterator() do
 		if ply ~= LocalPlayer() and ply:GetPos():Distance(LocalPlayer():GetPos()) <= ec_cvar_dist:GetInt() then
 			self:SetTall(5 + (20 * (i + 1)))
 

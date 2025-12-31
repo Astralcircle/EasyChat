@@ -2048,7 +2048,7 @@ if CLIENT then
 			local prioritize_nicks = EC_NICK_PRIORITIZE:GetBool()
 			local max_perc = 0
 			local res
-			for _, ply in ipairs(player.GetAll()) do
+			for _, ply in player.Iterator() do
 				local nick = ply:Nick()
 				local match = string.match(string.lower(nick), string.PatternSafe(string.lower(last_word)))
 				if match and not string.EndsWith(text, nick) then

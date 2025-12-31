@@ -132,7 +132,7 @@ if CLIENT then
 		end)
 	end)
 
-	for _, ply in ipairs(player.GetAll()) do
+	for _, ply in player.Iterator() do
 		check_player_friendship(ply)
 	end
 	save_friend_cache()

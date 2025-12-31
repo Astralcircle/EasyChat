@@ -315,38 +315,3 @@ function PANEL:SetFontData(font_data)
 end
 
 vgui.Register("RichTextX", PANEL, "DHTML")
-
-function TestRichTextX()
-	local r = vgui.Create("RichTextX")
-	r:SetSize(400, 400)
-	r:SetPos(400, 400)
-	r.ActionSignal = function(_, name, value)
-		print(name, value)
-	end
-
-	r:InsertColorChange(color_white)
-	r:AppendText("lololol\n")
-
-	r:InsertColorChange(Color(255, 0, 0))
-	r:AppendText("Im red!")
-
-	r:InsertColorChange(color_white)
-	r:InsertClickableTextStart("epic signal")
-	r:AppendText("clickable text")
-	r:InsertClickableTextEnd()
-
-	local long_text = [[how could one man have slipped through your forces fingers time and time again how is it possible this is not some
-	agent provocateur or highly trained assassin we are discussing gordon freeman is a theoretical physicist who had hardly earned the distinction
-	of his ph d at the time of the black mesa incident i have good reason to believe that in the intervening years he was in a state that precluded
-	further development of covert skills the man you have consistently failed to slow let alone capture is by all standards simply that an ordinary
-	man how can you have failed to apprehend him\n]]
-	for _ = 1, 5 do
-		r:AppendText(long_text)
-	end
-
-	r:AppendImageURL("https://cdn.discordapp.com/attachments/289906269278568448/686970306770108455/unknown.png")
-
-	timer.Simple(4, function() r:GotoTextEnd() end)
-	timer.Simple(6, function() r:GotoTextStart() end)
-	timer.Simple(10, function() r:Remove() end)
-end

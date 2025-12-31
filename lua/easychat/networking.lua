@@ -306,7 +306,7 @@ if CLIENT then
 	local EC_TRANSLATE_OUT_SRC_LANG = CreateConVar("easychat_translate_out_source_lang", "auto", FCVAR_ARCHIVE, "Language used in your chat messages")
 	local EC_TRANSLATE_OUT_TARGET_LANG = CreateConVar("easychat_translate_out_target_lang", "en", FCVAR_ARCHIVE, "Language to translate your chat messages to")
 
-	function user_id_to_ply(user_id)
+	local function user_id_to_ply(user_id)
 		for _, ply in ipairs(player.GetAll()) do
 			if ply:UserID() == user_id then
 				return ply
@@ -694,14 +694,4 @@ end
 PLY.old_Say = PLY.old_Say or PLY.Say -- in case we need the old version
 function PLY:Say(msg, is_team, is_local)
 	say_override(self, msg, is_team, is_local)
-end
-
-function Say(msg, is_team, is_local)
-	if CLIENT then
-		say_override(LocalPlayer(), msg, is_team, is_local)
-	end
-
-	if SERVER then
-		say_override(nil, msg, is_team, is_local)
-	end
 end

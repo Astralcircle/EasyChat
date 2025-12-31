@@ -83,7 +83,7 @@ local PICKER = {
 	end,
 	Populate = function(self, search)
 		search = string.Trim(search or "")
-		no_search = search == ""
+		local no_search = search == ""
 
 		for category_name, category_panel in pairs(self.Categories) do
 			category_panel:Remove()

@@ -957,7 +957,7 @@ if CLIENT then
 	end
 
 	local function on_imgur_failure(err)
-		EasyChat.Print(true, string.format("catbox upload failed: %s", tostring(err)))
+		EasyChat.Print(true, string.format("imageban upload failed: %s", tostring(err)))
 	end
 
 	local function on_imgur_success(code, body, headers)
@@ -966,17 +966,21 @@ if CLIENT then
 			return
 		end
 
-		EasyChat.Print(string.format("catbox uploaded: %s", tostring(body)))
-		return body
+		local decoded_body = util.JSONToTable(body)
+		PrintTable(decoded_body)
+
+		if not decoded_body or not decoded_body.success then
+			on_imgur_failure(string.format("error code: %d", code))
+			return
+		end
+
+		local url = decoded_body.data.link
+		EasyChat.Print(string.format("imageban uploaded: %s", url))
+
+		return url
 	end
 
 	function EasyChat.UploadToImgur(img_base64, callback)
-		local body, boundary = "", tostring(os.time())
-		body = body .. "--" .. boundary .. "\r\nContent-Disposition: form-data; name=\"reqtype\"\r\n\r\nfileupload\r\n"
-		body = body .. "--" .. boundary .. "\r\nContent-Disposition: form-data; name=\"fileToUpload\"; filename=\"image.png\"\r\nContent-Type: image/png\r\n\r\n"
-		body = body .. util.Base64Decode(img_base64) .. "\r\n"
-		body = body .. "--" .. boundary .. "--\r\n"
-
 		HTTP({
 			failed = function(...)
 				callback(on_imgur_failure(...))
@@ -985,12 +989,12 @@ if CLIENT then
 				callback(on_imgur_success(...))
 			end,
 			method = "POST",
-			url = "https://catbox.moe/user/api.php",
-			body = body,
-			headers = {["Content-Type"] = "multipart/form-data; boundary=" .. boundary, ["Content-Length"] = #body}
+			url = "https://api.imageban.ru/v1",
+			parameters = {image = img_base64},
+			headers = {["Authorization"] = "TOKEN URVE9eEtuU70QYbPKvtC"}
 		})
 
-		EasyChat.Print(string.format("sent picture (%s) to catbox", string.NiceSize(#img_base64)))
+		EasyChat.Print(string.format("sent picture (%s) to imageban", string.NiceSize(#img_base64)))
 	end
 
 	local emote_lookup_tables = {}

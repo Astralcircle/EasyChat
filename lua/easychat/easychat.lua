@@ -967,7 +967,6 @@ if CLIENT then
 		end
 
 		local decoded_body = util.JSONToTable(body)
-		PrintTable(decoded_body)
 
 		if not decoded_body or not decoded_body.success then
 			on_imgur_failure(string.format("error code: %d", code))

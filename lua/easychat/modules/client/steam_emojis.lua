@@ -108,7 +108,7 @@ local function get_steam_emote(name)
 			return fail("sub")
 		end
 
-		data = EasyChat.DecodeBase64(data)
+		data = util.Base64Decode(data)
 		if not data or data == "" then
 			return fail("Base64Decode")
 		end

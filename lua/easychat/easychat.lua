@@ -926,36 +926,6 @@ if CLIENT then
 		return frame
 	end
 
-	local BASE64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
-	function EasyChat.DecodeBase64(base64)
-		if util.Base64Decode then
-			return util.Base64Decode(base64)
-		end
-
-		base64 = string.gsub(base64, "[^" .. BASE64 .. "=]", "")
-		base64 = string.gsub(base64, ".", function(x)
-			if (x == "=") then return "" end
-			local r, f = "", (string.find(BASE64, x) - 1)
-			for i = 6, 1, -1 do
-				r = r .. (f % 2^i - f % 2^(i - 1) > 0 and "1" or "0")
-			end
-
-			return r
-		end)
-
-		base64 = string.gsub(base64, "%d%d%d?%d?%d?%d?%d?%d?", function(x)
-			if (#x ~= 8) then return "" end
-			local c = 0
-			for i = 1, 8 do
-				c = c + (string.sub(x, i, i) == "1" and 2^(8 - i) or 0)
-			end
-
-			return string.char(c)
-		end)
-
-		return base64
-	end
-
 	local function on_imgur_failure(err)
 		EasyChat.Print(true, string.format("imageban upload failed: %s", tostring(err)))
 	end

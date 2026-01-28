@@ -1693,7 +1693,8 @@ if CLIENT then
 						EasyChat.ChatHUD:PushPartComponent("stop")
 
 						if #usergroup_prefix.Tag > 0 then
-							EasyChat.ChatHUD:AppendText(usergroup_prefix.Tag .. " ")
+							EasyChat.ChatHUD:AppendNick(usergroup_prefix.Tag)
+							EasyChat.ChatHUD:AppendText(" ")
 							EasyChat.ChatHUD:PushPartComponent("stop")
 						end
 
@@ -1714,7 +1715,7 @@ if CLIENT then
 							end
 
 							tag = string.format("%s> ", tag)
-							EasyChat.ChatHUD:AppendText(tag)
+							EasyChat.ChatHUD:AppendNick(tag)
 						end
 					end
 				end
@@ -1738,7 +1739,8 @@ if CLIENT then
 
 				if EC_HUD_CUSTOM:GetBool() then
 					EasyChat.ChatHUD:PushPartComponent("stop")
-					EasyChat.ChatHUD:AppendText(ply_title .. " ")
+					EasyChat.ChatHUD:AppendNick(ply_title)
+					EasyChat.ChatHUD:AppendText(" ")
 					EasyChat.ChatHUD:PushPartComponent("stop")
 				end
 			end
@@ -2220,7 +2222,7 @@ if CLIENT then
 				local mk
 				local ply_title = EasyChat.Config.Titles[steam_id]
 				if ply_title then
-					mk = ec_markup.Parse(ply_title)
+					mk = ec_markup.Parse(ply_title, nil, true)
 					frame.TextEntry:SetText(ply_title)
 				end
 
@@ -2233,7 +2235,7 @@ if CLIENT then
 					timer.Create("ECSetPlayerTitle", 0.25, 1, function()
 						-- if the frame is closed this can error
 						if not IsValid(self) then return end
-						mk = ec_markup.Parse(self:GetText())
+						mk = ec_markup.Parse(self:GetText(), nil, true)
 					end)
 				end
 

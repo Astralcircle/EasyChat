@@ -959,7 +959,7 @@ local function create_default_settings()
 				end
 
 				input_str = string.format("%s %s<stop>: Hello!", input_str, LocalPlayer():RichNick())
-				mk = ec_markup.Parse(input_str, nil, true)
+				mk = ec_markup.Parse(input_str)
 			end
 
 			build_mk()
@@ -1035,7 +1035,7 @@ local function create_default_settings()
 				end
 
 				input_str = string.format("%s %s", input_str, LocalPlayer():RichNick())
-				local mk = ec_markup.Parse(input_str, nil, true)
+				local mk = ec_markup.Parse(input_str)
 				local mk_w, mk_h = mk:GetWide(), mk:GetTall()
 
 				local tooltip = vgui.Create("Panel")

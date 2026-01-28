@@ -1720,7 +1720,7 @@ if CLIENT then
 				end
 			end
 
-			local ply_title = EasyChat.Config.Titles[ply:SteamID()]
+			local ply_title = ply:GetNW2String("headnames_title", false) or EasyChat.Config.Titles[ply:SteamID()]
 			if ply_title then
 				local tags_data = extract_tags_data(ply_title)
 				for _, tag_data in ipairs(tags_data) do

@@ -19,6 +19,8 @@ local EC_PLAYER_COLOR = get_cvar("easychat_players_colored")
 local EC_PLAYER_PASTEL = get_cvar("easychat_pastel")
 
 -- misc
+local EC_DISPLAY_TITLES = CreateConVar("easychat_display_titles", "1", FCVAR_ARCHIVE, "Display player titles in chatbox or not")
+local EC_DISPLAY_USERGROUPS = CreateConVar("easychat_display_usergroups", "1", FCVAR_ARCHIVE, "Display player usergroups in chatbox or not")
 local EC_SECONDARY = get_cvar("easychat_secondary_mode")
 local EC_ALWAYS_LOCAL = get_cvar("easychat_always_local")
 local EC_ONLY_LOCAL = get_cvar("easychat_only_local")
@@ -89,6 +91,8 @@ local function create_default_settings()
 			[EC_ONLY_LOCAL] = "Получать только локальные сообщения",
 			[EC_LINKS_CLIPBOARD] = "Автоматически копировать ссылки в буфер обмена",
 			[EC_TEAMS] = "Отображать теги команд",
+			[EC_TEAMS] = "Отображать титулы игроков",
+			[EC_TEAMS] = "Отображать группы игроков",
 			[EC_TEAMS_COLOR] = "Раскрашивать теги команд",
 			[EC_PLAYER_COLOR] = "Раскрашивать игроков в цвет их команды",
 			[EC_PLAYER_PASTEL] = "Пастелизировать цвета игроков",

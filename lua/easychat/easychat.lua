@@ -305,6 +305,8 @@ if CLIENT then
 	local EC_PLAYER_PASTEL = CreateConVar("easychat_pastel", "0", FCVAR_ARCHIVE, "Should players have pastelized colors instead of their team color")
 
 	-- misc
+	local EC_DISPLAY_TITLES = CreateConVar("easychat_display_titles", "1", FCVAR_ARCHIVE, "Display player titles in chatbox or not")
+	local EC_DISPLAY_USERGROUPS = CreateConVar("easychat_display_usergroups", "1", FCVAR_ARCHIVE, "Display player usergroups in chatbox or not")
 	local EC_SECONDARY = CreateConVar("easychat_secondary_mode", "team", FCVAR_ARCHIVE, "Opens the chat in the selected mode with the secondary chat bind")
 	local EC_ALWAYS_LOCAL = CreateConVar("easychat_always_local", "0", FCVAR_ARCHIVE, "Should we always type in local chat by default")
 	local EC_ONLY_LOCAL = CreateConVar("easychat_only_local", "0", FCVAR_ARCHIVE, "Only receive local messages")
@@ -1672,7 +1674,7 @@ if CLIENT then
 				return data
 			end
 
-			if should_use_server_settings(ply) then
+			if should_use_server_settings(ply) and EC_DISPLAY_USERGROUPS:GetBool() then
 				local usergroup_prefix = EasyChat.Config.UserGroups[ply:GetUserGroup() or "user"]
 				if usergroup_prefix then
 					local tags_data = extract_tags_data(usergroup_prefix.Tag)
@@ -1721,7 +1723,7 @@ if CLIENT then
 				end
 			end
 
-			local ply_title = ply:GetNW2String("player_customtitle", false) or EasyChat.Config.Titles[ply:SteamID()]
+			local ply_title = EC_DISPLAY_TITLES:GetBool() and ply:GetNW2String("player_customtitle", false) or EasyChat.Config.Titles[ply:SteamID()]
 			if ply_title then
 				local tags_data = extract_tags_data(ply_title)
 				for _, tag_data in ipairs(tags_data) do

@@ -156,8 +156,8 @@ if CLIENT then
 		local last_seen_time, cur_seen_time
 		local seen_date, formatted_diff
 		if last_seen_diff ~= -1 then
-			last_seen_time = net.ReadInt(32)
 			cur_seen_time = net.ReadInt(32)
+			last_seen_time = net.ReadInt(32)
 
 			if os.date("%D", last_seen_time) == os.date("%D", cur_seen_time) then
 				seen_date = "сегодня"

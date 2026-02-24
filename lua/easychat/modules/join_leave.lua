@@ -162,7 +162,7 @@ if CLIENT then
 			if os.date("%D", last_seen_time) == os.date("%D", cur_seen_time) then
 				seen_date = "сегодня"
 			elseif os.date("%D", last_seen_time) == os.date("%D", cur_seen_time - 86400) then
-				seen_date = "сегодня"
+				seen_date = "вчера"
 			else
 				seen_date = os.date("%D", last_seen_time)
 			end

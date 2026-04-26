@@ -197,6 +197,8 @@ if CLIENT then
 					reason = "Игрок вышел"
 				elseif string.EndsWith(reason, "timed out") then
 					reason = "Пропал интернет/крашнулась игра"
+				elseif reason == "Семейный просмотр запрещен!" then
+					return
 				end
 
 				chat.AddText(red_color, " ● ", ply_col, name, gray_color, formatted_id, red_color, "вышел ", white_color, "с сервера", red_color, " (" .. reason .. ")")

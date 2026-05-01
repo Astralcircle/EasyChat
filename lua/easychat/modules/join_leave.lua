@@ -196,7 +196,7 @@ if CLIENT then
 				if reason == "Disconnect by user." then
 					reason = "Игрок вышел"
 				elseif string.EndsWith(reason, "timed out") then
-					reason = "Пропал интернет/крашнулась игра"
+					reason = "Потеря подключения"
 				elseif reason == "Семейный просмотр запрещен!" then
 					return
 				end

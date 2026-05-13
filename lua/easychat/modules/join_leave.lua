@@ -197,6 +197,8 @@ if CLIENT then
 					reason = "Игрок вышел"
 				elseif string.EndsWith(reason, "timed out") then
 					reason = "Потеря подключения"
+				elseif string.StartsWith(reason, "Вы были заблокированы на сервере") then
+					reason = "Блокировка на сервере"
 				elseif reason == "Семейный просмотр запрещен!" then
 					return
 				end

@@ -113,6 +113,55 @@ if CLIENT then
 		end
 	end
 
+	local function pluralize_russian(number, forms)
+		local n = math.abs(number) % 100
+		local n1 = n % 10
+
+		if n > 10 and n < 20 then
+			return forms[3]
+		end
+
+		if n1 > 1 and n1 < 5 then
+			return forms[2]
+		end
+
+		if n1 == 1 then
+			return forms[1]
+		end
+
+		return forms[3]
+	end
+
+	local function format_time_russian(seconds)
+		if seconds < 60 then
+			local t = math.floor(seconds)
+			return t .. " " .. pluralize_russian(t, { "секунду", "секунды", "секунд" })
+		end
+
+		if seconds < 3600 then
+			local t = math.floor(seconds / 60)
+			return t .. " " .. pluralize_russian(t, { "минуту", "минуты", "минут" })
+		end
+
+		if seconds < 86400 then
+			local t = math.floor( seconds / 3600 )
+			return t .. " " .. pluralize_russian(t, { "час", "часа", "часов" })
+		end
+
+		if seconds < 604800 then
+			local t = math.floor( seconds / 86400 )
+			return t .. " " .. pluralize_russian(t, { "день", "дня", "дней" })
+		end
+
+		if seconds < 31536000 then
+			local t = math.floor( seconds / 604800 )
+			return t .. " " .. pluralize_russian(t, { "неделю", "недели", "недель" })
+		end
+
+		local t = math.floor( seconds / ( 31536000 ) )
+		return t .. " " .. pluralize_russian(t, { "год", "года", "лет" })
+	end
+
 	local function save_friend_cache()
 		if not file.Exists("easychat", "DATA") then
 			file.CreateDir("easychat")
@@ -167,7 +216,7 @@ if CLIENT then
 				seen_date = os.date("%D", last_seen_time)
 			end
 
-			formatted_diff = string.format(" (%s назад)", string.NiceTime(last_seen_diff))
+			formatted_diff = string.format(" (%s назад)", format_time_russian(last_seen_diff))
 		end
 
 		local ply_col = team.GetColor(team_id)

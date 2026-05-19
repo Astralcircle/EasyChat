@@ -135,31 +135,31 @@ if CLIENT then
 	local function format_time_russian(seconds)
 		if seconds < 60 then
 			local t = math.floor(seconds)
-			return t .. " " .. pluralize_russian(t, { "секунду", "секунды", "секунд" })
+			return t .. " " .. pluralize_russian(t, {"секунду", "секунды", "секунд"})
 		end
 
 		if seconds < 3600 then
 			local t = math.floor(seconds / 60)
-			return t .. " " .. pluralize_russian(t, { "минуту", "минуты", "минут" })
+			return t .. " " .. pluralize_russian(t, {"минуту", "минуты", "минут"})
 		end
 
 		if seconds < 86400 then
-			local t = math.floor( seconds / 3600 )
-			return t .. " " .. pluralize_russian(t, { "час", "часа", "часов" })
+			local t = math.floor(seconds / 3600)
+			return t .. " " .. pluralize_russian(t, {"час", "часа", "часов"})
 		end
 
 		if seconds < 604800 then
-			local t = math.floor( seconds / 86400 )
-			return t .. " " .. pluralize_russian(t, { "день", "дня", "дней" })
+			local t = math.floor(seconds / 86400)
+			return t .. " " .. pluralize_russian(t, {"день", "дня", "дней"})
 		end
 
 		if seconds < 31536000 then
-			local t = math.floor( seconds / 604800 )
-			return t .. " " .. pluralize_russian(t, { "неделю", "недели", "недель" })
+			local t = math.floor(seconds / 604800)
+			return t .. " " .. pluralize_russian(t, {"неделю", "недели", "недель"})
 		end
 
-		local t = math.floor( seconds / ( 31536000 ) )
-		return t .. " " .. pluralize_russian(t, { "год", "года", "лет" })
+		local t = math.floor(seconds / 31536000)
+		return t .. " " .. pluralize_russian(t, {"год", "года", "лет"})
 	end
 
 	local function save_friend_cache()

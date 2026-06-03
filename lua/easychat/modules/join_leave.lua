@@ -213,7 +213,7 @@ if CLIENT then
 			elseif os.date("%D", last_seen_time) == os.date("%D", cur_seen_time - 86400) then
 				seen_date = "вчера"
 			else
-				seen_date = os.date("%D", last_seen_time)
+				seen_date = os.date("%d/%m/%y", last_seen_time)
 			end
 
 			formatted_diff = string.format(" (%s назад)", format_time_russian(last_seen_diff))

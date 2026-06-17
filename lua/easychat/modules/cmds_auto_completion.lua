@@ -86,6 +86,11 @@ if CLIENT then
 					end
 
 					ulx_cmds[cmd_name] = args
+
+					if cmd_table.opposite then
+						local opp_cmd_name = cmd_table.opposite:gsub("^ulx%s", "")
+						ulx_cmds[opp_cmd_name] = args
+					end
 				end
 			end
 

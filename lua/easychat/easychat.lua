@@ -2766,7 +2766,12 @@ if CLIENT then
 			chathud_call = false
 
 			if EC_HUD_CUSTOM:GetBool() and should_draw then
+				local pos, size = chathud.Pos, chathud.Size
+				render.SetScissorRect(pos.X, pos.Y, pos.X + size.W, pos.Y + size.H, true)
+
 				chathud:Draw()
+
+				render.SetScissorRect(0, 0, 0, 0, false)
 			end
 		end)
 

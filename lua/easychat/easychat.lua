@@ -2726,24 +2726,25 @@ if CLIENT then
 		hook.Add("Think", TAG, function()
 			if not chathud then return end
 
+			local x, y, w, h
+
 			if EC_HUD_FOLLOW:GetBool() then
-				local x, y, w, h = EasyChat.GUI.ChatBox:GetBounds()
+				x, y, w, h = EasyChat.GUI.ChatBox:GetBounds()
 				x, y = x + 10, y - EasyChat.GUI.TextEntry:GetTall() -- fix slightly off pos
-
-				local new_x, new_y, new_w, new_h = hook.Run("ECHUDBoundsUpdate", x, y, w, h)
-				x, y, w, h = new_x or x, new_y or y, new_w or w, new_h or h
-
-				chathud.Pos = { X = x, Y = y }
-				chathud.Size = { W = w, H = h }
 			else
-				local x, y, w, h = EasyChat.GetDefaultBounds()
-				x, y, w, h = chathud_get_bounds(x, y, w, h)
+				x, y, w, h = chathud_get_bounds(EasyChat.GetDefaultBounds())
+			end
 
-				local new_x, new_y, new_w, new_h = hook.Run("ECHUDBoundsUpdate", x, y, w, h)
-				x, y, w, h = new_x or x, new_y or y, new_w or w, new_h or h
+			local old_pos, old_size = chathud.Pos, chathud.Size
+			local old_x, old_y, old_w, old_h = old_pos.X, old_pos.Y, old_size.W, old_size.H
 
+			local new_x, new_y, new_w, new_h = hook.Run("ECHUDBoundsUpdate", x, y, w, h)
+			x, y, w, h = new_x or x, new_y or y, new_w or w, new_h or h
+
+			if old_x ~= x or old_y ~= y or old_w ~= w or old_h ~= h then
 				chathud.Pos = { X = x, Y = y }
 				chathud.Size = { W = w, H = h }
+				chathud:InvalidateLayout()
 			end
 		end)
 
@@ -2767,7 +2768,7 @@ if CLIENT then
 
 			if EC_HUD_CUSTOM:GetBool() and should_draw then
 				local pos, size = chathud.Pos, chathud.Size
-				render.SetScissorRect(pos.X, pos.Y, pos.X + size.W, pos.Y + size.H, true)
+				render.SetScissorRect(pos.X - 10, pos.Y - 10, pos.X + size.W + 10, pos.Y + size.H + 10, true)
 
 				chathud:Draw()
 

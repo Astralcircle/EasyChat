@@ -34,9 +34,11 @@ local gui_mousey = CLIENT and _G.gui.MouseY
 
 local math_max = _G.math.max
 local math_min = _G.math.min
-local math_clamp = _G.math.Clamp
 local math_abs = _G.math.abs
 local math_EaseInOut = _G.math.EaseInOut
+
+-- Let's use our math.clamp to have localized math.min and math.max
+local math_clamp = function(value, low, high) return math_min(math_max(value, low), high) end
 
 local string_explode = _G.string.Explode
 local string_gmatch = _G.string.gmatch
@@ -120,6 +122,11 @@ if CLIENT then
 	chathud.FadeTimeEnd = math_clamp(EC_HUD_FADELEN:GetInt(), 0, 5)
 	cvars.AddChangeCallback(EC_HUD_FADELEN:GetName(), function()
 		chathud.FadeTimeEnd = math_clamp(EC_HUD_FADELEN:GetInt(), 0, 5)
+	end)
+
+	chathud.ShouldSmooth = EC_HUD_SMOOTH:GetBool()
+	cvars.AddChangeCallback(EC_HUD_FADELEN:GetName(), function()
+		chathud.ShouldSmooth = EC_HUD_SMOOTH
 	end)
 
 	cvars.AddChangeCallback("easychat_hud_follow", function()
@@ -576,7 +583,7 @@ function text_part:CreateShadowFont()
 end
 
 function text_part:ComputePos()
-	if not EC_HUD_SMOOTH:GetBool() then
+	if not self.ShouldSmooth then
 		self.RealPos.Y = self.Pos.Y
 		return
 	end
@@ -599,15 +606,12 @@ function text_part:GetTextDrawPos(ctx)
 	return self.Pos.X + offsex_x, self.RealPos.Y + offset_y
 end
 
-local shadow_col = Color(0, 0, 0, 255)
-function text_part:DrawShadow(ctx)
+function text_part:DrawShadow(ctx, x ,y)
 	if not self.ShouldDrawShadow then return end
 
-	shadow_col.a = ctx.Alpha
-	surface_SetTextColor(shadow_col.r, shadow_col.g, shadow_col.b, shadow_col.a)
+	surface_SetTextColor(0, 0, 0, ctx.Alpha)
 	surface_SetFont(self.ShadowFont and self.ShadowFont or self.HUD.DefaultShadowFont)
 
-	local x, y = self:GetTextDrawPos(ctx)
 	for _ = 1, 5 do
 		surface_SetTextPos(x, y)
 		surface_DrawText(self.Content)
@@ -622,7 +626,7 @@ function text_part:Draw(ctx)
 	-- this is for other components to add shit to our text if necessary
 	ctx:CallPreTextDrawFunctions(x, y, self.Size.W, self.Size.H)
 
-	self:DrawShadow(ctx)
+	self:DrawShadow(ctx, x, y)
 
 	local color = ctx.Color
 	surface_SetTextPos(x, y)
@@ -863,7 +867,7 @@ function emote_part:LineBreak()
 end
 
 function emote_part:ComputePos()
-	if not EC_HUD_SMOOTH:GetBool() then
+	if not self.ShouldSmooth then
 		self.RealPos.Y = self.Pos.Y
 		return
 	end
@@ -994,7 +998,7 @@ end
 image_part.OnRemove = image_part.OnStop
 
 function image_part:ComputePos()
-	if not EC_HUD_SMOOTH:GetBool() then
+	if not self.ShouldSmooth then
 		self.RealPos.Y = self.Pos.Y
 		return
 	end

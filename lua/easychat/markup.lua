@@ -1,27 +1,20 @@
 local chathud = _G.EasyChat.ChatHUD
 if not chathud then return end
 
-local clean_chathud = {}
-for k,v in pairs(chathud) do
-	clean_chathud[k] = v
-end
-clean_chathud.Pos = { X = 0, Y = 0 }
-clean_chathud.Size = { W = 9999, H = 0 }
-clean_chathud:Clear()
-
-local smoothed_parts = {
-	text = true,
-	emote = true,
-}
 local ec_markup = {}
+
 function ec_markup.AdvancedParse(str, data)
 	str = str or ""
 
-	local is_ply_nick = data.nick or false
-	local obj = table.Copy(clean_chathud)
-	obj.Size = { W = data.maxwidth or 9999, H = 0 }
+	local obj = {}
+	setmetatable(obj, { __index = chathud })
 
-	obj.DefaultColor = data.default_color or obj.DefaultColor
+	obj.Lines = {}
+	obj.Pos = { X = 0, Y = 0 }
+	obj.Size = { W = data.maxwidth or 9999, H = 0 }
+	obj.DefaultColor = data.default_color or chathud.DefaultColor:Copy()
+	obj.DefaultFont = data.default_font or chathud.DefaultFont
+	obj.DefaultShadowFont = data.default_shadow_font or chathud.DefaultShadowFont
 
 	if data.default_font then
 		obj.DefaultFont = data.default_font
@@ -38,7 +31,7 @@ function ec_markup.AdvancedParse(str, data)
 		local component = old_CreateComponent(self, name, ...)
 		if not component then return end
 
-		if smoothed_parts[name] then
+		if name == "text" or name == "emote" then
 			-- disable smoothing of some parts
 			function component:ComputePos()
 				self.RealPos.Y = self.Pos.Y
@@ -172,11 +165,13 @@ function ec_markup.AdvancedParse(str, data)
 	obj.DrawContext = obj:CreateDrawContext()
 
 	obj:NewLine()
-	if is_ply_nick then
+
+	if data.nick then
 		obj:AppendNick(str)
 	else
 		obj:AppendText(str)
 	end
+
 	obj:PushPartComponent("stop")
 	obj:InvalidateLayout()
 

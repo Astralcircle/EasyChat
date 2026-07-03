@@ -51,20 +51,17 @@ function ec_markup.AdvancedParse(str, data)
 			end
 		else
 			if data.shadow_intensity then
-				data.shadow_intensity = math.max(1, data.shadow_intensity)
-
-				local shadow_col = Color(0, 0, 0, 255)
+				local shadow_intensity = math.max(1, data.shadow_intensity)
 				local surface_SetTextColor = surface.SetTextColor
 				local surface_SetFont = surface.SetFont
 				local surface_SetTextPos = surface.SetTextPos
 				local surface_DrawText = surface.DrawText
 
-				function component:DrawShadow(ctx)
-					surface_SetTextColor(shadow_col)
+				function component:DrawShadow(ctx, x, y)
+					surface_SetTextColor(0, 0, 0)
 					surface_SetFont(self.ShadowFont and self.ShadowFont or self.HUD.DefaultShadowFont)
 
-					local x, y = self:GetTextDrawPos(ctx)
-					for _ = 1, data.shadow_intensity do
+					for _ = 1, shadow_intensity do
 						surface_SetTextPos(x, y)
 						surface_DrawText(self.Content)
 					end

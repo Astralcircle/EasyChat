@@ -112,6 +112,7 @@ local chathud = {
 local EC_HUD_TTL = GetConVar("easychat_hud_ttl")
 local EC_HUD_FADELEN = GetConVar("easychat_hud_fadelen")
 local EC_HUD_SMOOTH = GetConVar("easychat_hud_smooth")
+local SHOULD_SMOOTH = CLIENT and EC_HUD_SMOOTH:GetBool()
 
 if CLIENT then
 	chathud.FadeTime = EC_HUD_TTL:GetInt()
@@ -124,9 +125,8 @@ if CLIENT then
 		chathud.FadeTimeEnd = math_clamp(EC_HUD_FADELEN:GetInt(), 0, 5)
 	end)
 
-	chathud.ShouldSmooth = EC_HUD_SMOOTH:GetBool()
 	cvars.AddChangeCallback(EC_HUD_FADELEN:GetName(), function()
-		chathud.ShouldSmooth = EC_HUD_SMOOTH
+		SHOULD_SMOOTH = EC_HUD_SMOOTH:GetBool()
 	end)
 
 	cvars.AddChangeCallback("easychat_hud_follow", function()
@@ -583,7 +583,7 @@ function text_part:CreateShadowFont()
 end
 
 function text_part:ComputePos()
-	if not self.ShouldSmooth then
+	if not SHOULD_SMOOTH then
 		self.RealPos.Y = self.Pos.Y
 		return
 	end
@@ -867,7 +867,7 @@ function emote_part:LineBreak()
 end
 
 function emote_part:ComputePos()
-	if not self.ShouldSmooth then
+	if not SHOULD_SMOOTH then
 		self.RealPos.Y = self.Pos.Y
 		return
 	end
@@ -998,7 +998,7 @@ end
 image_part.OnRemove = image_part.OnStop
 
 function image_part:ComputePos()
-	if not self.ShouldSmooth then
+	if not SHOULD_SMOOTH then
 		self.RealPos.Y = self.Pos.Y
 		return
 	end

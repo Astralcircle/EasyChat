@@ -1159,11 +1159,17 @@ function chathud:CreateComponent(name, ...)
 	local part = self.Parts[name]
 	if not part then return end
 
-	local copy = table_copy(part)
-	copy.HUD = self
-	copy.TextInput = table_concat({ ... }, ",")
-
-	return call_component_function(copy, "Ctor", nil, ...)
+	return call_component_function(setmetatable(
+	{
+		HUD = self,
+		TextInput = table_concat({ ... }, ","),
+		Pos = { X = 0, Y = 0 },
+		Size = { W = 0, H = 0 },
+	},
+		{ __index = part }
+	),
+		"Ctor", nil, ...
+	)
 end
 
 function chathud:PushPartComponent(name, ...)

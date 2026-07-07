@@ -1092,11 +1092,7 @@ function base_line:PushComponent(component)
 end
 
 function chathud:CreateLine()
-	local line = table_copy(base_line)
-	line.LifeTime = RealTime() + self.FadeTime
-	line.HUD = self
-
-	return line
+	return setmetatable({ Components = {}, Pos = { X = 0, Y = 0 }, Size = { W = 0, H = 0 }, LifeTime = RealTime() + self.FadeTime, HUD = self }, { __index = base_line })
 end
 
 function chathud:NewLine()
@@ -1364,11 +1360,7 @@ function draw_context:ResetTextOffset()
 end
 
 function chathud:CreateDrawContext()
-	local ctx = setmetatable({ TextOffset = { X = 0, Y = 0 }, PostTextDrawFunctions = {}, PreTextDrawFunctions = {} }, { __index = draw_context })
-	ctx.Color = self.DefaultColor
-	ctx.HUD = self
-
-	return ctx
+	return setmetatable({ TextOffset = { X = 0, Y = 0 }, PostTextDrawFunctions = {}, PreTextDrawFunctions = {}, Color = self.DefaultColor, HUD = self }, { __index = draw_context })
 end
 
 chathud.DrawContext = chathud:CreateDrawContext()

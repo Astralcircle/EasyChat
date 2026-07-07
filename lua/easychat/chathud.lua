@@ -523,7 +523,7 @@ function text_part:PreLinePush(line, last_index)
 end
 
 function text_part:PostLinePush()
-	self.RealPos = table_copy(self.Pos)
+	self.RealPos = { X = self.Pos.X, Y = self.Pos.Y }
 end
 
 function text_part:ComputeSize()
@@ -891,7 +891,7 @@ function emote_part:GetDrawPos(ctx)
 end
 
 function emote_part:PostLinePush()
-	self.RealPos = table_copy(self.Pos)
+	self.RealPos = { X = self.Pos.X, Y = self.Pos.Y }
 end
 
 function emote_part:Draw(ctx)
@@ -988,7 +988,7 @@ function image_part:GetDrawPos()
 end
 
 function image_part:PostLinePush()
-	self.RealPos = table_copy(self.Pos)
+	self.RealPos = { X = self.Pos.X, Y = self.Pos.Y }
 end
 
 function image_part:OnStop()

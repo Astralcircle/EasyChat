@@ -1364,7 +1364,7 @@ function draw_context:ResetTextOffset()
 end
 
 function chathud:CreateDrawContext()
-	local ctx = table_copy(draw_context)
+	local ctx = setmetatable({ TextOffset = { X = 0, Y = 0 }, PostTextDrawFunctions = {}, PreTextDrawFunctions = {} }, { __index = draw_context })
 	ctx.Color = self.DefaultColor
 	ctx.HUD = self
 

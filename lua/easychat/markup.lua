@@ -6,15 +6,17 @@ local ec_markup = {}
 function ec_markup.AdvancedParse(str, data)
 	str = str or ""
 
-	local obj = {}
-	setmetatable(obj, { __index = chathud })
-
-	obj.Lines = {}
-	obj.Pos = { X = 0, Y = 0 }
-	obj.Size = { W = data.maxwidth or 9999, H = 0 }
-	obj.DefaultColor = data.default_color or chathud.DefaultColor:Copy()
-	obj.DefaultFont = data.default_font or chathud.DefaultFont
-	obj.DefaultShadowFont = data.default_shadow_font or chathud.DefaultShadowFont
+	local obj = setmetatable(
+	{
+		Lines = {},
+		Pos = { X = 0, Y = 0 },
+		Size = { W = data.maxwidth or 9999, H = 0 },
+		DefaultColor = data.default_color or chathud.DefaultColor:Copy(),
+		DefaultFont = data.default_font or chathud.DefaultFont,
+		DefaultShadowFont = data.default_shadow_font or chathud.DefaultShadowFont
+	},
+		{ __index = chathud }
+	)
 
 	if data.default_font then
 		obj.DefaultFont = data.default_font

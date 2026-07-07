@@ -1092,7 +1092,16 @@ function base_line:PushComponent(component)
 end
 
 function chathud:CreateLine()
-	return setmetatable({ Components = {}, Pos = { X = 0, Y = 0 }, Size = { W = 0, H = 0 }, LifeTime = RealTime() + self.FadeTime, HUD = self }, { __index = base_line })
+	return setmetatable(
+	{
+		Components = {},
+		Pos = { X = 0, Y = 0 },
+		Size = { W = 0, H = 0 },
+		LifeTime = RealTime() + self.FadeTime,
+		HUD = self
+	},
+		{ __index = base_line }
+	)
 end
 
 function chathud:NewLine()
@@ -1360,7 +1369,16 @@ function draw_context:ResetTextOffset()
 end
 
 function chathud:CreateDrawContext()
-	return setmetatable({ TextOffset = { X = 0, Y = 0 }, PostTextDrawFunctions = {}, PreTextDrawFunctions = {}, Color = self.DefaultColor, HUD = self }, { __index = draw_context })
+	return setmetatable(
+	{
+		TextOffset = { X = 0, Y = 0 },
+		PostTextDrawFunctions = {},
+		PreTextDrawFunctions = {},
+		Color = self.DefaultColor,
+		HUD = self
+	},
+		{ __index = draw_context }
+	)
 end
 
 chathud.DrawContext = chathud:CreateDrawContext()

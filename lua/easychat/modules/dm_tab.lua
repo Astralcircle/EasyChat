@@ -281,7 +281,7 @@ if CLIENT then
 				if chat.NewMessages > 0 then
 					line:SetColumnText(1, chat.Player:RichNick() .. "<stop> (" .. chat.NewMessages .. ")")
 				else
-					line:SetColumnText(1, chat.Player:Nick())
+					line:SetColumnText(1, chat.Player:RichNick())
 				end
 			end
 		end,

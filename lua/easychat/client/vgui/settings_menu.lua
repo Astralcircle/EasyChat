@@ -27,7 +27,7 @@ local SETTINGS = {}
 
 function SETTINGS:Init()
 	self:SetSize(640, 480)
-	self:SetTitle("EasyChat Settings")
+	self:SetTitle("Настройки")
 	self:DockPadding(0, 25, 0, 0)
 
 	self.lblTitle:SetFont("EasyChatFont")
@@ -291,7 +291,7 @@ local COLOR_SETTING = {
 		self.Title = self:Add("DLabel")
 		self.Title:SetFont("ECSettingsFont")
 		self.Title:SetTall(font_height)
-		self.Title:SetText("Unknown")
+		self.Title:SetText("Неизвестно")
 		self.Title:Dock(TOP)
 		self.Title:DockMargin(0, 0, 0, 5)
 
@@ -465,7 +465,7 @@ function SETTINGS:AddCategory(category_name, icon)
 	if not EasyChat.UseDermaSkin then
 		panel.Paint = function() end
 
-		--[[local scrollbar = panel:GetVBar()
+		local scrollbar = panel:GetVBar()
 		scrollbar:SetHideButtons(true)
 		scrollbar.Paint = function(self, w, h)
 			surface.SetDrawColor(EasyChat.OutlayColor)
@@ -476,7 +476,7 @@ function SETTINGS:AddCategory(category_name, icon)
 			local outlay_col = EasyChat.OutlayColor
 			surface.SetDrawColor(outlay_col.r, outlay_col.g, outlay_col.b, 150)
 			surface.DrawRect(0, 0, w, h)
-		end]]--
+		end
 	end
 
 	local new_category = self.Categories:AddSheet(category_name, panel)
@@ -526,7 +526,7 @@ end
 
 function SETTINGS:AddChangeCallback(cvar, on_change)
 	local cvar_name = cvar:GetName()
-	local callback_name = ("EasyChatSetting_%s"):format(cvar_name)
+	local callback_name = string.format("EasyChatSetting_%s", cvar_name)
 	cvars.RemoveChangeCallback(cvar_name, callback_name)
 	cvars.AddChangeCallback(cvar_name, on_change, callback_name)
 end
@@ -538,7 +538,7 @@ local convar_type_callbacks = {
 		number_wang:SetValue(cvar:GetInt())
 
 		local btn = number_wang:Add("DButton")
-		btn:SetText("Save")
+		btn:SetText("Сохранить")
 		btn:SetImage("icon16/bullet_disk.png")
 		btn:SetFont("ECSettingsFont")
 		btn:SetTall(number_wang:GetTall())
@@ -569,7 +569,7 @@ local convar_type_callbacks = {
 			local new_value = self:GetValue()
 			cvar:SetInt(new_value)
 			old_value = new_value
-			notification.AddLegacy(("Applied setting changes: %s -> %d"):format(cvar:GetName(), new_value), NOTIFY_HINT, 5)
+			notification.AddLegacy(string.format("Применены изменения настроек: %s -> %d", cvar:GetName(), new_value), NOTIFY_HINT, 5)
 		end
 
 		btn.DoClick = function(self)
@@ -588,7 +588,7 @@ local convar_type_callbacks = {
 		text_entry:SetText(cvar:GetString())
 
 		local btn = text_entry:Add("DButton")
-		btn:SetText("Save")
+		btn:SetText("Сохранить")
 		btn:SetImage("icon16/bullet_disk.png")
 		btn:SetFont("ECSettingsFont")
 		btn:SetTall(text_entry:GetTall())
@@ -600,7 +600,7 @@ local convar_type_callbacks = {
 			btn.Paint = function() end
 		end
 
-		local old_value = text_entry:GetText():Trim()
+		local old_value = string.Trim(text_entry:GetText())
 		local old_paint = text_entry.Paint
 		text_entry.Paint = function(self, w, h)
 			old_paint(self, w, h)
@@ -616,10 +616,10 @@ local convar_type_callbacks = {
 		end
 
 		text_entry.OnEnter = function(self)
-			local new_value = self:GetText():Trim()
+			local new_value = string.Trim(self:GetText())
 			cvar:SetString(new_value)
 			old_value = new_value
-			notification.AddLegacy(("Applied setting changes: %s -> %s"):format(cvar:GetName(), new_value), NOTIFY_HINT, 5)
+			notification.AddLegacy(string.format("Применены изменения настроек: %s -> %s", cvar:GetName(), new_value), NOTIFY_HINT, 5)
 		end
 
 		btn.DoClick = function(self)
@@ -664,7 +664,7 @@ function SETTINGS:AddConvarSettingsSet(category_name, options)
 		self:AddConvarSetting(category_name, "boolean", cvar, description)
 	end
 
-	local setting_reset_options = self:AddSetting(category_name, "action", "Reset Options")
+	local setting_reset_options = self:AddSetting(category_name, "action", "Сбросить настройки")
 	setting_reset_options.DoClick = function()
 		for cvar, _ in pairs(options) do
 			local default_value = tobool(cvar:GetDefault())

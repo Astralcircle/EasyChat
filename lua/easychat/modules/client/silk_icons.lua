@@ -5,7 +5,7 @@ local cache = {}
 
 local lookup = {}
 for _, name in pairs(file.Find("materials/icon16/*.png", "MOD")) do
-	local n = name:Replace(".png", "")
+	local n = string.Replace(name, ".png", "")
 	lookup[n] = true
 	cache[n] = UNCACHED
 end

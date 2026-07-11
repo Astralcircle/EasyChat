@@ -367,7 +367,7 @@ if SERVER then
 	end
 
 	function EasyChat.Warn(ply, msg)
-		EasyChat.PlayerAddText(ply, COLOR_RED, "[WARN] " ..  msg)
+		EasyChat.PlayerAddText(ply, COLOR_RED, "[!] " ..  msg)
 	end
 
 	local function print_chat_msg(ply, msg, is_team, is_dead)
@@ -378,24 +378,24 @@ if SERVER then
 
 		if is_team then
 			table.insert(print_args, COLOR_TEAM)
-			table.insert(print_args, "(Team) ")
+			table.insert(print_args, "(Команде) ")
 		end
 
 		if is_dead then
 			table.insert(print_args, COLOR_DEAD)
-			table.insert(print_args, "*DEAD* ")
+			table.insert(print_args, "*МЁРТВ* ")
 		end
 
 		local stripped_ply_nick = ply:Nick()
 		if #stripped_ply_nick > 20 then
-			stripped_ply_nick = stripped_ply_nick:sub(1, 20) .. "..."
+			stripped_ply_nick = string.sub(stripped_ply_nick, 1, 20) .. "..."
 		end
 
 		table.insert(print_args, COLOR_PRINT_CHAT_NICK)
 		table.insert(print_args, stripped_ply_nick)
 
 		table.insert(print_args, COLOR_PRINT_CHAT_MSG)
-		table.insert(print_args, (": %s\n"):format(msg))
+		table.insert(print_args, string.format(": %s\n", msg))
 
 		msgc_native(unpack(print_args))
 	end
@@ -450,7 +450,7 @@ if SERVER then
 		end
 
 		add_to_filter(ply)
-		for _, listener in ipairs(player.GetAll()) do
+		for _, listener in player.Iterator() do
 			if listener ~= ply then
 				local can_see = hook.Run("PlayerCanSeePlayersChat", msg, is_team, listener, ply, is_local)
 				if can_see == true then -- can be another type than a bool
@@ -531,7 +531,7 @@ if SERVER then
 
 	local spam_watch_lookup = {}
 	local function get_message_cost(msg, is_same_msg)
-		local _, real_msg_len = msg:gsub("[^\128-\193]", "")
+		local _, real_msg_len = string.gsub(msg, "[^\128-\193]", "")
 		if real_msg_len > 1024 then
 			return SPAM_MAX - 1
 		else
@@ -581,14 +581,14 @@ if SERVER then
 		-- it HAS to be malicious
 		if #msg > EC_MAX_CHARS:GetInt() then
 			EasyChat.SafeHookRun("ECBlockedMessage", ply, msg, is_team, is_local, "too big")
-			EasyChat.Warn(ply, ("NOT SENT (TOO BIG): %s..."):format(msg:sub(1, 100)))
+			EasyChat.Warn(ply, string.format("НЕ ОТПРАВЛЕНО (СЛИШКОМ БОЛЬШОЕ): %s...", string.sub(msg, 1, 100)))
 			return false
 		end
 
 		-- anti-spam
 		if spam_watch(ply, msg) then
 			EasyChat.SafeHookRun("ECBlockedMessage", ply, msg, is_team, is_local, "spam")
-			EasyChat.Warn(ply, ("NOT SENT (SPAM): %s..."):format(msg:sub(1, 100)))
+			EasyChat.Warn(ply, string.format("НЕ ОТПРАВЛЕНО (СПАМ): %s...", string.sub(msg, 1, 100)))
 			return false
 		end
 
@@ -687,8 +687,8 @@ if CLIENT then
 	local EC_TRANSLATE_OUT_SRC_LANG = CreateConVar("easychat_translate_out_source_lang", "auto", FCVAR_ARCHIVE, "Language used in your chat messages")
 	local EC_TRANSLATE_OUT_TARGET_LANG = CreateConVar("easychat_translate_out_target_lang", "en", FCVAR_ARCHIVE, "Language to translate your chat messages to")
 
-	function user_id_to_ply(user_id)
-		for _, ply in ipairs(player.GetAll()) do
+	local function user_id_to_ply(user_id)
+		for _, ply in player.Iterator() do
 			if ply:UserID() == user_id then
 				return ply
 			end
@@ -716,7 +716,7 @@ if CLIENT then
 
 	-- Censorship depends on steam language
 	-- shortest racial slur from every language from steam api in 2021
-	local racial_slur_testers = util.Base64Decode("bmlnZ2VyCmhvbW8KYmliYQpwaWNoa3UKbmVncgpsZXNiYQpwZApqaWQKz4DOv8+Nz4PPhM63CmphcMOzCmNoZWNjCuyVoOyekAptYXJpY2EKY2lwCmZ1ZmEKbXVpc3QKZmF4YQpvw6cK0LPQtdC5CsSRxKk="):Split("\n")
+	local racial_slur_testers = string.Split(util.Base64Decode("bmlnZ2VyCmhvbW8KYmliYQpwaWNoa3UKbmVncgpsZXNiYQpwZApqaWQKz4DOv8+Nz4PPhM63CmphcMOzCmNoZWNjCuyVoOyekAptYXJpY2EKY2lwCmZ1ZmEKbXVpc3QKZmF4YQpvw6cK0LPQtdC5CsSRxKk="), "\n")
 	local is_steam_filtering_chat = nil
 
 	function EasyChat.IsSteamFilteringChat()
@@ -767,11 +767,11 @@ if CLIENT then
 		for _, blocked_str in ipairs(EasyChat.BlockedStrings) do
 			local content = blocked_str.Content
 			if not blocked_str.IsPattern then
-				content = blocked_str.Content:PatternSafe()
+				content = string.PatternSafe(blocked_str.Content)
 			end
 
-			str = str:gsub(content, function(match)
-				return ("*"):rep(#match)
+			str = string.gsub(str, content, function(match)
+				return string.rep("*", #match)
 			end)
 		end
 
@@ -813,7 +813,7 @@ if CLIENT then
 					-- call the gamemode function if we're not suppressed otherwise it wont display
 					GAMEMODE:OnPlayerChat(ply, msg, is_team, is_dead, is_local)
 					if translation and msg ~= translation then
-						chat.AddText(ply, ("▲ %s ▲"):format(translation))
+						chat.AddText(ply, string.format("▲ %s ▲", translation))
 					end
 
 					-- compact with gameevent
@@ -860,11 +860,11 @@ if CLIENT then
 				if retries > MAX_RETRIES then
 					chat.AddText(
 						DISCONNECTED_COLOR,
-						"[DISCONNECTED] ",
+						"[ОТКЛЮЧЕН] ",
 						COLOR_PRINT_CHAT_MSG,
 						user_name,
 						COLOR_PRINT_CHAT_MSG,
-						(": %s"):format(msg)
+						string.format(": %s", msg)
 					)
 
 					return
@@ -943,7 +943,7 @@ if CLIENT then
 	end)
 
 	function EasyChat.SendGlobalMessage(msg, is_team, is_local, no_translate)
-		if msg:find("\0", 1, true) then
+		if string.find(msg, "\0", 1, true) then
 			ErrorNoHalt("Null byte on chat message, unhandled!")
 		end
 
@@ -1010,7 +1010,7 @@ if CLIENT then
 		local lookup = {}
 
 		if GetConVar("easychat_sync_steam_blocks"):GetBool() then
-			for _, ply in ipairs(player.GetAll()) do
+			for _, ply in player.Iterator() do
 				if ply:GetFriendStatus() == "blocked" then
 					table.insert(lookup, ply:SteamID())
 				end
@@ -1130,14 +1130,4 @@ end
 PLY.old_Say = PLY.old_Say or PLY.Say -- in case we need the old version
 function PLY:Say(msg, is_team, is_local)
 	say_override(self, msg, is_team, is_local)
-end
-
-function Say(msg, is_team, is_local)
-	if CLIENT then
-		say_override(LocalPlayer(), msg, is_team, is_local)
-	end
-
-	if SERVER then
-		say_override(nil, msg, is_team, is_local)
-	end
 end

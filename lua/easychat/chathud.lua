@@ -34,9 +34,11 @@ local gui_mousey = CLIENT and _G.gui.MouseY
 
 local math_max = _G.math.max
 local math_min = _G.math.min
-local math_clamp = _G.math.Clamp
 local math_abs = _G.math.abs
 local math_EaseInOut = _G.math.EaseInOut
+
+-- Let's use our math.clamp to have localized math.min and math.max
+local math_clamp = function(value, low, high) return math_min(math_max(value, low), high) end
 
 local string_explode = _G.string.Explode
 local string_gmatch = _G.string.gmatch
@@ -110,6 +112,7 @@ local chathud = {
 local EC_HUD_TTL = GetConVar("easychat_hud_ttl")
 local EC_HUD_FADELEN = GetConVar("easychat_hud_fadelen")
 local EC_HUD_SMOOTH = GetConVar("easychat_hud_smooth")
+local SHOULD_SMOOTH = CLIENT and EC_HUD_SMOOTH:GetBool()
 
 if CLIENT then
 	chathud.FadeTime = EC_HUD_TTL:GetInt()
@@ -120,6 +123,10 @@ if CLIENT then
 	chathud.FadeTimeEnd = math_clamp(EC_HUD_FADELEN:GetInt(), 0, 5)
 	cvars.AddChangeCallback(EC_HUD_FADELEN:GetName(), function()
 		chathud.FadeTimeEnd = math_clamp(EC_HUD_FADELEN:GetInt(), 0, 5)
+	end)
+
+	cvars.AddChangeCallback(EC_HUD_FADELEN:GetName(), function()
+		SHOULD_SMOOTH = EC_HUD_SMOOTH:GetBool()
 	end)
 
 	cvars.AddChangeCallback("easychat_hud_follow", function()
@@ -258,7 +265,7 @@ local function call_component_function(component, fn_name, default, ...)
 		ErrorNoHaltWithStack("[EC] Error in \"" .. fn_name .. "\" function: " .. err)
 	end, component, ...) }
 
-	local success = table.remove(rets, 1)
+	local success = table_remove(rets, 1)
 	if success then return unpack(rets) end
 
 	return default
@@ -279,7 +286,7 @@ function default_part:Ctor()
 end
 
 function default_part:ToString()
-	return ("<%s=%s>"):format(self.Type, self.TextInput)
+	return string.format("<%s=%s>", self.Type, self.TextInput)
 end
 
 function default_part:IsHovered()
@@ -349,7 +356,7 @@ end
 local stop_part = {
 	Usage = "<stop>",
 	Examples = {
-		"<color=255,0,0>Hello <stop>World!"
+		"<color=255,0,0>Привет <stop>Мир!"
 	}
 }
 
@@ -370,8 +377,8 @@ chathud:RegisterPart("stop", stop_part, "%<(stop)%>")
 local color_part = {
 	Usage = "<color=r,g,b>",
 	Examples = {
-		"<color=255,0,255>I am pink",
-		"<color=255,0,0>Red!"
+		"<color=255,0,255>Я розовый",
+		"<color=255,0,0>Красный!"
 	}
 }
 
@@ -400,7 +407,7 @@ chathud:RegisterPart("color", color_part)
 local font_part = {
 	Usage = "<font=font_name>",
 	Examples = {
-		"<font=DermaLarge>I am big!"
+		"<font=DermaLarge>Я большой!"
 	}
 }
 
@@ -516,7 +523,7 @@ function text_part:PreLinePush(line, last_index)
 end
 
 function text_part:PostLinePush()
-	self.RealPos = table_copy(self.Pos)
+	self.RealPos = { X = self.Pos.X, Y = self.Pos.Y }
 end
 
 function text_part:ComputeSize()
@@ -576,7 +583,7 @@ function text_part:CreateShadowFont()
 end
 
 function text_part:ComputePos()
-	if not EC_HUD_SMOOTH:GetBool() then
+	if not SHOULD_SMOOTH then
 		self.RealPos.Y = self.Pos.Y
 		return
 	end
@@ -599,15 +606,12 @@ function text_part:GetTextDrawPos(ctx)
 	return self.Pos.X + offsex_x, self.RealPos.Y + offset_y
 end
 
-local shadow_col = Color(0, 0, 0, 255)
-function text_part:DrawShadow(ctx)
+function text_part:DrawShadow(ctx, x ,y)
 	if not self.ShouldDrawShadow then return end
 
-	shadow_col.a = ctx.Alpha
-	surface_SetTextColor(shadow_col.r, shadow_col.g, shadow_col.b, shadow_col.a)
+	surface_SetTextColor(0, 0, 0, ctx.Alpha)
 	surface_SetFont(self.ShadowFont and self.ShadowFont or self.HUD.DefaultShadowFont)
 
-	local x, y = self:GetTextDrawPos(ctx)
 	for _ = 1, 5 do
 		surface_SetTextPos(x, y)
 		surface_DrawText(self.Content)
@@ -622,7 +626,7 @@ function text_part:Draw(ctx)
 	-- this is for other components to add shit to our text if necessary
 	ctx:CallPreTextDrawFunctions(x, y, self.Size.W, self.Size.H)
 
-	self:DrawShadow(ctx)
+	self:DrawShadow(ctx, x, y)
 
 	local color = ctx.Color
 	surface_SetTextPos(x, y)
@@ -717,17 +721,17 @@ local emote_part = {
 	RealPos = { X = 0, Y = 0 },
 	Height = 32,
 	HasSetHeight = false,
-	Usage = "<emote=name,size?,provider?> or :name:",
+	Usage = "<emote=name,size?,provider?> или :name:",
 	Examples = {
-		"I am an <emote=shield,32,silkicons> admin",
-		"There is a :dragon:!"
+		"Я <emote=shield,32,silkicons> админ",
+		"Тут дракон :dragon:!"
 	}
 }
 
 function emote_part:Ctor(str)
-	local em_components = str:Split(",")
+	local em_components = string.Split(str, ",")
 	local name, size, requested_provider =
-		em_components[1]:Trim(),
+		string.Trim(em_components[1]),
 		tonumber(em_components[2]),
 		em_components[3]
 
@@ -740,7 +744,7 @@ function emote_part:Ctor(str)
 	end
 
 	if requested_provider then
-		requested_provider = requested_provider:Trim()
+		requested_provider = string.Trim(requested_provider)
 	end
 
 	self:TryGetEmote(name, requested_provider)
@@ -863,7 +867,7 @@ function emote_part:LineBreak()
 end
 
 function emote_part:ComputePos()
-	if not EC_HUD_SMOOTH:GetBool() then
+	if not SHOULD_SMOOTH then
 		self.RealPos.Y = self.Pos.Y
 		return
 	end
@@ -887,7 +891,7 @@ function emote_part:GetDrawPos(ctx)
 end
 
 function emote_part:PostLinePush()
-	self.RealPos = table_copy(self.Pos)
+	self.RealPos = { X = self.Pos.X, Y = self.Pos.Y }
 end
 
 function emote_part:Draw(ctx)
@@ -984,7 +988,7 @@ function image_part:GetDrawPos()
 end
 
 function image_part:PostLinePush()
-	self.RealPos = table_copy(self.Pos)
+	self.RealPos = { X = self.Pos.X, Y = self.Pos.Y }
 end
 
 function image_part:OnStop()
@@ -994,7 +998,7 @@ end
 image_part.OnRemove = image_part.OnStop
 
 function image_part:ComputePos()
-	if not EC_HUD_SMOOTH:GetBool() then
+	if not SHOULD_SMOOTH then
 		self.RealPos.Y = self.Pos.Y
 		return
 	end
@@ -1212,11 +1216,16 @@ function base_line:PushComponent(component)
 end
 
 function chathud:CreateLine()
-	local line = table_copy(base_line)
-	line.LifeTime = RealTime() + self.FadeTime
-	line.HUD = self
-
-	return line
+	return setmetatable(
+	{
+		Components = {},
+		Pos = { X = 0, Y = 0 },
+		Size = { W = 0, H = 0 },
+		LifeTime = RealTime() + self.FadeTime,
+		HUD = self
+	},
+		{ __index = base_line }
+	)
 end
 
 function chathud:NewLine()
@@ -1274,11 +1283,17 @@ function chathud:CreateComponent(name, ...)
 	local part = self.Parts[name]
 	if not part then return end
 
-	local copy = table_copy(part)
-	copy.HUD = self
-	copy.TextInput = table_concat({ ... }, ",")
-
-	return call_component_function(copy, "Ctor", nil, ...)
+	return call_component_function(setmetatable(
+	{
+		HUD = self,
+		TextInput = table_concat({ ... }, ","),
+		Pos = { X = 0, Y = 0 },
+		Size = { W = 0, H = 0 },
+	},
+		{ __index = part }
+	),
+		"Ctor", nil, ...
+	)
 end
 
 function chathud:PushPartComponent(name, ...)
@@ -1325,19 +1340,19 @@ local function transliterate(str)
 	local ret = ""
 
 	local old_end_pos = 1
-	local start_pos, end_pos = str:find(transliterate_tag_pattern)
+	local start_pos, end_pos = string.find(str, transliterate_tag_pattern)
 	while start_pos do
-		local tag = str:sub(start_pos, end_pos)
-		local str_chunk = str:sub(old_end_pos, start_pos - 1)
+		local tag = string.sub(str, start_pos, end_pos)
+		local str_chunk = string.sub(str, old_end_pos, start_pos - 1)
 		str_chunk = EasyChat.Transliterator:Transliterate(str_chunk)
 		ret = ret .. str_chunk .. tag
 
-		local tag_len = tag:len()
+		local tag_len = #tag
 		old_end_pos = start_pos + tag_len
-		start_pos, end_pos = str:find(transliterate_tag_pattern, start_pos + tag_len)
+		start_pos, end_pos = string.find(str, transliterate_tag_pattern, start_pos + tag_len)
 	end
 
-	ret = ret .. EasyChat.Transliterator:Transliterate(str:sub(old_end_pos))
+	ret = ret .. EasyChat.Transliterator:Transliterate(string.sub(str, old_end_pos))
 
 	return ret
 end
@@ -1347,7 +1362,8 @@ function chathud:NormalizeString(str, is_nick)
 
 	if is_nick then
 		-- remove new lines, tabs and uncessary spaces from names
-		str = str:gsub("[\r\n\t]", ""):Trim()
+		str = string.gsub(str, "[\r\n\t]", "")
+		str = string.Trim(str)
 	end
 
 	for _, part in pairs(self.Parts) do
@@ -1483,11 +1499,16 @@ function draw_context:ResetTextOffset()
 end
 
 function chathud:CreateDrawContext()
-	local ctx = table_copy(draw_context)
-	ctx.Color = self.DefaultColor
-	ctx.HUD = self
-
-	return ctx
+	return setmetatable(
+	{
+		TextOffset = { X = 0, Y = 0 },
+		PostTextDrawFunctions = {},
+		PreTextDrawFunctions = {},
+		Color = self.DefaultColor,
+		HUD = self
+	},
+		{ __index = draw_context }
+	)
 end
 
 chathud.DrawContext = chathud:CreateDrawContext()
@@ -1552,7 +1573,7 @@ function chathud:AddText(...)
 
 				local lp = LocalPlayer()
 				if IsValid(lp) and lp == arg and EC_USE_ME:GetBool() then
-					self:AppendNick("me")
+					self:AppendNick("Я")
 				else
 					self:AppendNick(arg:RichNick())
 				end
@@ -1607,7 +1628,7 @@ function chathud:AppendEmbed(embed, standalone)
 end
 
 function chathud:InsertColorChange(r, g, b)
-	local expr = ("%d,%d,%d"):format(r, g, b)
+	local expr = string.format("%d,%d,%d", r, g, b)
 	self:PushPartComponent("color", expr)
 end
 
@@ -1616,7 +1637,7 @@ if CLIENT then
 	concommand.Add("easychat_hud_examples", function()
 		local frame = EasyChat.CreateFrame()
 		frame:SetSize(640, 480)
-		frame:SetTitle("EasyChat Tag Examples")
+		frame:SetTitle("Справка по форматированию")
 		frame:Center()
 		frame:MakePopup()
 
@@ -1635,14 +1656,14 @@ if CLIENT then
 				end
 
 				local title = p:Add("DLabel")
-				title:SetText(("Name: %s"):format(part_name))
+				title:SetText(string.format("Название: %s", part_name))
 				title:Dock(TOP)
 				title:DockMargin(5, 5, 5, 0)
 				title:SetFont("EasyChatFont")
 				title:SetTextColor(color_white)
 
 				local usage = p:Add("DLabel")
-				usage:SetText(("Usage: %s"):format(part.Usage))
+				usage:SetText(string.format("Применение: %s", part.Usage))
 				usage:Dock(TOP)
 				usage:DockMargin(5, 0, 5, 0)
 				usage:SetFont("EasyChatFont")
@@ -1650,7 +1671,7 @@ if CLIENT then
 
 				if istable(part.Examples) and #part.Examples > 0 then
 					local examples = p:Add("DLabel")
-					examples:SetText("Examples:")
+					examples:SetText("Примеры:")
 					examples:Dock(TOP)
 					examples:DockMargin(5, 0, 5, 5)
 					examples:SetFont("EasyChatFont")

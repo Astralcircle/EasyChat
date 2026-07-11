@@ -93,8 +93,8 @@ if CLIENT then
 
 	local FRIEND_CACHE_PATH = "easychat/friend_cache.txt"
 	local friend_ids = {}
-	for _, line in ipairs((file.Read(FRIEND_CACHE_PATH, "DATA") or ""):Split("\n")) do
-		friend_ids[line:Trim()] = true
+	for _, line in ipairs(string.Split((file.Read(FRIEND_CACHE_PATH, "DATA") or ""), "\n")) do
+		friend_ids[string.Trim(line)] = true
 	end
 
 	local function check_player_friendship(ply)
@@ -111,6 +111,55 @@ if CLIENT then
 				friend_ids[steam_id] = nil
 			end
 		end
+	end
+
+	local function pluralize_russian(number, forms)
+		local n = math.abs(number) % 100
+		local n1 = n % 10
+
+		if n > 10 and n < 20 then
+			return forms[3]
+		end
+
+		if n1 > 1 and n1 < 5 then
+			return forms[2]
+		end
+
+		if n1 == 1 then
+			return forms[1]
+		end
+
+		return forms[3]
+	end
+
+	local function format_time_russian(seconds)
+		if seconds < 60 then
+			local t = math.floor(seconds)
+			return t .. " " .. pluralize_russian(t, {"секунду", "секунды", "секунд"})
+		end
+
+		if seconds < 3600 then
+			local t = math.floor(seconds / 60)
+			return t .. " " .. pluralize_russian(t, {"минуту", "минуты", "минут"})
+		end
+
+		if seconds < 86400 then
+			local t = math.floor(seconds / 3600)
+			return t .. " " .. pluralize_russian(t, {"час", "часа", "часов"})
+		end
+
+		if seconds < 604800 then
+			local t = math.floor(seconds / 86400)
+			return t .. " " .. pluralize_russian(t, {"день", "дня", "дней"})
+		end
+
+		if seconds < 31536000 then
+			local t = math.floor(seconds / 604800)
+			return t .. " " .. pluralize_russian(t, {"неделю", "недели", "недель"})
+		end
+
+		local t = math.floor(seconds / 31536000)
+		return t .. " " .. pluralize_russian(t, {"год", "года", "лет"})
 	end
 
 	local function save_friend_cache()
@@ -132,7 +181,7 @@ if CLIENT then
 		end)
 	end)
 
-	for _, ply in ipairs(player.GetAll()) do
+	for _, ply in player.Iterator() do
 		check_player_friendship(ply)
 	end
 	save_friend_cache()
@@ -156,23 +205,23 @@ if CLIENT then
 		local last_seen_time, cur_seen_time
 		local seen_date, formatted_diff
 		if last_seen_diff ~= -1 then
-			last_seen_time = net.ReadInt(32)
 			cur_seen_time = net.ReadInt(32)
+			last_seen_time = net.ReadInt(32)
 
 			if os.date("%D", last_seen_time) == os.date("%D", cur_seen_time) then
-				seen_date = "today"
+				seen_date = "сегодня"
 			elseif os.date("%D", last_seen_time) == os.date("%D", cur_seen_time - 86400) then
-				seen_date = "yesterday"
+				seen_date = "вчера"
 			else
-				seen_date = os.date("%D", last_seen_time)
+				seen_date = os.date("%d/%m/%y", last_seen_time)
 			end
 
-			formatted_diff = (" (%s ago)"):format(string.NiceTime(last_seen_diff))
+			formatted_diff = string.format(" (%s назад)", format_time_russian(last_seen_diff))
 		end
 
 		local ply_col = team.GetColor(team_id)
 		if EasyChat.IsStringEmpty(name, true) then
-			name = "[NO NAME]"
+			name = "[БЕЗ ИМЕНИ]"
 			ply_col = UNKNOWN_COLOR
 		else
 			if EC_PLAYER_PASTEL:GetBool() then
@@ -180,25 +229,30 @@ if CLIENT then
 			end
 		end
 
-		local formatted_id = (" (%s) "):format(network_id)
+		local formatted_id = string.format(" (%s) ", network_id)
 		if is_join then
-			chat.AddText(green_color, " ● ", ply_col, name, gray_color, formatted_id, white_color, "has ", green_color, "spawned")
+			chat.AddText(green_color, " ● ", ply_col, name, gray_color, formatted_id, white_color, green_color, "заспавнился")
 
 			if last_seen_diff == -1 then
-				chat.AddText(black_color, " ▸ ", white_color, "Joined for the ", cyan_color, "first time", white_color, "!")
+				chat.AddText(black_color, " ▸ ", white_color, "Зашел на сервер ", cyan_color, "впервые", white_color, "!")
 			else
-				chat.AddText(black_color, " ▸ ", white_color, "Last seen ", cyan_color, seen_date, white_color, " at ", teal_color, os.date("%H:%M", last_seen_time), gray_color, formatted_diff)
-			end
-
-			-- let me be special
-			if network_id == "STEAM_0:0:80006525" then
-				chat.AddText(black_color, " ▸ ", teal_color, "EasyChat", white_color, " Developer!")
+				chat.AddText(black_color, " ▸ ", white_color, "В последний раз его видели ", cyan_color, seen_date, white_color, " в ", teal_color, os.date("%H:%M", last_seen_time), gray_color, formatted_diff)
 			end
 		else
 			if reason == "Gave up connecting" then
-				chat.AddText(red_color, " ● ", ply_col, name, gray_color, formatted_id, red_color, "gave up", white_color, " connecting")
+				chat.AddText(red_color, " ● ", ply_col, name, gray_color, formatted_id, red_color, "перестал", white_color, " подключаться")
 			else
-				chat.AddText(red_color, " ● ", ply_col, name, gray_color, formatted_id, white_color, "has ", red_color, "left", white_color, " the server", red_color, " (" .. reason .. ")")
+				if reason == "Disconnect by user." then
+					reason = "Игрок вышел"
+				elseif string.EndsWith(reason, "timed out") then
+					reason = "Потеря подключения"
+				elseif string.StartsWith(reason, "\nВы были заблокированы на сервере") or string.StartsWith(reason, "\nBanned for") then
+					reason = "Блокировка на сервере"
+				elseif reason == "Семейный просмотр запрещен!" then
+					return
+				end
+
+				chat.AddText(red_color, " ● ", ply_col, name, gray_color, formatted_id, red_color, "вышел ", white_color, "с сервера", red_color, " (" .. reason .. ")")
 			end
 		end
 	end)
@@ -209,8 +263,8 @@ if CLIENT then
 
 		if not friend_ids[network_id] then return end
 		if EasyChat.BlockedPlayers[network_id] then return end -- friends can block each others on steam
-		if EasyChat.IsStringEmpty(name, true) then name = "[NO NAME]" end
-		chat.AddText(green_color, " ● Friend joining ", white_color, name, gray_color, " (" .. network_id .. ")")
+		if EasyChat.IsStringEmpty(name, true) then name = "[БЕЗ ИМЕНИ]" end
+		chat.AddText(green_color, " ● Друг подключается ", white_color, name, gray_color, " (" .. network_id .. ")")
 	end)
 end
 

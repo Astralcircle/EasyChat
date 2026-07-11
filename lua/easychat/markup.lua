@@ -1,27 +1,22 @@
 local chathud = _G.EasyChat.ChatHUD
 if not chathud then return end
 
-local clean_chathud = {}
-for k,v in pairs(chathud) do
-	clean_chathud[k] = v
-end
-clean_chathud.Pos = { X = 0, Y = 0 }
-clean_chathud.Size = { W = 9999, H = 0 }
-clean_chathud:Clear()
-
-local smoothed_parts = {
-	text = true,
-	emote = true,
-}
 local ec_markup = {}
+
 function ec_markup.AdvancedParse(str, data)
 	str = str or ""
 
-	local is_ply_nick = data.nick or false
-	local obj = table.Copy(clean_chathud)
-	obj.Size = { W = data.maxwidth or 9999, H = 0 }
-
-	obj.DefaultColor = data.default_color or obj.DefaultColor
+	local obj = setmetatable(
+	{
+		Lines = {},
+		Pos = { X = 0, Y = 0 },
+		Size = { W = data.maxwidth or 9999, H = 0 },
+		DefaultColor = data.default_color or chathud.DefaultColor:Copy(),
+		DefaultFont = data.default_font or chathud.DefaultFont,
+		DefaultShadowFont = data.default_shadow_font or chathud.DefaultShadowFont
+	},
+		{ __index = chathud }
+	)
 
 	if data.default_font then
 		obj.DefaultFont = data.default_font
@@ -29,7 +24,7 @@ function ec_markup.AdvancedParse(str, data)
 			obj.DefaultShadowFont = data.default_shadow_font
 		else
 			-- let the chathud create the shadow
-			str = ("<font=%s>"):format(data.default_font) .. str
+			str = string.format("<font=%s>", data.default_font) .. str
 		end
 	end
 
@@ -38,7 +33,7 @@ function ec_markup.AdvancedParse(str, data)
 		local component = old_CreateComponent(self, name, ...)
 		if not component then return end
 
-		if smoothed_parts[name] then
+		if name == "text" or name == "emote" then
 			-- disable smoothing of some parts
 			function component:ComputePos()
 				self.RealPos.Y = self.Pos.Y
@@ -51,20 +46,17 @@ function ec_markup.AdvancedParse(str, data)
 			end
 		else
 			if data.shadow_intensity then
-				data.shadow_intensity = math.max(1, data.shadow_intensity)
-
-				local shadow_col = Color(0, 0, 0, 255)
+				local shadow_intensity = math.max(1, data.shadow_intensity)
 				local surface_SetTextColor = surface.SetTextColor
 				local surface_SetFont = surface.SetFont
 				local surface_SetTextPos = surface.SetTextPos
 				local surface_DrawText = surface.DrawText
 
-				function component:DrawShadow(ctx)
-					surface_SetTextColor(shadow_col)
+				function component:DrawShadow(ctx, x, y)
+					surface_SetTextColor(0, 0, 0)
 					surface_SetFont(self.ShadowFont and self.ShadowFont or self.HUD.DefaultShadowFont)
 
-					local x, y = self:GetTextDrawPos(ctx)
-					for _ = 1, data.shadow_intensity do
+					for _ = 1, shadow_intensity do
 						surface_SetTextPos(x, y)
 						surface_DrawText(self.Content)
 					end
@@ -175,11 +167,13 @@ function ec_markup.AdvancedParse(str, data)
 	obj.DrawContext = obj:CreateDrawContext()
 
 	obj:NewLine()
-	if is_ply_nick then
+
+	if data.nick then
 		obj:AppendNick(str)
 	else
 		obj:AppendText(str)
 	end
+
 	obj:PushPartComponent("stop")
 	obj:InvalidateLayout()
 

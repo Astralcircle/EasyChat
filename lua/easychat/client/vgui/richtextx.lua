@@ -121,7 +121,7 @@ function PANEL:Init()
 	self:AddInternalCallback("GetFindText", function() return self.FindText end)
 
 	local function find_text()
-		EasyChat.AskForInput("Find", function(input)
+		EasyChat.AskForInput("Найти", function(input)
 			self.FindText = input
 			self:QueueJavascript("RichTextX.GetFindText(window.find);")
 		end, false)
@@ -130,14 +130,14 @@ function PANEL:Init()
 
 	self:AddInternalCallback("OnRightClick", function(selected_text)
 		local copy_menu = DermaMenu()
-		copy_menu:AddOption("Copy", function() SetClipboardText(selected_text) end)
-		copy_menu:AddOption("Find", find_text)
+		copy_menu:AddOption("Скопировать", function() SetClipboardText(selected_text) end)
+		copy_menu:AddOption("Найти", find_text)
 		copy_menu:AddSpacer()
 		-- setting the textContent node of the richtext clears all the children and replaces it
 		-- with a single text node, it also doesnt invoke chromium HTML parser which is relatively fast
-		copy_menu:AddOption("Clear Chatlog", function() self:QueueJavascript([[RICHTEXT.textContent = "";]]) end)
+		copy_menu:AddOption("Очистить чат", function() self:QueueJavascript([[RICHTEXT.textContent = "";]]) end)
 		copy_menu:AddSpacer()
-		copy_menu:AddOption("Cancel", function() copy_menu:Remove() end)
+		copy_menu:AddOption("Отмена", function() copy_menu:Remove() end)
 		copy_menu:Open()
 	end)
 
@@ -264,8 +264,8 @@ end
 
 function PANEL:SetBGColor(r, g, b)
 	local color = istable(r) and r or Color(r, g, b)
-	local css_color = ("rgb(%d,%d,%d)"):format(color.r, color.g, color.b)
-	self:QueueJavascript(("RICHTEXT.style.background = `%s`;"):format(css_color))
+	local css_color = string.format("rgb(%d,%d,%d)", color.r, color.g, color.b)
+	self:QueueJavascript(string.format("RICHTEXT.style.background = `%s`;", css_color))
 	self.RichTextXBackgroundColor = color
 end
 
@@ -277,7 +277,7 @@ end
 function PANEL:SetFontInternal(lua_font)
 	if not surface.GetLuaFonts then return end
 	local fonts_data, _ = surface.GetLuaFonts()
-	local font_data = fonts_data[lua_font:lower()]
+	local font_data = fonts_data[string.lower(lua_font)]
 	if not font_data then return end
 
 	self:SetFontData(font_data)
@@ -296,7 +296,7 @@ function PANEL:OnTextHover(text_value, is_hover)
 end
 
 function PANEL:AppendText(text)
-	local css_color = ("rgb(%d,%d,%d)"):format(self.CurrentColor.r, self.CurrentColor.g, self.CurrentColor.b)
+	local css_color = string.format("rgb(%d,%d,%d)", self.CurrentColor.r, self.CurrentColor.g, self.CurrentColor.b)
 	self.TextToAppend[#self.TextToAppend + 1] = { text, self.ClickableTextValue, css_color }
 
 	self:QueueJavascript([[
@@ -508,38 +508,3 @@ function PANEL:SetFontData(font_data)
 end
 
 vgui.Register("RichTextX", PANEL, "DHTML")
-
-function TestRichTextX()
-	local r = vgui.Create("RichTextX")
-	r:SetSize(400, 400)
-	r:SetPos(400, 400)
-	r.ActionSignal = function(_, name, value)
-		print(name, value)
-	end
-
-	r:InsertColorChange(color_white)
-	r:AppendText("lololol\n")
-
-	r:InsertColorChange(Color(255, 0, 0))
-	r:AppendText("Im red!")
-
-	r:InsertColorChange(color_white)
-	r:InsertClickableTextStart("epic signal")
-	r:AppendText("clickable text")
-	r:InsertClickableTextEnd()
-
-	local long_text = [[how could one man have slipped through your forces fingers time and time again how is it possible this is not some
-	agent provocateur or highly trained assassin we are discussing gordon freeman is a theoretical physicist who had hardly earned the distinction
-	of his ph d at the time of the black mesa incident i have good reason to believe that in the intervening years he was in a state that precluded
-	further development of covert skills the man you have consistently failed to slow let alone capture is by all standards simply that an ordinary
-	man how can you have failed to apprehend him\n]]
-	for _ = 1, 5 do
-		r:AppendText(long_text)
-	end
-
-	r:AppendImageURL("https://cdn.discordapp.com/attachments/289906269278568448/686970306770108455/unknown.png")
-
-	timer.Simple(4, function() r:GotoTextEnd() end)
-	timer.Simple(6, function() r:GotoTextStart() end)
-	timer.Simple(10, function() r:Remove() end)
-end

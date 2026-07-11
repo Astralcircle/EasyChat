@@ -4,9 +4,9 @@ local ignore_list = {}
 local MODULE_IGNORE_LIST_PATH = "easychat/module_ignore_list.txt"
 if file.Exists(MODULE_IGNORE_LIST_PATH, "DATA") then
 	local file_contents = file.Read(MODULE_IGNORE_LIST_PATH, "DATA")
-	local lines = ("\r?\n"):Explode(file_contents, true)
+	local lines = string.Explode("\r?\n", file_contents, true)
 	for _, line in pairs(lines) do
-		line = line:Trim()
+		line = string.Trim(line)
 		if #line > 0 then
 			ignore_list[line] = true
 		end
@@ -107,8 +107,8 @@ local function load_modules(path)
 		end
 	end
 
-	MsgC(color_default, "[EasyChat] ⮞ ", color_good, ("Loaded %d modules successfully, %d ignored, %d failed to load.\n"):format(module_loaded_count, module_ignored_count, module_failed_count))
-	MsgC(color_default, "[EasyChat] ⮞ ", color_good, ("Initialized in %fs\n"):format(SysTime() - start_time))
+	MsgC(color_default, "[EasyChat] ⮞ ", color_good, string.format("Loaded %d modules successfully, %d ignored, %d failed to load.\n", module_loaded_count, module_ignored_count, module_failed_count))
+	MsgC(color_default, "[EasyChat] ⮞ ", color_good, string.format("Initialized in %fs\n", SysTime() - start_time))
 	module_loaded_count, module_failed_count, module_ignored_count = 0, 0, 0
 end
 

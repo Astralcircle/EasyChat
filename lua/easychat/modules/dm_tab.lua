@@ -46,7 +46,8 @@ if CLIENT then
 			self.DMList = self:Add("DListView")
 			self.DMList:SetWide(100)
 			self.DMList:Dock(LEFT)
-			self.DMList:AddColumn("Chats")
+			self.DMList:SetMultiSelect(false)
+			self.DMList:SetSortable(true)
 			self.DMList.OnRowSelected = function(self, index, row)
 				local ply = row.Player
 				if IsValid(ply) then
@@ -61,6 +62,26 @@ if CLIENT then
 					self:RemoveLine(index)
 				end
 			end
+
+			local performLayout = self.DMList.PerformLayout
+
+			self.DMList.PerformLayout = function(self, w, h)
+				self:ResizeColumn(w)
+				return performLayout(self, w, h)
+			end
+
+			self.DMList.ResizeColumn = function(self, size)
+				local clampedsize = math.ceil(math.Clamp(size, 100, 200))
+
+				if clampedsize ~= frame.DMList:GetWide() then
+					frame.DMList:SetWide(clampedsize)
+				end
+
+				return clampedsize
+			end
+
+			local column = self.DMList:AddColumn("Чаты")
+			column.ResizeColumn = self.DMList.ResizeColumn
 
 			self.TextEntry = self:Add("TextEntryLegacy")
 			self.TextEntry:SetTall(20)
@@ -78,7 +99,7 @@ if CLIENT then
 				elseif code == KEY_ENTER or code == KEY_PAD_ENTER then
 					local text = EasyChat.ExtendedStringTrim(self:GetText())
 					if #text > 0 then
-						frame:SendMessage(text:sub(1, 3000))
+						frame:SendMessage(string.sub(text, 1, 3000))
 					end
 				end
 			end
@@ -96,13 +117,28 @@ if CLIENT then
 
 				self.DMList.Paint = function(self, w, h)
 					surface.SetDrawColor(EasyChat.OutlayColor)
-					surface.DrawRect(0, 0, w, h)
+					surface.DrawRect(0, 0, self.VBar.Enabled and w - 16 or w, h)
 					surface.SetDrawColor(EasyChat.TabOutlineColor)
 					surface.DrawOutlinedRect(0, 0, w, h)
 				end
 
+				local scrollbar = self.DMList.VBar
+				scrollbar:SetHideButtons(true)
+
+				scrollbar.Paint = function(self, w, h)
+					surface.SetDrawColor(EasyChat.OutlayColor)
+					surface.DrawLine(w - 1, 0, w - 1, h)
+				end
+
+				scrollbar.btnGrip.Paint = function(self, w, h)
+					local outlay_col = EasyChat.OutlayColor
+					surface.SetDrawColor(outlay_col.r, outlay_col.g, outlay_col.b, 150)
+					surface.DrawRect(0, 0, w, h)
+				end
+
 				local header = self.DMList.Columns[1].Header
 				header:SetTextColor(Color(255, 255, 255))
+
 				header.Paint = function(self, w, h)
 					surface.SetDrawColor(EasyChat.TabColor)
 					surface.DrawRect(0, 0, w, h)
@@ -140,15 +176,44 @@ if CLIENT then
 
 			local chat = {
 				Player = ply,
-				Name = ply:Nick(),
+				Name = ply:RichNick(),
 				RichText = richtext,
 				NewMessages = 0
 			}
 
 			local line = self.DMList:AddLine(chat.Name)
-			if not EasyChat.UseDermaSkin then
-				line.Columns[1]:SetTextColor(Color(255, 255, 255))
+			local paint = line.Paint
+
+			function line:Paint(w, h)
+				if chat.NewMessages > 0 then
+					local color = EasyChat.Mentions and EasyChat.Mentions:GetColor() or Color(244, 167, 66)
+					surface.SetDrawColor(color.r, color.g, color.b, 25)
+					surface.DrawRect(0, 0, w, h)
+				end
+
+				return paint(self, w, h)
 			end
+
+			if not EasyChat.UseDermaSkin then
+				local linetext = line.Columns[1]
+
+				function linetext:Paint(w, h)
+					if self:GetText() ~= self.CacheText then
+						self.CacheText = self:GetText()
+						self.CacheMarkup = ec_markup.AdvancedParse(self:GetText(), {
+							default_font = "DermaDefault",
+							no_shadow = true,
+							nick = true
+						})
+					end
+
+					local mark = self.CacheMarkup
+					mark:Draw(5, h / 2 - mark:GetTall() / 2)
+
+					return true
+				end
+			end
+
 			line.Player = ply
 			chat.Line = line
 
@@ -161,13 +226,13 @@ if CLIENT then
 			if EC_HISTORY:GetBool() then
 				local history = EasyChat.ReadFromHistory(id64)
 				if EasyChat.IsStringEmpty(history) then
-					EasyChat.AddText(richtext, "This is the beginning of your conversation!\n\n")
+					EasyChat.AddText(richtext, "Это начало вашего разговора!\n\n")
 				else
 					richtext:AppendText(history) -- so we do not log twice
-					richtext:AppendText("\n^^^^^ Last Session History ^^^^^\n\n")
+					richtext:AppendText("\n^^^^^ История последней сессии ^^^^^\n\n")
 				end
 			else
-				EasyChat.AddText(richtext, "This is the beginning of your conversation!\n\n")
+				EasyChat.AddText(richtext, "Это начало вашего разговора!\n\n")
 			end
 
 			return chat
@@ -178,14 +243,8 @@ if CLIENT then
 
 			local chat = self.Chats[ply]
 			chat.RichText:Remove()
+			self.DMList:RemoveLine(chat.Line:GetID())
 			self.Chats[ply] = nil
-
-			self.DMList:Clear()
-			for _, chat in pairs(self.Chats) do
-				local line = self.DMList:AddLine(chat.Player:Nick())
-				chat.Line = line
-				line.Player = chat.Player
-			end
 		end,
 		SendMessage = function(self, message)
 			local i = self.DMList:GetSelectedLine()
@@ -204,15 +263,15 @@ if CLIENT then
 				net.WriteString(message)
 				net.SendToServer()
 			else
-				EasyChat.AddText(chat.RichText, "The player you are trying to message is not on the server anymore!")
+				EasyChat.AddText(chat.RichText, "Игрок, которому вы пытаетесь отправить сообщение, больше не на сервере!")
 			end
 
 			self.TextEntry:SetText("")
 		end,
 		Notify = function(self, chat, message)
 			chat.NewMessages = chat.NewMessages + 1
-			EasyChat.FlashTab("DM")
-			_G.chat.AddText(color_white, "[DM | ", chat.Player, color_white, "] " .. message)
+			EasyChat.FlashTab("ЛС")
+			_G.chat.AddText(color_white, "[ЛС | ", chat.Player, color_white, "] " .. message)
 		end,
 		Think = function(self)
 			for _, chat in pairs(self.Chats) do
@@ -220,7 +279,7 @@ if CLIENT then
 				if not IsValid(chat.Player) then return end
 
 				if chat.NewMessages > 0 then
-					line:SetColumnText(1, chat.Player:Nick() .. " (" .. chat.NewMessages .. ")")
+					line:SetColumnText(1, chat.Player:RichNick() .. "<stop> (" .. chat.NewMessages .. ")")
 				else
 					line:SetColumnText(1, chat.Player:Nick())
 				end
@@ -257,7 +316,7 @@ if CLIENT then
 			dmtab:Notify(chat, message)
 		else
 			local activetabname = EasyChat.GetActiveTab().Tab.Name
-			if (activetabname == "DM" and dmtab.ActiveChat ~= chat) or activetabname ~= "DM" then
+			if (activetabname == "ЛС" and dmtab.ActiveChat ~= chat) or activetabname ~= "ЛС" then
 				dmtab:Notify(chat, message)
 			end
 		end
@@ -278,7 +337,7 @@ if CLIENT then
 
 	hook.Add("ECTabChanged", "EasyChatModuleDMTab", function(_, tab)
 		if not IsValid(dmtab) then return end
-		if tab == "DM" then
+		if tab == "ЛС" then
 			local chat = dmtab.ActiveChat
 			if IsValid(chat.Player) and chat.NewMessages > 0 then
 				chat.NewMessages = 0
@@ -296,15 +355,15 @@ if CLIENT then
 
 	hook.Add("ECInitialized", "EasyChatModuleDMTab", function()
 		if not IsValid(dmtab) then return end
-		for _, ply in pairs(player.GetAll()) do
+		for _, ply in player.Iterator() do
 			if ply ~= LocalPlayer() then
 				dmtab:CreateChat(ply)
 			end
 		end
 	end)
 
-	EasyChat.AddTab("DM", dmtab, "icon16/group.png")
-	EasyChat.SetFocusForOn("DM", dmtab.TextEntry)
+	EasyChat.AddTab("ЛС", dmtab, "icon16/group.png")
+	EasyChat.SetFocusForOn("ЛС", dmtab.TextEntry)
 end
 
 return "Direct Messages"

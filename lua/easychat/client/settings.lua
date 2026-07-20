@@ -71,6 +71,7 @@ local EC_HUD_POS_Y = get_cvar("easychat_hud_pos_y")
 local EC_HUD_WIDTH = get_cvar("easychat_hud_width")
 
 -- translation
+local EC_TRANSLATE_OLLAMA_URL = get_cvar("easychat_translate_ollama_url")
 local EC_TRANSLATE_INC_MSG = get_cvar("easychat_translate_inc_msg")
 local EC_TRANSLATE_INC_SRC_LANG = get_cvar("easychat_translate_inc_source_lang")
 local EC_TRANSLATE_INC_TARGET_LANG = get_cvar("easychat_translate_inc_target_lang")
@@ -1185,6 +1186,9 @@ local function create_default_settings()
 			return text_entry
 		end
 
+		-- Ollama server endpoint (url + port)
+		settings:AddConvarSetting(category_name, "string", EC_TRANSLATE_OLLAMA_URL, "Ollama Server URL")
+
 		-- Ollama status indicator
 		local ollama_status = settings:GetCategory(category_name):Add("DLabel")
 		ollama_status:SetFont("ECSettingsFont")
@@ -1199,7 +1203,7 @@ local function create_default_settings()
 				ollama_status:SetText("Бинарный модуль Ollama не установлен")
 				ollama_status:SetTextColor(Color(220, 0, 0))
 			elseif not Ollama or not Ollama.IsRunning() then
-				ollama_status:SetText("Ollama сервер не запущен (localhost:11434)")
+				ollama_status:SetText("Ollama сервер не запущен(" .. EC_TRANSLATE_OLLAMA_URL:GetString() .. ")")
 				ollama_status:SetTextColor(Color(220, 120, 0))
 			else
 				ollama_status:SetText("Ollama готов")
@@ -1222,8 +1226,18 @@ local function create_default_settings()
 		update_ollama_status()
 		timer.Create("ECOllamaStatusCheck", 5, 0, update_ollama_status)
 
-		local ollama_help = settings:AddSetting(category_name, "action", "Руководство по установке и использованию")
+		-- re-apply the endpoint to the Ollama module when the url is changed
+		-- (uses a dedicated callback name so it doesn't clobber the text-entry sync callback)
+		cvars.AddChangeCallback("easychat_translate_ollama_url", function()
+			if _G.Ollama then
+				-- GetOllamaUrl validates the convar and restores the default if it's invalid
+				_G.Ollama.SetConfig(EasyChat.Translator:GetOllamaUrl(), 60)
+			end
 
+			update_ollama_status()
+		end, "ECOllamaUrlReconfig")
+
+		local ollama_help = settings:AddSetting(category_name, "action", "Руководство по установке и использованию")
 		ollama_help.DoClick = function()
 			local frame = EasyChat.CreateFrame()
 			frame:SetSize(600, 700)

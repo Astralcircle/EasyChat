@@ -1091,6 +1091,7 @@ local function create_default_settings()
 	-- translation
 	do
 		local category_name = "Переводчик"
+		local ollama_model = GetConVar("easychat_ollama_model")
 		settings:AddCategory(category_name)
 
 		local valid_languages = {
@@ -1204,7 +1205,7 @@ local function create_default_settings()
 				ollama_status:SetText("Ollama готов")
 				ollama_status:SetTextColor(Color(0, 180, 0))
 
-				Ollama.IsModelAvailable(cvars.String("easychat_ollama_model", "gemma3"), function(err, available)
+				Ollama.IsModelAvailable(ollama_model:GetString(), function(err, available)
 					if err then
 						ollama_status:SetText("Ошибка при проверке доступности модели")
 						ollama_status:SetTextColor(Color(220, 0, 0))
@@ -1221,7 +1222,6 @@ local function create_default_settings()
 		update_ollama_status()
 		timer.Create("ECOllamaStatusCheck", 5, 0, update_ollama_status)
 
-		local ollama_model = GetConVar("easychat_ollama_model")
 		local ollama_help = settings:AddSetting(category_name, "action", "Руководство по установке и использованию")
 
 		ollama_help.DoClick = function()

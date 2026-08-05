@@ -1201,17 +1201,17 @@ local function create_default_settings()
 				ollama_status:SetText("Ollama сервер не запущен (localhost:11434)")
 				ollama_status:SetTextColor(Color(220, 120, 0))
 			else
-				ollama_status:SetText("Ollama готова - Используется модель gemma3 для перевода")
+				ollama_status:SetText("Ollama готов")
 				ollama_status:SetTextColor(Color(0, 180, 0))
 
-				Ollama.IsModelAvailable("gemma3", function(err, available)
+				Ollama.IsModelAvailable(cvars.String("easychat_ollama_model", "gemma3"), function(err, available)
 					if err then
 						ollama_status:SetText("Ошибка при проверке доступности модели")
 						ollama_status:SetTextColor(Color(220, 0, 0))
 					end
 
 					if not available then
-						ollama_status:SetText("Gemma3 модель недоступна")
+						ollama_status:SetText("Модель недоступна")
 						ollama_status:SetTextColor(Color(220, 0, 0))
 					end
 				end)
@@ -1221,7 +1221,9 @@ local function create_default_settings()
 		update_ollama_status()
 		timer.Create("ECOllamaStatusCheck", 5, 0, update_ollama_status)
 
+		local ollama_model = GetConVar("easychat_ollama_model")
 		local ollama_help = settings:AddSetting(category_name, "action", "Руководство по установке и использованию")
+
 		ollama_help.DoClick = function()
 			local frame = EasyChat.CreateFrame()
 			frame:SetSize(600, 700)
@@ -1352,7 +1354,7 @@ local function create_default_settings()
 
 			local step3_note = content:Add("DLabel")
 			step3_note:SetPos(20, y_offset)
-			step3_note:SetText("Это загрузит модель Gemma3 (~5 ГБ). Это может занять некоторое время.")
+			step3_note:SetText("Это загрузит модель Gemma3 (~5 ГБ). Это может занять некоторое время, вы можете выбрать другую модель.")
 			step3_note:SetTextColor(EasyChat.TextColor)
 			step3_note:SizeToContents()
 			y_offset = y_offset + 35
@@ -1431,7 +1433,7 @@ local function create_default_settings()
 
 			local trouble_desc2 = content:Add("DLabel")
 			trouble_desc2:SetPos(20, y_offset)
-			trouble_desc2:SetText("• Убедитесь, что модель Gemma3 успешно загружен.")
+			trouble_desc2:SetText("• Убедитесь, что модель Gemma3 успешно загружена.")
 			trouble_desc2:SetTextColor(EasyChat.TextColor)
 			trouble_desc2:SizeToContents()
 			y_offset = y_offset + 20
@@ -1446,6 +1448,7 @@ local function create_default_settings()
 			frame:MakePopup()
 		end
 
+		settings:AddConvarSetting(category_name, "string", ollama_model, "Модель", 1250, 250)
 		settings:AddSpacer(category_name)
 
 		local translate_out_msg = settings:AddConvarSetting(category_name, "boolean", EC_TRANSLATE_OUT_MSG, "Переводить ваши сообщения")

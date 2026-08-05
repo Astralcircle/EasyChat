@@ -40,6 +40,8 @@ local function extract_translation_from_json(response)
 	return nil
 end
 
+local ollama_model = CreateClientConVar("easychat_ollama_model", "qwen")
+
 function translator:Translate(text, source_lang, target_lang, on_finish, retries)
 	-- Check if Ollama is available
 	if not util.IsBinaryModuleInstalled("ollama") then
@@ -68,6 +70,7 @@ function translator:Translate(text, source_lang, target_lang, on_finish, retries
 	local target_language = reverse_language_lookup[target_lang]
 	local source_language = reverse_language_lookup[source_lang]
 
+	local model = ollama_model:GetString()
 	local prompt_specifics = source_lang == "auto" and ("to " .. target_language) or ("from " .. source_language .. " to " .. target_language)
 	local prompt = string.format([[TRANSLATION TASK: Translate the text %s.
 
@@ -88,7 +91,7 @@ Translate now:]], prompt_specifics, text)
 
 	retries = retries or 0
 
-	_G.Ollama.IsModelAvailable("gemma3", function(err, available)
+	_G.Ollama.IsModelAvailable(model, function(err, available)
 		if err then
 			on_finish(false)
 			return
@@ -100,7 +103,7 @@ Translate now:]], prompt_specifics, text)
 		end
 
 		-- Use Ollama to translate
-		_G.Ollama.Generate("gemma3", prompt, nil, function(err, data)
+		_G.Ollama.Generate(model, prompt, nil, function(err, data)
 			if err then
 				on_finish(false)
 				return

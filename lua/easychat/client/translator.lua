@@ -40,7 +40,8 @@ local function extract_translation_from_json(response)
 	return nil
 end
 
-local ollama_model = CreateClientConVar("easychat_ollama_model", "qwen")
+-- Allows to use diffrent models
+local ollama_model = CreateClientConVar("easychat_ollama_model", "gemma3")
 
 function translator:Translate(text, source_lang, target_lang, on_finish, retries)
 	-- Check if Ollama is available

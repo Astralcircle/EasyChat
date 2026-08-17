@@ -5,6 +5,17 @@ local NET_FRIEND_JOIN = "EASY_CHAT_MODULE_JOIN_LEAVE_FRIEND"
 local EC_JOIN_LEAVE = CreateConVar("easychat_joinleave_msg", "1", { FCVAR_REPLICATED, SERVER and FCVAR_ARCHIVE or nil }, "Enables or disables join/leave messages")
 
 if SERVER then
+	sql.QueryTyped("CREATE TABLE IF NOT EXISTS easychat_lastseen (steamid INTEGER PRIMARY KEY, time INTEGER)")
+
+	local function get_last_seen(ply)
+		local time = sql.QueryTyped("SELECT time FROM easychat_lastseen WHERE steamid = ? LIMIT 1", ply:SteamID64())[1]
+		return time and time.time
+	end
+
+	local function set_last_seen(ply, time)
+		sql.QueryTyped("REPLACE INTO easychat_lastseen VALUES(?, ?)", ply:SteamID64(), time)
+	end
+
 	util.AddNetworkString(NET_SPAWN_LEAVE)
 	util.AddNetworkString(NET_FRIEND_JOIN)
 
@@ -24,9 +35,9 @@ if SERVER then
 			net.WriteInt(ply:Team(), 32)
 			net.WriteString(ply:SteamID())
 
-			local last_seen = ply:GetPData("ECLastSeen", -1)
+			local last_seen = get_last_seen(ply)
 			local cur_time = os.time()
-			if last_seen ~= -1 then
+			if last_seen then
 				local last_seen_time = tonumber(last_seen) or 0
 				local time_diff = last_seen_time ~= 0 and (cur_time - last_seen_time) or 0
 
@@ -40,17 +51,17 @@ if SERVER then
 			net.Broadcast()
 
 			-- we do it too so if the server crashes we dont lose "too much" data
-			ply:SetPData("ECLastSeen", cur_time)
+			set_last_seen(ply, cur_time)
 		end)
 	end)
 
 	hook.Add("PlayerDisconnected", TAG, function(ply)
-		ply:SetPData("ECLastSeen", os.time())
+		set_last_seen(ply, os.time())
 	end)
 
 	hook.Add("ShutDown", TAG, function()
 		for _, ply in ipairs(player.GetHumans()) do
-			ply:SetPData("ECLastSeen", os.time())
+			set_last_seen(ply, os.time())
 		end
 	end)
 

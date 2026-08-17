@@ -5,7 +5,7 @@ local NET_FRIEND_JOIN = "EASY_CHAT_MODULE_JOIN_LEAVE_FRIEND"
 local EC_JOIN_LEAVE = CreateConVar("easychat_joinleave_msg", "1", { FCVAR_REPLICATED, SERVER and FCVAR_ARCHIVE or nil }, "Enables or disables join/leave messages")
 
 if SERVER then
-	sql.QueryTyped("CREATE TABLE IF NOT EXISTS easychat_lastseen (steamid INTEGER PRIMARY KEY, time INTEGER)")
+	sql.QueryTyped("CREATE TABLE IF NOT EXISTS easychat_lastseen (steamid INTEGER PRIMARY KEY, time INTEGER NOT NULL)")
 
 	local function get_last_seen(ply)
 		local time = sql.QueryTyped("SELECT time FROM easychat_lastseen WHERE steamid = ? LIMIT 1", ply:SteamID64())[1]

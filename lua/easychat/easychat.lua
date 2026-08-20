@@ -2523,7 +2523,7 @@ if CLIENT then
 				open_chatbox(true)
 				return true
 			end
-		end)
+		end, HOOK_LOW)
 
 		hook.Add("OnPauseMenuShow", TAG, function()
 			if IsValid(EasyChat.Settings) and EasyChat.Settings:IsVisible() then

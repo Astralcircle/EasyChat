@@ -525,7 +525,7 @@ function texture_part:Ctor(str)
 
 	local shader = mat:GetShader()
 	if not texture_allowed_shaders[shader] then self.Invalid = true end
-	if shader == "VertexLitGeneric" or shader == "Cable" then
+	if shader == "VertexLitGeneric" or shader == "Cable" and CLIENT then
 		local tex_path = mat:GetString("$basetexture")
 		if tex_path then
 			local params = {

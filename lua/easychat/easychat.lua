@@ -962,7 +962,7 @@ if CLIENT then
 			method = "POST",
 			url = "https://api.imageban.ru/v1",
 			parameters = {image = img_base64},
-			headers = {["Authorization"] = "TOKEN URVE9eEtuU70QYbPKvtC"}
+			headers = {["Authorization"] = "Bearer fmnE5V1LQp7ywoeDJfr7GYAyKYMtkWdGQDv"}
 		})
 
 		EasyChat.Print(string.format("sent picture (%s) to imageban", string.NiceSize(#img_base64)))

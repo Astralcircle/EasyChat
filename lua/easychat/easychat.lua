@@ -25,18 +25,14 @@ function EasyChat.RunOnNextFrame(func)
 	timer.Simple(0, func)
 end
 
--- instead of pcall so we dont call the error handling
-if file.Exists("includes/modules/metalog.lua", "LUA") then
-	require("metalog")
-end
-
+pcall(require, "metalog")
 function EasyChat.Print(is_err, ...)
 	if _G.metalog then
 		local log_fn = is_err and metalog.error or metalog.info
 		log_fn("EasyChat", nil, ...)
 		return
 	end
-
+	
 	local args = { ... }
 	local body_color
 

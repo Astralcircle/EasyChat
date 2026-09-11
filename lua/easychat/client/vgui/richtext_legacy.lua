@@ -91,9 +91,9 @@ function PANEL:ThinkLinkHover()
 	end
 
 	local hover = vgui.GetHoveredPanel()
-	
+
 	if not easychat_legacy_hover_hack:GetBool() then return end
-	
+
 	if not hover or hover:GetClassName() ~= "ClickPanel" then
 		self._link_hovering = false
 		local signal_value = self._last_hover_signal_value
@@ -132,98 +132,3 @@ function PANEL:Think()
 end
 
 vgui.Register("RichTextLegacy", PANEL, "RichText")
-
-if false then
-	if IsValid(_G.TESTDFRAME) then
-		_G.TESTDFRAME:Remove()
-	end
-
-	local frame = vgui.Create'DFrame'
-	frame:Center()
-	frame:SetSizable(true)
-	frame:SetVisible(false) -- BUG: Set to false to break hovering links (only created when visible)
-	--frame:MakePopup()
-	_G.TESTDFRAME = frame
-	frame:SetSize(512, 512)
-	local richtext = vgui.Create("RichTextLegacy", frame)
-	richtext:Dock(FILL)
-	-- Text segment #1 (grayish color)
-	richtext:InsertColorChange(192, 192, 192, 255)
-	richtext:AppendText("This \nRichText \nis \n")
-
-	function richtext:OnTextHover(text_value, is_hover)
-		print("OnTextHover", self, text_value, is_hover)
-	end
-
-	richtext:InsertColorChange(255, 255, 224, 255)
-	richtext:InsertClickableTextStart("https://example.co")
-	richtext:AppendText("AWESOME -1")
-	richtext:InsertClickableTextEnd()
-	richtext:AppendText(" -DIVIDER_ ")
-	richtext:InsertColorChange(255, 255, 224, 255)
-	richtext:InsertClickableTextStart("https://example.com/")
-	richtext:AppendText(" AWESOME 0")
-	richtext:InsertClickableTextEnd()
-	richtext:AppendText("\n")
-
-	timer.Simple(0.1, function()
-		-- Text segment #2 (light yellow)
-		richtext:InsertColorChange(255, 255, 224, 255)
-		richtext:InsertClickableTextStart("https://example.com/1")
-		richtext:AppendText("AWESOME 1")
-		richtext:InsertClickableTextEnd()
-		richtext:AppendText("\n")
-		richtext:AppendText("\n")
-		richtext:AppendText("\n")
-		richtext:InsertClickableTextStart("https://example.com/22")
-		richtext:AppendText("AWESOME 2 ")
-		richtext:InsertClickableTextEnd()
-		richtext:AppendText("\n")
-		richtext:AppendText("\n")
-		richtext:InsertClickableTextStart("https://example.com/333")
-		richtext:AppendText("AWESOME 3 ")
-		richtext:InsertClickableTextEnd()
-		richtext:AppendText("\n")
-		-- Text segment #3 (red ESRB notice localized string)
-		richtext:InsertColorChange(255, 64, 64, 255)
-		richtext:AppendText("#ServerBrowser_ESRBNotice")
-	end)
-
-	timer.Simple(3, function()
-		frame:SetVisible(true)
-
-		timer.Simple(0.1, function()
-			richtext:AppendText("\n")
-			richtext:InsertClickableTextStart("https://example.com/4444")
-			richtext:AppendText("AWESOME 4 ")
-			richtext:InsertClickableTextEnd()
-			richtext:AppendText(" -divider is required- ")
-			richtext:InsertClickableTextStart("https://example.com/55555")
-			richtext:AppendText("AWESOME 5 ")
-			richtext:InsertClickableTextEnd()
-			richtext:AppendText("\n")
-		end)
-	end)
-end
-
-if false then
-	-- BAD
-	for i = 1, 3 do
-		timer.Simple(3 + i, function()
-			for j = 1, 2 do
-				hook.Run("OnPlayerChat", table.Random(player.GetHumans()), "testing https://example.com hmm state=" .. i .. '-' .. j)
-			end
-		end)
-	end
-end
-
-if false then
-	-- GOOD
-	for i = 1, 3 do
-		timer.Simple(3 + i, function()
-			for j = 1, 2 do
-				hook.Run("OnPlayerChat", table.Random(player.GetHumans()), "testing without links. state=" .. i .. '-' .. j)
-			end
-		end)
-	end
-end

@@ -1186,9 +1186,6 @@ local function create_default_settings()
 			return text_entry
 		end
 
-		-- Ollama server endpoint (url + port)
-		settings:AddConvarSetting(category_name, "string", EC_TRANSLATE_OLLAMA_URL, "URL до Ollama сервера")
-
 		-- Ollama status indicator
 		local ollama_status = settings:GetCategory(category_name):Add("DLabel")
 		ollama_status:SetFont("ECSettingsFont")
@@ -1463,6 +1460,8 @@ local function create_default_settings()
 		end
 
 		settings:AddConvarSetting(category_name, "string", ollama_model, "Модель", 1250, 250)
+		settings:AddConvarSetting(category_name, "string", EC_TRANSLATE_OLLAMA_URL, "URL")
+
 		settings:AddSpacer(category_name)
 
 		local translate_out_msg = settings:AddConvarSetting(category_name, "boolean", EC_TRANSLATE_OUT_MSG, "Переводить ваши сообщения")

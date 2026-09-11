@@ -1187,7 +1187,7 @@ local function create_default_settings()
 		end
 
 		-- Ollama server endpoint (url + port)
-		settings:AddConvarSetting(category_name, "string", EC_TRANSLATE_OLLAMA_URL, "Ollama Server URL")
+		settings:AddConvarSetting(category_name, "string", EC_TRANSLATE_OLLAMA_URL, "URL до Ollama сервера")
 
 		-- Ollama status indicator
 		local ollama_status = settings:GetCategory(category_name):Add("DLabel")

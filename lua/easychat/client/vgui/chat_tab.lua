@@ -54,7 +54,7 @@ local MAIN_TAB = {
 			end
 			if EC_ALWAYS_LOCAL then
 				switch_menu:AddSpacer()
-				switch_menu:AddCVar("Default to local", EC_ALWAYS_LOCAL:GetName(), "1", "0")
+				switch_menu:AddCVar("Локальный чат", EC_ALWAYS_LOCAL:GetName(), "1", "0")
 			end
 			switch_menu:AddSpacer()
 			switch_menu:AddOption("Отмена", function() switch_menu:Remove() end)

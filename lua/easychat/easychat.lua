@@ -1167,92 +1167,70 @@ if CLIENT then
 		return base64
 	end
 
-	-- how long litterbox keeps the uploaded file before deleting it (1h, 12h, 24h, 72h)
-	local LITTERBOX_LIFETIME = "1h"
-
-	local function on_litterbox_failure(err)
-		EasyChat.Print(true, ("litterbox upload failed: %s"):format(tostring(err)))
+	local function on_imgur_failure(err)
+		EasyChat.Print(true, ("imgur upload failed: %s"):format(tostring(err)))
 	end
 
-	local function on_litterbox_success(code, body, headers)
+	local function on_imgur_success(code, body, headers)
 		if code ~= 200 then
-			on_litterbox_failure(("error code: %d"):format(code))
+			on_imgur_failure(("error code: %d"):format(code))
 			return
 		end
 
-		local url = EasyChat.ExtendedStringTrim(tostring(body))
-		if not url:match("^https?://") then
-			on_litterbox_failure(("unexpected response: %s"):format(url))
+		local decoded_body = util.JSONToTable(body)
+		if not decoded_body then
+			on_imgur_failure("could not json decode body")
 			return
 		end
 
-		EasyChat.Print(("litterbox uploaded: %s"):format(url))
+		if not decoded_body.success then
+			on_imgur_failure(("%s: %s"):format(
+				decoded_body.status or "unknown status?",
+				decoded_body.data and decoded_body.data.error or "unknown error"
+			))
+			return
+		end
+
+		local url = decoded_body.data and decoded_body.data.link
+		if not url then
+			on_imgur_failure("success but link wasn't found?")
+			return
+		end
+
+		EasyChat.Print(("imgur uploaded: %s"):format(tostring(url)))
 		return url
 	end
 
-	-- litterbox needs a multipart/form-data file upload, so we decode the base64
-	-- to raw bytes and build the body ourselves (HTTP's `parameters` can't carry files)
-	local LITTERBOX_MIME_TYPES = {
-		png = "image/png",
-		jpg = "image/jpeg",
-		jpeg = "image/jpeg",
-		gif = "image/gif",
-		bmp = "image/bmp",
-		webp = "image/webp",
-	}
+	function EasyChat.UploadToImgur(img_base64, callback)
+		local ply_nick, ply_steamid = LocalPlayer():Nick(), LocalPlayer():SteamID()
+		local params = {
+			image = img_base64,
+			type = "base64",
+			name = tostring(os.time()),
+			title = ("%s - %s"):format(ply_nick, ply_steamid),
+			description = ("%s (%s) on %s"):format(ply_nick, ply_steamid, os.date("%d/%m/%Y at %H:%M")),
+		}
 
-	local function build_multipart_body(boundary, name, raw_data)
-		local ext = (name or ""):lower():match("%.(%w+)$") or "png"
-		local mime_type = LITTERBOX_MIME_TYPES[ext] or "application/octet-stream"
-		local filename = ("%s.%s"):format(os.time(), ext)
-
-		local crlf = "\r\n"
-		return table.concat({
-			"--" .. boundary, crlf,
-			'Content-Disposition: form-data; name="reqtype"', crlf, crlf,
-			"fileupload", crlf,
-
-			"--" .. boundary, crlf,
-			'Content-Disposition: form-data; name="time"', crlf, crlf,
-			LITTERBOX_LIFETIME, crlf,
-
-			"--" .. boundary, crlf,
-			('Content-Disposition: form-data; name="fileToUpload"; filename="%s"'):format(filename), crlf,
-			"Content-Type: " .. mime_type, crlf, crlf,
-			raw_data, crlf,
-
-			"--" .. boundary .. "--", crlf,
-		})
-	end
-
-	function EasyChat.UploadToLitterbox(img_base64, callback, name)
-		local raw_data = EasyChat.DecodeBase64(img_base64)
-		if not raw_data or raw_data == "" then
-			on_litterbox_failure("could not decode image data")
-			callback(nil)
-			return
-		end
-
-		local boundary = ("EasyChatBoundary%d"):format(os.time())
-		local body = build_multipart_body(boundary, name, raw_data)
+		local headers = {}
+		headers["Authorization"] = "Client-ID a3ee0bab335ecee"
 
 		local http_data = {
 			failed = function(...)
-				on_litterbox_failure(...)
+				on_imgur_failure(...)
 				callback(nil)
 			end,
 			success = function(...)
-				local url = on_litterbox_success(...)
+				local url = on_imgur_success(...)
 				callback(url)
 			end,
 			method = "post",
-			url = "https://litterbox.catbox.moe/resources/internals/api.php",
-			body = body,
-			type = "multipart/form-data; boundary=" .. boundary,
+			url = "https://api.imgur.com/3/image.json",
+			parameters = params,
+			headers = headers,
 		}
 
 		HTTP(http_data)
-		EasyChat.Print(("sent picture (%s) to litterbox"):format(string.NiceSize(#raw_data)))
+		EasyChat.Print(("sent picture (%s) to imgur"):format(string.NiceSize(#img_base64)))
 	end
 
 	local emote_lookup_tables = {}
@@ -2563,7 +2541,7 @@ if CLIENT then
 			self:SetText(("%s%s%s"):format(str_start, UPLOADING_TEXT, str_end))
 			uploading = true
 
-			EasyChat.UploadToLitterbox(base64, function(url)
+			EasyChat.UploadToImgur(base64, function(url)
 				if not url then
 					local cur_text = EasyChat.ExtendedStringTrim(self:GetText())
 					if cur_text:match(UPLOADING_TEXT) then
@@ -2586,7 +2564,7 @@ if CLIENT then
 				end
 
 				uploading = false
-			end, name)
+			end)
 		end
 
 		-- the amount of chars before we start dropping trying to autocomplete and processing the text further

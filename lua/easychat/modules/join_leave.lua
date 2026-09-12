@@ -67,6 +67,7 @@ if SERVER then
 
 	hook.Add("player_disconnect", TAG, function(data)
 		if not EC_JOIN_LEAVE:GetBool() then return end
+		if not Player(data.userid):IsValid() then return end
 
 		net.Start(NET_SPAWN_LEAVE)
 		net.WriteBool(false)

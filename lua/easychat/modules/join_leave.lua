@@ -260,8 +260,6 @@ if CLIENT then
 					reason = "Потеря подключения"
 				elseif string.StartsWith(reason, "\nВы были заблокированы на сервере") or string.StartsWith(reason, "\nBanned for") then
 					reason = "Блокировка на сервере"
-				elseif reason == "Семейный просмотр запрещен!" then
-					return
 				end
 
 				chat.AddText(red_color, " ● ", ply_col, name, gray_color, formatted_id, red_color, "вышел ", white_color, "с сервера", red_color, " (" .. reason .. ")")

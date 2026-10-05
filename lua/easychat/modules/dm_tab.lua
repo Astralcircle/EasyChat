@@ -10,7 +10,7 @@ if SERVER then
 		local msg = net.ReadString()
 
 		msg = EasyChat.ExtendedStringTrim(msg)
-		if not IsValid(target) or #msg == 0 then return end
+		if not IsValid(target) or #msg == 0 or EasyChat.SpamWatch(ply, msg) then return end
 
 		net.Start(EASYCHAT_DM)
 		net.WriteEntity(ply)

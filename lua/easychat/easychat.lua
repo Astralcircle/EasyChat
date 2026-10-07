@@ -161,7 +161,7 @@ local function make_nick_override_wrapper()
 end
 
 local function rich_nick_wrapper(ply)
-	return ply:GetNW2String("player_customname", EasyChat.NativeNick(ply))
+	return ply.GetCBString and ply:GetCBString("player_customname", false) or EasyChat.NativeNick(ply)
 end
 
 local clean_name_fns = { "Nick", "Name", "GetName", "GetNick" }
@@ -1723,7 +1723,7 @@ if CLIENT then
 				end
 			end
 
-			local ply_title = EC_DISPLAY_TITLES:GetBool() and (ply:GetNW2String("player_customtitle", false) or EasyChat.Config.Titles[ply:SteamID()])
+			local ply_title = EC_DISPLAY_TITLES:GetBool() and (ply.GetCBString and ply:GetCBString("player_customtitle", false) or EasyChat.Config.Titles[ply:SteamID()])
 			if ply_title then
 				local tags_data = extract_tags_data(ply_title)
 				for _, tag_data in ipairs(tags_data) do

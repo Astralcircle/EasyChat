@@ -248,10 +248,10 @@ if SERVER then
 	end
 
 	net.Receive(NET_SET_TYPING, function(_, ply)
-		local is_opened = net.ReadBool() or nil
+		local is_opened = net.ReadBool()
 
 		if ply.SetCBBool then
-			ply:SetCBBool("ec_is_typing", is_opened)
+			ply:SetCBBool("ec_is_typing", is_opened or nil)
 		else
 			ply:SetNWBool("ec_is_typing", is_opened)
 		end

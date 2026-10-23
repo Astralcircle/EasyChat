@@ -248,8 +248,14 @@ if SERVER then
 	end
 
 	net.Receive(NET_SET_TYPING, function(_, ply)
-		local is_opened = net.ReadBool()
-		ply:SetNWBool("ec_is_typing", is_opened)
+		local is_opened = net.ReadBool() or nil
+
+		if ply.SetCBBool then
+			ply:SetCBBool("ec_is_typing", is_opened)
+		else
+			ply:SetNWBool("ec_is_typing", is_opened)
+		end
+
 		EasyChat.SafeHookRun(is_opened and "ECOpened" or "ECClosed", ply)
 	end)
 
@@ -366,8 +372,8 @@ if CLIENT then
 			EasyChat.Init()
 		else
 			EasyChat.Destroy()
-			net.Start(NET_SET_TYPING) -- this is useful if a user disable easychat with console mode
-			net.WriteBool(true)
+			net.Start(NET_SET_TYPING)
+			net.WriteBool(false)
 			net.SendToServer()
 		end
 	end)

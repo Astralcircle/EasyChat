@@ -657,12 +657,16 @@ if CLIENT then
 	end)
 end
 
-PLY.old_IsTyping = PLY.old_IsTyping or PLY.IsTyping
-function PLY:IsTyping()
-	if self:ECIsEnabled() then
-		return self:GetNWBool("ec_is_typing", false)
-	else
-		return self:old_IsTyping()
+local old_IsTyping = PLY.old_IsTyping or PLY.IsTyping
+PLY.old_IsTyping = old_IsTyping
+
+if PLY.GetCBBool then
+	function PLY:IsTyping()
+		return self:GetCBBool("ec_is_typing") or old_IsTyping(self)
+	end
+else
+	function PLY:IsTyping()
+		return self:GetNWBool("ec_is_typing") or old_IsTyping(self)
 	end
 end
 

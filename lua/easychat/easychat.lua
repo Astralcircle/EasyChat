@@ -526,7 +526,7 @@ if CLIENT then
 
 	function EasyChat.GetCurrentMode()
 		local mode = EasyChat.Mode or 0
-		return EasyChat.Modes[mode]
+		return EasyChat.Modes[mode] or default_chat_mode
 	end
 
 	function EasyChat.IsOpened()

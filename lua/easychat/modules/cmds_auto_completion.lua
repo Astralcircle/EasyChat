@@ -73,12 +73,16 @@ if CLIENT then
 
 		local function generate_ulx_cmds_lookup()
 			local ulx_cmds = {}
+
+			local ply = LocalPlayer()
+			if not IsValid(ply) or not ply.query then
+				return ulx_cmds
+			end
+
 			for _, category in pairs(categories) do
 				for _, cmd_table in ipairs(category) do
 					if cmd_table.invisible then continue end
-					if not cmd_table.default_access then continue end
 
-					local cmd_name = string.gsub(cmd_table.cmd, "^ulx%s", "")
 					local args = {}
 					for _, arg in ipairs(cmd_table.args) do
 						if arg.invisible then continue end
@@ -91,9 +95,12 @@ if CLIENT then
 						end
 					end
 
-					ulx_cmds[cmd_name] = args
+					if ply:query(cmd_table.cmd) then
+						local cmd_name = string.gsub(cmd_table.cmd, "^ulx%s", "")
+						ulx_cmds[cmd_name] = args
+					end
 
-					if cmd_table.opposite then
+					if cmd_table.opposite and ply:query(cmd_table.opposite) then
 						local opp_cmd_name = string.gsub(cmd_table.opposite, "^ulx%s", "")
 						ulx_cmds[opp_cmd_name] = args
 					end
@@ -103,7 +110,9 @@ if CLIENT then
 			return ulx_cmds
 		end
 
-		EasyChat.CmdSuggestions:AddSuggestionHandler("ULX", "!", generate_ulx_cmds_lookup(), 9999)
+		hook.Add("UCLChanged", "EasyChatULXCmdRefresh", function()
+			EasyChat.CmdSuggestions:AddSuggestionHandler("ULX", "!", generate_ulx_cmds_lookup(), 9999)
+		end)
 	elseif istable(_G.FAdmin) then
 		hook.Remove("ChatTextChanged", "FAdmin_Chat_autocomplete")
 		hook.Remove("HUDPaint", "FAdmin_Chat_autocomplete")

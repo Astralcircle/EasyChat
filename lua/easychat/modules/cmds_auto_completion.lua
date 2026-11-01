@@ -76,6 +76,7 @@ if CLIENT then
 			for _, category in pairs(categories) do
 				for _, cmd_table in ipairs(category) do
 					if cmd_table.invisible then continue end
+					if not cmd_table.default_access then continue end
 
 					local cmd_name = string.gsub(cmd_table.cmd, "^ulx%s", "")
 					local args = {}

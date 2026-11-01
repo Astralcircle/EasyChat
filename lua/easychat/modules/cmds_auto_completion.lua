@@ -75,9 +75,14 @@ if CLIENT then
 			local ulx_cmds = {}
 			for _, category in pairs(categories) do
 				for _, cmd_table in ipairs(category) do
+					if cmd_table.invisible then continue end
+
 					local cmd_name = string.gsub(cmd_table.cmd, "^ulx%s", "")
 					local args = {}
 					for _, arg in ipairs(cmd_table.args) do
+						if arg.invisible then continue end
+						if arg.type and arg.type.invisible then continue end
+
 						local ulx_arg_type = ulx_args_lookup[arg.type]
 						if ulx_arg_type then
 							local display_arg = string.format("<%s>", ulx_arg_type)

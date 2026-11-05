@@ -967,7 +967,7 @@ if CLIENT then
 			end,
 			method = "POST",
 			url = "https://api.imageban.ru/v1",
-			parameters = {image = img_base64},
+			parameters = {image = img_base64, ttl = 1},
 			headers = {["Authorization"] = "Bearer fmnE5V1LQp7ywoeDJfr7GYAyKYMtkWdGQDv"}
 		})
 

@@ -958,6 +958,20 @@ if CLIENT then
 	end
 
 	function EasyChat.UploadToImgur(img_base64, callback)
+		local boundary = "----EasyChat" .. util.CRC(tostring(SysTime()) .. tostring(math.random()))
+
+		local body = table.concat({
+			"--", boundary, "\r\n",
+			'Content-Disposition: form-data; name="image"', "\r\n",
+			"\r\n",
+			img_base64, "\r\n",
+			"--", boundary, "\r\n",
+			'Content-Disposition: form-data; name="ttl"', "\r\n",
+			"\r\n",
+			"1", "\r\n",
+			"--", boundary, "--", "\r\n"
+		})
+
 		HTTP({
 			failed = function(...)
 				callback(on_imgur_failure(...))
@@ -967,8 +981,11 @@ if CLIENT then
 			end,
 			method = "POST",
 			url = "https://api.imageban.ru/v1",
-			parameters = {image = img_base64, ttl = 1},
-			headers = {["Authorization"] = "Bearer fmnE5V1LQp7ywoeDJfr7GYAyKYMtkWdGQDv"}
+			body = body,
+			type = "multipart/form-data; boundary=" .. boundary,
+			headers = {
+				["Authorization"] = "Bearer fmnE5V1LQp7ywoeDJfr7GYAyKYMtkWdGQDv"
+			}
 		})
 
 		EasyChat.Print(string.format("sent picture (%s) to imageban", string.NiceSize(#img_base64)))

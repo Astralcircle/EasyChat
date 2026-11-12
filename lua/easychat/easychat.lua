@@ -983,9 +983,7 @@ if CLIENT then
 			url = "https://api.imageban.ru/v1",
 			body = body,
 			type = "multipart/form-data; boundary=" .. boundary,
-			headers = {
-				["Authorization"] = "Bearer fmnE5V1LQp7ywoeDJfr7GYAyKYMtkWdGQDv"
-			}
+			headers = {["Authorization"] = "Bearer fmnE5V1LQp7ywoeDJfr7GYAyKYMtkWdGQDv"}
 		})
 
 		EasyChat.Print(string.format("sent picture (%s) to imageban", string.NiceSize(#img_base64)))

@@ -2882,7 +2882,7 @@ if CLIENT then
 
 		-- this is for the best
 		function GAMEMODE:OnPlayerChat(ply, msg, is_team, is_dead, is_local)
-			if EasyChat.IsBlockedPlayer(ply) then return true end
+			if IsValid(ply) and EasyChat.IsBlockedPlayer(ply) then return true end
 			if EC_ONLY_LOCAL:GetBool() and not is_local then return true end
 
 			local msg_components = {}

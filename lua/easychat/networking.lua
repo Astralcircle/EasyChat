@@ -224,15 +224,13 @@ if SERVER then
 		EasyChat.SendGlobalMessage(ply, msg, is_team, is_local, skip_player_say)
 	end
 
-	local is_valid = _G.IsValid
+	local get_steam_id = FindMetaTable("Player").SteamID
 	local blocked_players = EasyChat.BlockedPlayers or {}
 	EasyChat.BlockedPlayers = blocked_players
-	function EasyChat.IsBlockedPlayer(ply, steam_id)
-		if not is_valid(ply) or not steam_id then return false end
 
+	function EasyChat.IsBlockedPlayer(ply, target_ply)
 		local lookup = blocked_players[ply]
-		if not lookup then return false end
-		if not lookup[steam_id] then return false end
+		if not lookup or not lookup[get_steam_id(target_ply)] then return false end
 
 		return true
 	end
@@ -275,15 +273,17 @@ if SERVER then
 			end
 		end
 
-		if IsValid(listener) and IsValid(speaker) and EasyChat.IsBlockedPlayer(listener, speaker:SteamID()) then
+		if IsValid(listener) and IsValid(speaker) and EasyChat.IsBlockedPlayer(listener, speaker) then
 			return false
 		end
 	end
 
-	local get_steam_id = FindMetaTable("Player").SteamID
 	local is_ply_blocked = EasyChat.IsBlockedPlayer
+
 	function EasyChat.PlayerCanHearPlayersVoice(listener, talker)
-		if is_ply_blocked(listener, get_steam_id(talker)) then return false end
+		if is_ply_blocked(listener, talker) then
+			return false
+		end
 	end
 
 	hook.Add("PlayerCanSeePlayersChat", TAG, EasyChat.PlayerCanSeePlayersChat)
@@ -402,7 +402,7 @@ if CLIENT then
 	end
 
 	function EasyChat.ReceiveGlobalMessage(ply, msg, is_dead, is_team, is_local)
-		if EasyChat.IsBlockedPlayer(ply) then return end
+		if IsValid(ply) and EasyChat.IsBlockedPlayer(ply) then return end
 
 		-- so we never have the two together
 		if is_local and is_team then
@@ -624,15 +624,11 @@ if CLIENT then
 	end
 
 	function EasyChat.IsBlockedPlayer(ply)
-		if not IsValid(ply) then return false end
-		if not ply:IsPlayer() then return false end
-
-		if GetConVar("easychat_sync_steam_blocks"):GetBool() then
-			local steam_blocked = (ply:GetFriendStatus() or "") == "blocked"
-			if steam_blocked then return true end
+		if cvars.Bool("easychat_sync_steam_blocks") and ply:GetFriendStatus() == "blocked" then
+			return true
 		end
 
-		local steam_id = ply:SteamID() or ""
+		local steam_id = ply:SteamID()
 		if LocalPlayer():SteamID() == steam_id then return false end
 
 		return EasyChat.BlockedPlayers[steam_id] and true or false

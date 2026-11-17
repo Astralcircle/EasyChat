@@ -68,7 +68,7 @@ local MAIN_TAB = {
 		self.EmotePicker = vgui.Create("ECEmotePicker")
 		self.EmotePicker:SetVisible(false)
 		self.EmotePicker.OnEmoteClicked = function(_, emote_name, provider_name)
-			local text = string.format("%s <emote=%s,32,%s>", string.Trim(self.TextEntry:GetText()), emote_name, provider_name)
+			local text = string.format("%s :%s:", string.Trim(self.TextEntry:GetText()), emote_name)
 			self.TextEntry:SetText(text)
 
 			if input.IsKeyDown(KEY_LSHIFT) or input.IsKeyDown(KEY_RSHIFT) then return end

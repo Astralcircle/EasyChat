@@ -74,7 +74,7 @@ end
 
 fetchEmotes(1, nil)
 local BTTV_CDN_URL = "https://cdn.betterttv.net/emote/%s/3x"
-local GIFTOVTF_URL = "https://sprays.xerasin.com/legacy/get"
+local GIFTOVTF_URL = "https://classic-box.org/vtf/get"
 
 local function gif_material(name, path)
 	return CreateMaterial("ecemote_" .. name, "UnlitGeneric", {

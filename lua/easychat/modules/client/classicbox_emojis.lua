@@ -1,5 +1,5 @@
 local JSON_URL = "https://classic-box.org/emojis/emojis.json"
-local GIFTOVTF_URL = "https://sprays.xerasin.com/legacy/get"
+local GIFTOVTF_URL = "https://classic-box.org/vtf/get"
 
 local function material_data(path)
 	return Material("../data/" .. path)

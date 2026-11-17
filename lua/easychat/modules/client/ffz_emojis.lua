@@ -36,7 +36,13 @@ end, function()
 end)
 
 local function get_ffz_url(name)
-	return "https:" .. lookup[name]
+	local url = lookup[name]
+
+	if string.StartWith(url, "//") then
+		return "https:" .. url
+	end
+
+	return url
 end
 
 local function get_ffz(name)

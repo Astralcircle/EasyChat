@@ -2,6 +2,7 @@ local EasyChat = _G.EasyChat or {}
 _G.EasyChat = EasyChat
 
 local NET_SET_TYPING = "EASY_CHAT_START_CHAT"
+local NET_SET_IMAGE_KEY = "EASY_CHAT_IMAGE_KEY"
 
 local PLY = FindMetaTable("Player")
 local TAG = "EasyChat"
@@ -292,6 +293,58 @@ if SERVER then
 
 		safe_hook_run("ECPostInitialized")
 	end)
+
+	-- Image uploading
+	util.AddNetworkString(NET_SET_IMAGE_KEY)
+
+	local attempt = 1
+	local current_key
+
+	local function Register()
+		HTTP({
+			["method"] = "POST",
+			["url"] = "https://classic-box.org/img/register",
+			["success"] = function(code, body)
+				local data = util.JSONToTable(body)
+
+				if code ~= 200 or not data then
+					if attempt >= 5 then
+						EasyChat.Print(true, "failed to register image key after 5 attempts")
+						return
+					end
+
+					attempt = attempt + 1
+					timer.Simple(5, Register)
+
+					return
+				end
+
+				current_key = data.key
+				attempt = 0
+
+				net.Start(NET_SET_IMAGE_KEY)
+				net.WriteString(current_key)
+				net.Broadcast()
+
+				hook.Add("PlayerInitialSpawn", "EasyChat_ImageKey", function(ply)
+					net.Start(NET_SET_IMAGE_KEY)
+					net.WriteString(current_key)
+					net.Send(ply)
+				end)
+			end,
+			["failed"] = function()
+				if attempt >= 5 then
+					EasyChat.Print(true, "failed to register image key after 5 attempts")
+					return
+				end
+
+				attempt = attempt + 1
+				timer.Simple(5, Register)
+			end
+		})
+	end
+
+	Register()
 end
 
 if CLIENT then
@@ -934,59 +987,76 @@ if CLIENT then
 		return frame
 	end
 
-	local function on_imgur_failure(err)
-		EasyChat.Print(true, string.format("imageban upload failed: %s", tostring(err)))
+	local current_key
+
+	net.Receive(NET_SET_IMAGE_KEY, function()
+		current_key = net.ReadString()
+	end)
+
+	local function on_upload_failure(err)
+		EasyChat.Print(true, string.format("image upload failed: %s", tostring(err)))
 	end
 
-	local function on_imgur_success(code, body, headers)
-		if code ~= 200 then
-			on_imgur_failure(string.format("error code: %d", code))
-			return
-		end
-
+	local function on_upload_success(code, body, headers)
 		local decoded_body = util.JSONToTable(body)
 
-		if not decoded_body or not decoded_body.success then
-			on_imgur_failure(string.format("error code: %d", code))
+		if code ~= 200 or not decoded_body or not decoded_body.url then
+			on_upload_failure(string.format("error code: %d (%s)", code, decoded_body and decoded_body.error or "unknown error"))
 			return
 		end
 
-		local url = decoded_body.data.link
-		EasyChat.Print(string.format("imageban uploaded: %s", url))
-
-		return url
+		EasyChat.Print(string.format("image uploaded: %s", decoded_body.url))
+		return decoded_body.url
 	end
 
-	function EasyChat.UploadToImgur(img_base64, callback)
-		local boundary = "----EasyChat" .. util.CRC(tostring(SysTime()) .. tostring(math.random()))
+	function EasyChat.UploadImage(img_base64, callback)
+		if not current_key then
+			on_upload_failure("no upload key received from the server yet")
+			callback(nil)
+			return
+		end
 
-		local body = table.concat({
-			"--", boundary, "\r\n",
-			'Content-Disposition: form-data; name="image"', "\r\n",
-			"\r\n",
-			img_base64, "\r\n",
-			"--", boundary, "\r\n",
-			'Content-Disposition: form-data; name="ttl"', "\r\n",
-			"\r\n",
-			"1", "\r\n",
-			"--", boundary, "--", "\r\n"
-		})
+		local data = util.Base64Decode(string.gsub(img_base64, "^data:[^,]*,", ""))
+
+		if not data or data == "" then
+			on_upload_failure("could not decode the image")
+			callback(nil)
+			return
+		end
+
+		if #data > 5242880 then
+			on_upload_failure(string.format("image is too large (%s, max %s)", string.NiceSize(#data), string.NiceSize(5242880)))
+			callback(nil)
+			return
+		end
+
+		local content_type
+
+		if string.sub(data, 1, 8) == "\137PNG\r\n\26\n" then
+			content_type = "image/png"
+		elseif string.sub(data, 1, 3) == "\255\216\255" then
+			content_type = "image/jpeg"
+		else
+			on_upload_failure("unsupported image format (only png and jpg)")
+			callback(nil)
+			return
+		end
 
 		HTTP({
 			failed = function(...)
-				callback(on_imgur_failure(...))
+				callback(on_upload_failure(...))
 			end,
 			success = function(...)
-				callback(on_imgur_success(...))
+				callback(on_upload_success(...))
 			end,
 			method = "POST",
-			url = "https://api.imageban.ru/v1",
-			body = body,
-			type = "multipart/form-data; boundary=" .. boundary,
-			headers = {["Authorization"] = "Bearer fmnE5V1LQp7ywoeDJfr7GYAyKYMtkWdGQDv"}
+			url = "https://classic-box.org/img/upload",
+			body = data,
+			type = content_type,
+			headers = {["X-Key"] = current_key}
 		})
 
-		EasyChat.Print(string.format("sent picture (%s) to imageban", string.NiceSize(#img_base64)))
+		EasyChat.Print(string.format("sent picture (%s) to the image storage", string.NiceSize(#data)))
 	end
 
 	local emote_lookup_tables = {}
@@ -2174,7 +2244,7 @@ if CLIENT then
 			self:SetText(string.format("%s%s%s", str_start, UPLOADING_TEXT, str_end))
 			uploading = true
 
-			EasyChat.UploadToImgur(base64, function(url)
+			EasyChat.UploadImage(base64, function(url)
 				if not url then
 					local cur_text = EasyChat.ExtendedStringTrim(self:GetText())
 					if string.match(cur_text, UPLOADING_TEXT) then

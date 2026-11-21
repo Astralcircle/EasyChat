@@ -251,13 +251,13 @@ if SERVER then
 	net.Receive(NET_SET_TYPING, function(_, ply)
 		local is_opened = net.ReadBool()
 
-		if ply.SetCBBool then
+		if ply.SetCBVar then
 			-- Reset to nil if fully disabling EasyChat
 			if net.ReadBool() and not is_opened then
 				is_opened = nil
 			end
 
-			ply:SetCBBool("ec_is_typing", is_opened)
+			ply:SetCBVar("ec_is_typing", is_opened)
 		else
 			ply:SetNWBool("ec_is_typing", is_opened)
 		end

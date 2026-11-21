@@ -656,9 +656,9 @@ end
 local old_IsTyping = PLY.old_IsTyping or PLY.IsTyping
 PLY.old_IsTyping = old_IsTyping
 
-if PLY.GetCBBool then
+if PLY.GetCBVar then
 	function PLY:IsTyping()
-		local is_typing = PLY.GetCBBool(self, "ec_is_typing")
+		local is_typing = PLY.GetCBVar(self, "ec_is_typing")
 
 		if is_typing == nil then
 			return old_IsTyping(self)

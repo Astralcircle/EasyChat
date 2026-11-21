@@ -661,7 +661,7 @@ if PLY.GetCBBool then
 		local is_typing = PLY.GetCBBool(self, "ec_is_typing")
 
 		if is_typing == nil then
-			is_typing = old_IsTyping(self)
+			return old_IsTyping(self)
 		end
 
 		return is_typing

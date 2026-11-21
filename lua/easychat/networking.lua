@@ -658,7 +658,7 @@ PLY.old_IsTyping = old_IsTyping
 
 if PLY.GetCBBool then
 	function PLY:IsTyping()
-		return PLY.GetCBBool(self, "ec_is_typing") or old_IsTyping(self)
+		return PLY.GetCBBool(self, "ec_is_typing", old_IsTyping(self))
 	end
 else
 	function PLY:IsTyping()

@@ -252,7 +252,12 @@ if SERVER then
 		local is_opened = net.ReadBool()
 
 		if ply.SetCBBool then
-			ply:SetCBBool("ec_is_typing", is_opened or nil)
+			-- Reset to nil if fully disabling EasyChat
+			if net.ReadBool() and not is_opened then
+				is_opened = nil
+			end
+
+			ply:SetCBBool("ec_is_typing", is_opened)
 		else
 			ply:SetNWBool("ec_is_typing", is_opened)
 		end
@@ -427,6 +432,7 @@ if CLIENT then
 			EasyChat.Destroy()
 			net.Start(NET_SET_TYPING)
 			net.WriteBool(false)
+			net.WriteBool(true)
 			net.SendToServer()
 		end
 	end)
@@ -671,6 +677,7 @@ if CLIENT then
 
 		net.Start(NET_SET_TYPING)
 		net.WriteBool(true)
+		net.WriteBool(false)
 		net.SendToServer()
 
 		return true
@@ -760,6 +767,7 @@ if CLIENT then
 		safe_hook_run("ECClosed", LocalPlayer())
 
 		net.Start(NET_SET_TYPING)
+		net.WriteBool(false)
 		net.WriteBool(false)
 		net.SendToServer()
 	end
